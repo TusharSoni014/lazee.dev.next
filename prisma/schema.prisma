@@ -40,6 +40,37 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+
+  // Profile fields
+  firstName  String?
+  middleName String?
+  lastName   String?
+
+  membership Membership @default(FREE)
+  credits    Int        @default(200)
+
+  resumeUrl String?
+
+  countryCode String?
+  phoneNumber String?
+  country     String?
+
+  noticePeriod Int? // In days
+
+  // Socials
+  linkedin  String?
+  twitter   String?
+  github    String?
+  portfolio String?
+
+  // CTC
+  currency   String?
+  currentCtc Float?
+}
+
+enum Membership {
+  FREE
+  PRO
 }
 
 model VerificationToken {

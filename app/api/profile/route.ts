@@ -1,43 +1,68 @@
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
-// CORS headers for extension requests
+// CORS headers
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*", // In production, restrict to your extension origin
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Access-Control-Allow-Credentials": "true",
 };
 
-// Handle preflight requests
 export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await auth();
-
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         { error: "Not authenticated" },
         { status: 401, headers: corsHeaders },
       );
     }
 
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404, headers: corsHeaders },
+      );
+    }
+
+    // Return all user details
     return NextResponse.json(
       {
-        id: (session.user as { id?: string }).id || null,
-        name: session.user.name || null,
-        email: session.user.email || null,
-        image: session.user.image || null,
+        firstName: user.firstName,
+        middleName: user.middleName,
+        lastName: user.lastName,
+        email: user.email,
+        membership: user.membership,
+        credits: user.credits,
+        resumeUrl: user.resumeUrl,
+        countryCode: user.countryCode,
+        phoneNumber: user.phoneNumber,
+        country: user.country,
+        noticePeriod: user.noticePeriod,
+        linkedin: user.linkedin,
+        twitter: user.twitter,
+        github: user.github,
+        portfolio: user.portfolio,
+        currency: user.currency,
+        currentCtc: user.currentCtc,
+        image: user.image || "/placeholder.jpg",
       },
       { headers: corsHeaders },
     );
   } catch (error) {
-    console.error("Error fetching profile:", error);
+    console.error("Profile API Error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch profile" },
+      { error: "Internal server error" },
       { status: 500, headers: corsHeaders },
     );
   }

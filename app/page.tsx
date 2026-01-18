@@ -1,5 +1,6 @@
+"use client";
+
 import Image from "next/image";
-import AuthButton from "@/components/AuthButton";
 
 export default function Home() {
   return (
@@ -33,7 +34,6 @@ export default function Home() {
           </p>
 
           <div className="mt-8 flex flex-col items-center gap-6 sm:flex-row">
-            <AuthButton />
             <button className="group relative rounded-full bg-slate-900 px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-slate-700 hover:shadow-lg dark:bg-white dark:text-black dark:hover:bg-slate-200">
               <span className="relative z-10">Add to Chrome</span>
               <div className="absolute inset-0 -z-10 rounded-full bg-linear-to-r from-purple-600 to-pink-600 opacity-0 transition-opacity blur-md group-hover:opacity-50" />
@@ -104,16 +104,16 @@ export default function Home() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
             </div>
             <h3 className="mb-2 text-xl font-bold text-slate-900 dark:text-white">
-              Free Forever*
+              One Membership
             </h3>
             <p className="text-slate-500 dark:text-slate-400">
-              Get started for free. No credit card required. Upgrade only when
-              you land that dream job.
+              One resume details for all your job forms. Stop repetitive data
+              entry forever.
             </p>
           </div>
         </div>

@@ -1,38 +1,44 @@
 "use client";
 
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 export default function AuthButton() {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
     return (
-      <div className="h-10 w-24 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800" />
+      <div className="h-8 w-8 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800" />
     );
   }
 
   if (session) {
     return (
-      <div className="flex items-center gap-4">
-        <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-          {session.user?.email}
-        </span>
-        <button
-          onClick={() => signOut()}
-          className="flex h-10 items-center justify-center rounded-full bg-zinc-100 px-6 text-sm font-semibold text-zinc-900 transition-all hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
-        >
-          Sign Out
-        </button>
-      </div>
+      <Link
+        href="/profile"
+        className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-white/10 transition-all hover:ring-purple-500"
+      >
+        {session.user?.image ? (
+          <Image
+            src={session.user.image}
+            alt={session.user.name || "User"}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-linear-to-r from-purple-600 to-pink-600 text-xs font-bold text-white">
+            {session.user?.email?.[0]?.toUpperCase() || "U"}
+          </div>
+        )}
+      </Link>
     );
   }
 
   return (
-    <button
-      onClick={() => signIn("google")}
-      className="flex h-12 items-center justify-center gap-2 rounded-full bg-black px-8 text-sm font-semibold text-white transition-all hover:bg-zinc-800 hover:scale-[1.02] active:scale-[0.98] dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-    >
-      Sign In with Google
-    </button>
+    <Button onClick={() => signIn("google")} className="rounded-full">
+      Log in
+    </Button>
   );
 }
