@@ -108,7 +108,7 @@ export default function ProfileForm({ user }: { user: any }) {
             </span>
             <span className="text-sm text-zinc-500">available</span>
           </div>
-          <p className="mt-4 text-xs text-zinc-500">5 credits per AI fill</p>
+          <p className="mt-4 text-xs text-zinc-500">2 credits per AI fill</p>
         </motion.div>
       </div>
 

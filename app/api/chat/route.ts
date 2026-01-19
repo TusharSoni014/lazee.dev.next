@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       select: { credits: true, membership: true },
     });
 
-    if (!user || user.credits < 5) {
+    if (!user || user.credits < 2) {
       return NextResponse.json(
         {
           error:
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
       where: { email: session.user.email },
       data: {
         credits: {
-          decrement: 5,
+          decrement: 2,
         },
       },
     });
