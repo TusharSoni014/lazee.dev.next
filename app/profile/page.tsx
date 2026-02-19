@@ -20,23 +20,37 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl py-12 px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
-          Profile
-        </h1>
-        <p className="text-zinc-400">
-          Manage your account settings and profile information.
-        </p>
-      </div>
+    <div className="relative min-h-screen bg-[#fefaf6] selection:bg-orange-500 selection:text-white pb-20">
+      {/* Background Pattern */}
+      <div
+        className="fixed inset-0 z-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `radial-gradient(#000 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+        }}
+      />
 
-      <ProfileForm user={user} />
+      <div className="relative z-10 container mx-auto max-w-5xl px-4 py-12 md:py-20">
+        <div className="mb-12 flex flex-col items-center text-center">
+          <h1 className="text-4xl font-black tracking-tighter text-black sm:text-6xl font-heading uppercase italic">
+            Your{" "}
+            <span className="text-orange-500 underline decoration-[3px] underline-offset-4">
+              Profile
+            </span>
+          </h1>
+          <p className="mt-4 max-w-lg text-lg font-bold text-zinc-700 uppercase tracking-tight">
+            Manage your account settings, membership, and personal details.
+          </p>
+        </div>
 
-      <div className="border-t border-zinc-200 mt-12 pt-8 dark:border-zinc-800">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-          Account Actions
-        </h2>
-        <SignOutButton />
+        <ProfileForm user={user} />
+
+        <div className="mt-16 flex flex-col items-center border-t-[3px] border-black pt-8">
+          <h2 className="mb-6 text-2xl font-black uppercase tracking-tighter text-black font-heading">
+            Account Actions
+          </h2>
+          <SignOutButton />
+        </div>
       </div>
     </div>
   );
