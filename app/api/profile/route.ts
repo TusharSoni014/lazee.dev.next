@@ -3,15 +3,26 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 // CORS headers
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Allow-Credentials": "true",
-};
+// Helper to get CORS headers
+function getCorsHeaders(origin: string | null) {
+  // Allow extension, localhost, and production domain
+  const isValidOrigin =
+    origin &&
+    (origin.startsWith("chrome-extension://") ||
+      origin.includes("localhost") ||
+      origin.includes("lazee.dev"));
 
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+  return {
+    "Access-Control-Allow-Origin": isValidOrigin ? origin : "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Credentials": "true",
+  };
+}
+
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get("origin");
+  return NextResponse.json({}, { headers: getCorsHeaders(origin) });
 }
 
 export async function GET(request: NextRequest) {
@@ -20,7 +31,7 @@ export async function GET(request: NextRequest) {
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: "Not authenticated" },
-        { status: 401, headers: corsHeaders },
+        { status: 401, headers: getCorsHeaders(request.headers.get("origin")) },
       );
     }
 
@@ -31,13 +42,22 @@ export async function GET(request: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { error: "User not found" },
-        { status: 404, headers: corsHeaders },
+        { status: 404, headers: getCorsHeaders(request.headers.get("origin")) },
       );
     }
+
+    // Construct full name if missing
+    const fullName =
+      user.name ||
+      [user.firstName, user.middleName, user.lastName]
+        .filter(Boolean)
+        .join(" ");
 
     // Return all user details
     return NextResponse.json(
       {
+        id: user.id,
+        name: fullName,
         firstName: user.firstName,
         middleName: user.middleName,
         lastName: user.lastName,
@@ -55,15 +75,15 @@ export async function GET(request: NextRequest) {
         portfolio: user.portfolio,
         currency: user.currency,
         currentCtc: user.currentCtc,
-        image: user.image || "/placeholder.jpg",
+        image: user.image || `${request.nextUrl.origin}/placeholder.jpg`,
       },
-      { headers: corsHeaders },
+      { headers: getCorsHeaders(request.headers.get("origin")) },
     );
   } catch (error) {
     console.error("Profile API Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500, headers: corsHeaders },
+      { status: 500, headers: getCorsHeaders(request.headers.get("origin")) },
     );
   }
 }

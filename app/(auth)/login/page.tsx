@@ -22,9 +22,6 @@ export default function LoginPage() {
         <div className="h-12 w-12 bg-orange-500 border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center transform -rotate-3 hover:rotate-0 transition-transform duration-300">
           <span className="text-white font-black text-2xl">L</span>
         </div>
-        <h1 className="text-4xl font-black tracking-tight text-black font-heading uppercase italic">
-          Sign In
-        </h1>
         <p className="text-zinc-600 font-medium max-w-[280px] text-center">
           Jump back into the fastest application workflow.
         </p>
