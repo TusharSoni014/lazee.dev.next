@@ -45,7 +45,7 @@ export function EarlyAccessForm() {
             throw new Error(res.error);
           }
           form.reset();
-          return "Thanks! You have been added to the wishlist.";
+          return "Thanks! You have been added to the waitlist.";
         },
         error: (err) => err.message || "Failed to join waitlist.",
       });
@@ -86,7 +86,7 @@ export function EarlyAccessForm() {
           className="text-white py-6"
           disabled={isPending}
         >
-          {isPending ? "JOINING..." : "JOIN WISHLIST"}
+          {isPending ? "JOINING..." : "JOIN WAITLIST"}
         </Button>
 
         <p className="text-center text-[#4b5563] font-bold text-base sm:text-lg mt-2 flex items-center justify-center gap-2">
