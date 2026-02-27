@@ -11,15 +11,15 @@ export function HeroDemo() {
     const cycle = async () => {
       while (true) {
         setStep(0); // Initial
-        await new Promise((r) => setTimeout(r, 1000));
+        await new Promise((r) => setTimeout(r, 500));
         setStep(1); // Mouse moving in
-        await new Promise((r) => setTimeout(r, 1000));
+        await new Promise((r) => setTimeout(r, 800));
         setStep(2); // AI analyzing (button clicked)
-        await new Promise((r) => setTimeout(r, 1500));
+        await new Promise((r) => setTimeout(r, 1200));
         setStep(3); // Filling fields
-        await new Promise((r) => setTimeout(r, 3000));
+        await new Promise((r) => setTimeout(r, 2000));
         setStep(4); // Done
-        await new Promise((r) => setTimeout(r, 4000));
+        await new Promise((r) => setTimeout(r, 3000));
       }
     };
     cycle();
@@ -115,7 +115,7 @@ export function HeroDemo() {
                     <motion.span
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
+                      exit={{ opacity: 0, transition: { duration: 0.1 } }}
                       transition={{
                         delay: index * 0.1, // Stagger effect
                         duration: 0.3,
@@ -163,7 +163,7 @@ export function HeroDemo() {
                   <motion.span
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
+                    exit={{ opacity: 0, transition: { duration: 0.1 } }}
                     transition={{
                       delay: (index + 2) * 0.1, // Stagger effect after first row
                       duration: 0.3,

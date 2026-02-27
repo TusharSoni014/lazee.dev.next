@@ -27,7 +27,7 @@ export default function Home() {
               </span>
             </h1>
 
-            <p className="max-w-lg text-base font-semibold leading-relaxed text-zinc-700 sm:text-lg tracking-tight">
+            <p className="max-w-lg text-base font-semibold leading-relaxed text-zinc-700 sm:text-lg tracking-tight border-l-4 border-orange-500 pl-4">
               Lazee.dev is the browser extension that fills your job
               applications automatically with AI.
             </p>
@@ -40,26 +40,23 @@ export default function Home() {
         </div>
 
         {/* Early Access Section */}
-        <div className="flex flex-col items-center gap-6 w-full max-w-md mt-10 mb-16 animate-fade-in-up [animation-delay:400ms]">
-          <div className="flex flex-col items-center text-center gap-2">
-            <span className="text-xl sm:text-2xl font-black text-black uppercase tracking-widest bg-yellow-300 px-4 py-1 border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-2">
-              Coming soon
-            </span>
-            <p className="text-sm sm:text-base font-bold text-zinc-700 tracking-tight mt-2">
-              Follow{" "}
-              <a
-                href="https://twitter.com/tusharsoni014"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:text-blue-600 underline decoration-2 underline-offset-4"
-              >
-                @tusharsoni014
-              </a>{" "}
-              on Twitter for dev log updates.
-            </p>
+        <div className="flex flex-col items-center w-full max-w-[500px] mt-10 mb-20 animate-fade-in-up [animation-delay:400ms]">
+          <div className="w-full mb-6 mt-4">
+            <EarlyAccessForm />
           </div>
 
-          <EarlyAccessForm />
+          <p className="text-sm sm:text-base font-bold text-zinc-700 tracking-tight text-center">
+            Follow{" "}
+            <a
+              href="https://twitter.com/tusharsoni014"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-600 underline decoration-2 underline-offset-4"
+            >
+              @tusharsoni014
+            </a>{" "}
+            on Twitter for dev log updates.
+          </p>
         </div>
 
         {/* Features Section */}
