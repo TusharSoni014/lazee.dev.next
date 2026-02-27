@@ -1,69 +1,69 @@
 "use client";
 
-import Image from "next/image";
 import { EarlyAccessForm } from "@/components/early-access-form";
+import { HeroDemo } from "@/components/hero-demo";
 
 export default function Home() {
   return (
-    <div className="relative py-20 flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#fefaf6] selection:bg-orange-500 selection:text-white">
+    <div className="relative py-20 flex min-h-screen flex-col items-center overflow-hidden bg-[#fefaf6] selection:bg-orange-500 selection:text-white">
+      {/* Grid Background */}
       <div
-        className="absolute inset-0 z-0 opacity-[0.03]"
+        className="absolute inset-0 z-0 opacity-[0.1]"
         style={{
-          backgroundImage: `radial-gradient(#000 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)`,
           backgroundSize: "40px 40px",
         }}
       />
 
-      <main className="relative z-10 flex w-full max-w-5xl flex-col items-center px-4 text-center sm:px-8 pt-6">
-        <div className="mb-6 flex items-center justify-center animate-fade-in-down sm:mb-8">
-          <div className="relative h-16 w-16 overflow-hidden border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:scale-105 duration-300 rounded-full sm:h-24 sm:w-24 sm:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-            <Image
-              src="/logo.png"
-              alt="Lazee.dev logo"
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center gap-5 animate-fade-in-up sm:gap-8">
-          <h1 className="max-w-4xl text-3xl font-black tracking-tight text-black sm:text-5xl md:text-6xl font-heading italic uppercase leading-none">
-            Job Applications, <br />
-            <span className="text-orange-500 underline decoration-[3px] underline-offset-4 sm:decoration-[5px] sm:underline-offset-8">
-              100x Faster.
-            </span>
-          </h1>
-
-          <p className="max-w-xl text-sm font-bold leading-relaxed text-zinc-700 sm:text-lg uppercase tracking-tight">
-            Lazee.dev is the browser extension that fills your job applications
-            automatically with AI.
-          </p>
-
-          <div className="mt-6 flex flex-col items-center gap-6 sm:mt-10 w-full max-w-md">
-            <div className="flex flex-col items-center text-center gap-2">
-              <span className="text-xl sm:text-2xl font-black text-black uppercase tracking-widest bg-yellow-300 px-4 py-1 border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-2">
-                Coming soon
+      <main className="relative z-10 flex w-full max-w-6xl flex-col items-center px-4 sm:px-8 pt-6 lg:pt-12">
+        {/* 2-Column Hero Section */}
+        <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-24 mb-16 mt-8">
+          {/* Left Text Column */}
+          <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left gap-6 animate-fade-in-up">
+            <h1 className="max-w-xl text-4xl font-extrabold tracking-tight text-black sm:text-5xl md:text-5xl leading-[1.15]">
+              Job Applications, <br />
+              <span className="text-orange-500 underline decoration-[3px] underline-offset-4 sm:decoration-[4px] sm:underline-offset-8 text-[1.05em]">
+                100x Faster.
               </span>
-              <p className="text-sm sm:text-base font-bold text-zinc-700 tracking-tight mt-2">
-                Follow{" "}
-                <a
-                  href="https://twitter.com/tusharsoni014"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-600 underline decoration-2 underline-offset-4"
-                >
-                  @tusharsoni014
-                </a>{" "}
-                on Twitter for dev log updates.
-              </p>
-            </div>
+            </h1>
 
-            <EarlyAccessForm />
+            <p className="max-w-lg text-base font-semibold leading-relaxed text-zinc-700 sm:text-lg tracking-tight">
+              Lazee.dev is the browser extension that fills your job
+              applications automatically with AI.
+            </p>
+          </div>
+
+          {/* Right Demo Column */}
+          <div className="flex-1 w-full max-w-md lg:max-w-full flex justify-center lg:justify-end animate-fade-in-up [animation-delay:200ms]">
+            <HeroDemo />
           </div>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-6 w-full animate-fade-in-up [animation-delay:500ms] md:grid-cols-3 md:gap-8">
+        {/* Early Access Section */}
+        <div className="flex flex-col items-center gap-6 w-full max-w-md mt-10 mb-16 animate-fade-in-up [animation-delay:400ms]">
+          <div className="flex flex-col items-center text-center gap-2">
+            <span className="text-xl sm:text-2xl font-black text-black uppercase tracking-widest bg-yellow-300 px-4 py-1 border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-2">
+              Coming soon
+            </span>
+            <p className="text-sm sm:text-base font-bold text-zinc-700 tracking-tight mt-2">
+              Follow{" "}
+              <a
+                href="https://twitter.com/tusharsoni014"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-600 underline decoration-2 underline-offset-4"
+              >
+                @tusharsoni014
+              </a>{" "}
+              on Twitter for dev log updates.
+            </p>
+          </div>
+
+          <EarlyAccessForm />
+        </div>
+
+        {/* Features Section */}
+        <div className="w-full grid grid-cols-1 gap-6 animate-fade-in-up [animation-delay:600ms] md:grid-cols-3 md:gap-8">
           {[
             {
               title: "LIGHTNING FAST",
@@ -160,7 +160,7 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="text-[10px] font-black tracking-[0.2em] uppercase pt-24 text-black/40">
+      <footer className="text-[10px] font-black tracking-[0.2em] uppercase pt-24 pb-8 text-black/40">
         <p>© 2026 Lazee.dev. *TERMS AND CONDITIONS APPLY.</p>
       </footer>
     </div>
