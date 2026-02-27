@@ -19,6 +19,8 @@ import {
   Coins,
 } from "lucide-react";
 import clsx from "clsx";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const COUNTRY_CODES = [
   { code: "+1", name: "US/CA" },
@@ -81,12 +83,13 @@ export default function ProfileForm({ user }: { user: any }) {
             </span>
           </div>
           {user.membership === "FREE" && (
-            <button
+            <Button
               type="button"
-              className="w-full border-[3px] border-black bg-white px-4 py-2 text-sm font-black uppercase tracking-widest text-black hover:bg-zinc-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all"
+              variant="outline"
+              className="w-full tracking-widest"
             >
               Upgrade to Pro
-            </button>
+            </Button>
           )}
         </motion.div>
 
@@ -126,19 +129,19 @@ export default function ProfileForm({ user }: { user: any }) {
       {/* Personal Info */}
       <Section title="Personal Information" icon={UserIcon} delay={0.2}>
         <div className="grid gap-6 md:grid-cols-3">
-          <Input
+          <ProfileInput
             label="First Name"
             name="firstName"
             defaultValue={user.firstName}
             placeholder="John"
           />
-          <Input
+          <ProfileInput
             label="Middle Name"
             name="middleName"
             defaultValue={user.middleName}
             placeholder=""
           />
-          <Input
+          <ProfileInput
             label="Last Name"
             name="lastName"
             defaultValue={user.lastName}
@@ -178,15 +181,15 @@ export default function ProfileForm({ user }: { user: any }) {
                   </svg>
                 </div>
               </div>
-              <input
+              <Input
                 name="phoneNumber"
                 defaultValue={user.phoneNumber}
                 placeholder="1234567890"
-                className="h-[50px] flex-1 rounded-none border-[3px] border-black bg-white px-4 py-2 text-sm font-bold text-black placeholder:text-zinc-400 focus:outline-none focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                className="h-[50px] flex-1"
               />
             </div>
           </div>
-          <Input
+          <ProfileInput
             label="Country"
             name="country"
             defaultValue={user.country}
@@ -229,17 +232,17 @@ export default function ProfileForm({ user }: { user: any }) {
                   </svg>
                 </div>
               </div>
-              <input
+              <Input
                 name="currentCtc"
                 type="number"
                 step="0.01"
                 defaultValue={user.currentCtc}
                 placeholder="100000"
-                className="h-[50px] flex-1 rounded-none border-[3px] border-black bg-white px-4 py-2 text-sm font-bold text-black placeholder:text-zinc-400 focus:outline-none focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                className="h-[50px] flex-1"
               />
             </div>
           </div>
-          <Input
+          <ProfileInput
             label="Notice Period (Days)"
             name="noticePeriod"
             type="number"
@@ -248,7 +251,7 @@ export default function ProfileForm({ user }: { user: any }) {
           />
         </div>
         <div className="mt-6">
-          <Input
+          <ProfileInput
             label="Resume URL"
             name="resumeUrl"
             defaultValue={user.resumeUrl}
@@ -261,28 +264,28 @@ export default function ProfileForm({ user }: { user: any }) {
       {/* Socials */}
       <Section title="Social Links" icon={Globe} delay={0.4}>
         <div className="grid gap-6 md:grid-cols-2">
-          <Input
+          <ProfileInput
             label="LinkedIn"
             name="linkedin"
             defaultValue={user.linkedin}
             placeholder="https://linkedin.com/in/..."
             icon={Linkedin}
           />
-          <Input
+          <ProfileInput
             label="GitHub"
             name="github"
             defaultValue={user.github}
             placeholder="https://github.com/..."
             icon={Github}
           />
-          <Input
+          <ProfileInput
             label="Twitter"
             name="twitter"
             defaultValue={user.twitter}
             placeholder="https://twitter.com/..."
             icon={Twitter}
           />
-          <Input
+          <ProfileInput
             label="Portfolio"
             name="portfolio"
             defaultValue={user.portfolio}
@@ -298,15 +301,10 @@ export default function ProfileForm({ user }: { user: any }) {
         transition={{ delay: 0.5 }}
         className="flex justify-end pt-8"
       >
-        <button
+        <Button
           type="submit"
           disabled={loading}
-          className={clsx(
-            "flex items-center gap-3 border-[3px] border-black px-8 py-4 text-sm font-black uppercase tracking-widest text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px]",
-            loading
-              ? "bg-zinc-400 cursor-not-allowed"
-              : "bg-orange-500 hover:bg-orange-600",
-          )}
+          className="px-8 py-6 tracking-widest"
         >
           {loading ? (
             <>
@@ -319,7 +317,7 @@ export default function ProfileForm({ user }: { user: any }) {
               Save Changes
             </>
           )}
-        </button>
+        </Button>
       </motion.div>
     </form>
   );
@@ -364,16 +362,13 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Input({ label, icon: Icon, className, ...props }: any) {
+function ProfileInput({ label, icon: Icon, className, ...props }: any) {
   return (
     <div className={className}>
       <Label>{label}</Label>
       <div className="relative">
-        <input
-          className={clsx(
-            "h-[50px] w-full rounded-none border-[3px] border-black bg-white px-4 py-2 text-sm font-bold text-black placeholder:text-zinc-400 focus:border-black focus:outline-none focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-            Icon && "pl-12",
-          )}
+        <Input
+          className={clsx("h-[50px] w-full", Icon && "pl-12")}
           {...props}
         />
         {Icon && (

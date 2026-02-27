@@ -92,14 +92,12 @@ export default function AuthForm() {
                 >
                   <Button
                     variant="outline"
-                    className="group relative h-14 w-full border-[3px] border-black bg-white text-black hover:bg-zinc-100 transition-all duration-200 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+                    className="group relative h-14 w-full"
                     onClick={handleGoogleLogin}
                     disabled={isLoading}
                   >
                     <Chrome className="mr-3 h-5 w-5" />
-                    <span className="font-black text-sm uppercase tracking-tight">
-                      Continue with Google
-                    </span>
+                    <span>Continue with Google</span>
                   </Button>
 
                   <div className="relative flex items-center justify-center">
@@ -120,13 +118,13 @@ export default function AuthForm() {
                         autoCorrect="off"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="h-14 border-[3px] border-black bg-white px-6 text-black placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-orange-500 transition-colors rounded-none font-black text-sm uppercase"
+                        className="h-14 uppercase"
                         disabled={isLoading}
                       />
                     </div>
 
                     <Button
-                      className="h-14 w-full bg-orange-500 text-white font-black hover:bg-orange-600 active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all duration-200 rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase tracking-tight text-sm group"
+                      className="h-14 w-full group"
                       type="submit"
                       disabled={isLoading}
                     >

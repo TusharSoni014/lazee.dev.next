@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -69,7 +70,7 @@ export function EarlyAccessForm() {
               <FormControl>
                 <Input
                   placeholder="Enter your email..."
-                  className="w-full border-2 border-black bg-zinc-50 px-4 py-3 text-sm font-bold text-black placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-0 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-auto"
+                  className="h-auto py-3 bg-zinc-50"
                   {...field}
                 />
               </FormControl>
@@ -78,13 +79,13 @@ export function EarlyAccessForm() {
           )}
         />
 
-        <button
+        <Button
           type="submit"
           disabled={isPending}
-          className="w-full border-2 border-black bg-orange-500 px-4 py-3 text-sm font-black text-white hover:bg-orange-600 active:translate-x-[2px] active:translate-y-[2px] transition-all uppercase tracking-widest rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+          className="w-full py-3 h-auto mt-1 tracking-widest"
         >
           {isPending ? "Joining..." : "Join Wishlist"}
-        </button>
+        </Button>
       </form>
     </Form>
   );
