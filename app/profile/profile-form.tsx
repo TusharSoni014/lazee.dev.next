@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { updateProfile } from "./actions";
+import { toast } from "@/components/ui/toast";
 import {
   Loader2,
   Save,
@@ -34,19 +35,18 @@ const CURRENCIES = ["USD", "EUR", "GBP", "INR", "AUD", "CAD", "JPY"];
 
 export default function ProfileForm({ user }: { user: any }) {
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(formData: FormData) {
     setLoading(true);
-    setSuccess(false);
 
     const data = Object.fromEntries(formData);
     const result = await updateProfile(data);
 
     setLoading(false);
     if (result.success) {
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
+      toast.success("Profile updated successfully!");
+    } else {
+      toast.error("Failed to update profile.");
     }
   }
 
@@ -321,16 +321,6 @@ export default function ProfileForm({ user }: { user: any }) {
           )}
         </button>
       </motion.div>
-
-      {success && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="fixed bottom-8 right-8 z-50 border-[3px] border-black bg-green-400 px-6 py-4 text-black font-bold uppercase tracking-tight shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-        >
-          Profile updated successfully!
-        </motion.div>
-      )}
     </form>
   );
 }

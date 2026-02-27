@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { EarlyAccessForm } from "@/components/early-access-form";
 
 export default function Home() {
   return (
@@ -39,10 +40,26 @@ export default function Home() {
             automatically with AI.
           </p>
 
-          <div className="mt-6 flex flex-col items-center gap-4 sm:mt-10 sm:gap-6 sm:flex-row">
-            <button className="group relative border-[3px] border-black bg-orange-500 px-6 py-3 text-sm font-black text-white hover:bg-orange-600 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[3px] active:translate-y-[3px] transition-all duration-200 uppercase tracking-widest rounded-none sm:px-8 sm:py-4 sm:text-base sm:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]">
-              <span className="relative z-10">Add to Chrome</span>
-            </button>
+          <div className="mt-6 flex flex-col items-center gap-6 sm:mt-10 w-full max-w-md">
+            <div className="flex flex-col items-center text-center gap-2">
+              <span className="text-xl sm:text-2xl font-black text-black uppercase tracking-widest bg-yellow-300 px-4 py-1 border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-2">
+                Coming soon
+              </span>
+              <p className="text-sm sm:text-base font-bold text-zinc-700 tracking-tight mt-2">
+                Follow{" "}
+                <a
+                  href="https://twitter.com/tusharsoni014"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:text-blue-600 underline decoration-2 underline-offset-4"
+                >
+                  @tusharsoni014
+                </a>{" "}
+                on Twitter for dev log updates.
+              </p>
+            </div>
+
+            <EarlyAccessForm />
           </div>
         </div>
 

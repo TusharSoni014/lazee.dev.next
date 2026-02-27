@@ -5,6 +5,7 @@ import SessionProvider from "@/components/providers/SessionProvider";
 import { ExtensionAuthSync } from "@/components/ExtensionAuthSync";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toast";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -37,6 +38,7 @@ export default function RootLayout({
             </main>
             <ExtensionAuthSync />
           </SessionProvider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
