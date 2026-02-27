@@ -2,6 +2,8 @@
 
 import { EarlyAccessForm } from "@/components/early-access-form";
 import { HeroDemo } from "@/components/hero-demo";
+import { PricingSection } from "@/components/pricing-section";
+import { ArrowRight, Globe, Lock, Wand2 } from "lucide-react";
 
 export default function Home() {
   return (
@@ -60,101 +62,120 @@ export default function Home() {
         </div>
 
         {/* Features Section */}
-        <div className="w-full grid grid-cols-1 gap-6 animate-fade-in-up [animation-delay:600ms] md:grid-cols-3 md:gap-8">
-          {[
-            {
-              title: "LIGHTNING FAST",
-              desc: "Fill complex forms in seconds. Lazee.dev detects fields and autofills them intelligently.",
-              bg: "bg-blue-400",
-              icon: (
-                <svg
-                  className="w-6 h-6 sm:w-8 sm:h-8 text-black"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                >
-                  <path
-                    strokeLinecap="square"
-                    strokeLinejoin="miter"
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              ),
-            },
-            {
-              title: "AI POWERED",
-              desc: "Generates custom cover letters and answers specific questions based on your resume.",
-              bg: "bg-yellow-400",
-              icon: (
-                <svg
-                  className="w-6 h-6 sm:w-8 sm:h-8 text-black"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                >
-                  <path
-                    strokeLinecap="square"
-                    strokeLinejoin="miter"
-                    d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                  />
-                </svg>
-              ),
-            },
-            {
-              title: "ONE MEMBERSHIP",
-              desc: "One resume details for all your job forms. Stop repetitive data entry forever.",
-              bg: "bg-pink-400",
-              icon: (
-                <svg
-                  className="w-6 h-6 sm:w-8 sm:h-8 text-black"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                >
-                  <path
-                    strokeLinecap="square"
-                    strokeLinejoin="miter"
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-              ),
-            },
-          ].map((feature, i) => (
-            <div
-              key={i}
-              className={`group relative flex flex-col items-center text-center h-full border-[3px] border-black ${feature.bg} p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:scale-[1.02] sm:p-8 sm:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] sm:hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]`}
-            >
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full border-[3px] border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                {feature.icon}
-              </div>
-              <h3 className="mb-3 text-lg font-black text-black font-heading leading-none sm:text-xl uppercase tracking-tighter w-full break-words">
-                {feature.title}
-              </h3>
-              <p className="text-black font-bold text-xs leading-relaxed tracking-tight sm:text-sm max-w-[250px]">
-                {feature.desc}
-              </p>
+        <div className="flex flex-col items-center w-full max-w-[1400px] mx-auto animate-fade-in-up [animation-delay:600ms]">
+          <div className="w-full mb-16 text-center max-w-4xl mx-auto">
+            <div className="inline-block bg-[#ff80ab] border-[3px] border-black px-4 py-1 mb-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transform -rotate-2">
+              <h2 className="text-black text-lg font-bold uppercase tracking-wide">
+                Why You Need This Tool
+              </h2>
+            </div>
+            <h2 className="text-black text-4xl md:text-5xl lg:text-7xl font-black leading-tight mb-6 uppercase">
+              Powerful Features
+              <br />
+              Zero Bullshit.
+            </h2>
+            <p className="text-black text-xl md:text-2xl font-medium max-w-2xl mx-auto leading-relaxed border-l-4 border-black pl-6 text-left md:text-center md:border-none md:pl-0 bg-white/50 p-2 md:bg-transparent tracking-tight">
+              Our extension is packed with tools designed to make your job
+              application process faster, safer, and essentially automated.
+            </p>
+          </div>
 
-              <div className="mt-auto pt-6 opacity-0 transform translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
-                <svg
-                  className="w-6 h-6 text-black"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="3"
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full mb-20">
+            {/* Feature 1 */}
+            <div className="flex flex-col h-full bg-[#ff6b00] border-[3px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-8 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 group">
+              <div className="flex justify-between items-start mb-6">
+                <div className="size-16 bg-white border-[3px] border-black flex items-center justify-center rounded-full shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-none transition-all">
+                  <Wand2 className="text-black w-8 h-8" />
+                </div>
+                <span className="text-5xl font-black text-black/10 select-none">
+                  01
+                </span>
+              </div>
+              <h3 className="text-black text-2xl font-black mb-4 uppercase">
+                Smart Auto-fill
+              </h3>
+              <p className="text-black text-lg font-medium leading-snug flex-grow">
+                Automatically detects and fills job application forms with your
+                saved data using advanced AI algorithms. Say goodbye to
+                repetitive typing.
+              </p>
+              <div className="mt-6 pt-4 border-t-[3px] border-black w-full">
+                <a
+                  className="inline-flex items-center gap-2 font-bold hover:underline decoration-2 text-black"
+                  href="#"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                  />
-                </svg>
+                  Learn more <ArrowRight className="w-5 h-5" />
+                </a>
               </div>
             </div>
-          ))}
+
+            {/* Feature 2 */}
+            <div className="flex flex-col h-full bg-[#ffeb3b] border-[3px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-8 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 group">
+              <div className="flex justify-between items-start mb-6">
+                <div className="size-16 bg-white border-[3px] border-black flex items-center justify-center rounded-full shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-none transition-all">
+                  <Lock className="text-black w-8 h-8" />
+                </div>
+                <span className="text-5xl font-black text-black/10 select-none">
+                  02
+                </span>
+              </div>
+              <h3 className="text-black text-2xl font-black mb-4 uppercase">
+                Privacy First
+              </h3>
+              <p className="text-black text-lg font-medium leading-snug flex-grow">
+                Your data never leaves your device. We prioritize your privacy
+                and security above everything else. Local storage only, always
+                encrypted.
+              </p>
+              <div className="mt-6 pt-4 border-t-[3px] border-black w-full">
+                <a
+                  className="inline-flex items-center gap-2 font-bold hover:underline decoration-2 text-black"
+                  href="#"
+                >
+                  Read security policy <ArrowRight className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="flex flex-col h-full bg-[#00bcd4] border-[3px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-8 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 group">
+              <div className="flex justify-between items-start mb-6">
+                <div className="size-16 bg-white border-[3px] border-black flex items-center justify-center rounded-full shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-none transition-all">
+                  <Globe className="text-black w-8 h-8" />
+                </div>
+                <span className="text-5xl font-black text-black/10 select-none">
+                  03
+                </span>
+              </div>
+              <h3 className="text-black text-2xl font-black mb-4 uppercase">
+                Multi-site Support
+              </h3>
+              <p className="text-black text-lg font-medium leading-snug flex-grow">
+                Works seamlessly across all major job boards and company career
+                pages worldwide.
+              </p>
+              <div className="mt-4 mb-2 bg-white border-[3px] border-black p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transform -rotate-1">
+                <p className="text-sm font-bold uppercase mb-2 border-b-2 border-black pb-1 text-black">
+                  Supported on:
+                </p>
+                <div className="text-black text-xs font-bold text-center mt-1">
+                  Chrome, Firefox, Safari
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t-[3px] border-black w-full">
+                <a
+                  className="inline-flex items-center gap-2 font-bold hover:underline decoration-2 text-black"
+                  href="#"
+                >
+                  View supported sites <ArrowRight className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Pricing Section */}
+        <PricingSection />
       </main>
 
       <footer className="text-[10px] font-black tracking-[0.2em] uppercase pt-24 pb-8 text-black/40">
