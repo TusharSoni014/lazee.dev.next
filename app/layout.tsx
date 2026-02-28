@@ -6,6 +6,7 @@ import { ExtensionAuthSync } from "@/components/ExtensionAuthSync";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toast";
+import { Footer } from "@/components/footer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -28,14 +29,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${outfit.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning className="scroll-smooth">
+      <body
+        className={`${inter.variable} ${outfit.variable} antialiased flex flex-col min-h-screen`}
+      >
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <SessionProvider>
             <SiteHeader />
-            <main className="pt-16 min-h-screen bg-[#fefaf6] text-black transition-colors duration-500">
+            <main className="pt-16 grow bg-[#fefaf6] text-black transition-colors duration-500">
               {children}
             </main>
+            <Footer />
             <ExtensionAuthSync />
           </SessionProvider>
           <Toaster />

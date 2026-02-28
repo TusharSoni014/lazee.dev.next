@@ -1,45 +1,36 @@
 import AuthForm from "@/components/AuthForm";
+import { Bolt } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#fefaf6] px-6 py-12 selection:bg-orange-500 selection:text-white">
-      {/* Decorative Grid Pattern */}
-      <div
-        className="absolute inset-0 z-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `radial-gradient(#000 1px, transparent 1px)`,
-          backgroundSize: "30px 30px",
-        }}
-      />
-
-      {/* Dynamic Retro Shapes */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
-        <div className="absolute top-[10%] left-[5%] w-[300px] h-[300px] rounded-full border-[3px] border-orange-500/20 rotate-12" />
-        <div className="absolute bottom-[15%] right-[5%] w-[250px] h-[250px] border-[3px] border-blue-500/20 -rotate-12" />
-      </div>
-
-      <div className="relative z-10 mb-10 flex flex-col items-center gap-4">
-        <div className="h-12 w-12 bg-orange-500 border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center transform -rotate-3 hover:rotate-0 transition-transform duration-300">
-          <span className="text-white font-black text-2xl">L</span>
+    <div className="flex flex-1 w-full min-h-[calc(100vh-4rem)]">
+      {/* Left Side */}
+      <div className="hidden lg:flex flex-col w-1/2 bg-[#f26c0d] items-start justify-center p-12 xl:p-20 relative overflow-hidden border-r-4 border-[#1c130d]">
+        <div className="z-10 flex flex-col gap-6 max-w-xl">
+          <h1 className="text-[#1c130d] text-7xl xl:text-8xl font-black leading-[0.9] tracking-tighter uppercase drop-shadow-sm font-heading">
+            Welcome
+            <br />
+            Back
+          </h1>
+          <p className="text-[#1c130d] text-xl font-medium max-w-md border-l-4 border-[#1c130d] pl-4">
+            The AI job filling platform that does the work so you don't have to.
+          </p>
         </div>
-        <p className="text-zinc-600 font-medium max-w-[280px] text-center">
-          Jump back into the fastest application workflow.
-        </p>
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
-        <AuthForm />
-      </div>
+      {/* Right Side */}
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-[#f8f7f5] dark:bg-[#221710] p-6 sm:p-12 md:p-20 relative">
+        <div className="lg:hidden absolute top-6 left-6 flex items-center gap-2">
+          <div className="w-8 h-8 bg-[#f26c0d] flex items-center justify-center border-2 border-black">
+            <Bolt className="text-[#1c130d]" size={20} />
+          </div>
+          <span className="text-[#1c130d] dark:text-white text-xl font-bold tracking-tighter">
+            Lazee.dev
+          </span>
+        </div>
 
-      <div className="relative z-10 mt-16 text-center">
-        <p className="text-[10px] text-black/40 font-black tracking-[0.2em] uppercase mb-8">
-          Accelerating engineers at
-        </p>
-        <div className="flex flex-wrap justify-center gap-10 opacity-30 grayscale contrast-125">
-          <span className="text-lg font-black font-heading">GOOGLE</span>
-          <span className="text-lg font-black font-heading">META</span>
-          <span className="text-lg font-black font-heading">STRIPE</span>
-          <span className="text-lg font-black font-heading">VERCEL</span>
+        <div className="w-full max-w-md">
+          <AuthForm />
         </div>
       </div>
     </div>

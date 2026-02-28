@@ -17,6 +17,8 @@ const buttonVariants = cva(
           "border-[3px] border-black bg-white text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none",
         secondary:
           "bg-blue-400 text-black border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none",
+        black:
+          "border-[3px] border-black bg-black text-white shadow-[4px_4px_0px_0px_rgba(249,115,22,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(249,115,22,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none",
         ghost: "hover:bg-zinc-100 border-[3px] border-transparent",
         link: "text-black underline-offset-4 hover:underline",
       },

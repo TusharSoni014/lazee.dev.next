@@ -84,7 +84,7 @@ export function EarlyAccessForm() {
           type="submit"
           variant="default"
           className="text-white py-6"
-          disabled={isPending}
+          disabled={isPending || !form.formState.isValid}
         >
           {isPending ? "JOINING..." : "JOIN WAITLIST"}
         </Button>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function HeroDemo() {
   const [step, setStep] = useState(0);
@@ -29,7 +30,11 @@ export function HeroDemo() {
     { label: "First Name", id: "fname", value: "Tushar" },
     { label: "Last Name", id: "lname", value: "Soni" },
     { label: "Email", id: "email", value: "tushar@lazee.dev" },
-    { label: "LinkedIn", id: "linkedin", value: "linkedin.com/in/tusharsoni" },
+    {
+      label: "LinkedIn",
+      id: "linkedin",
+      value: "linkedin.com/in/tushar-verma-developer",
+    },
   ];
 
   return (
@@ -197,9 +202,9 @@ export function HeroDemo() {
         ))}
 
         <div className="mt-auto z-10 w-full">
-          <button className="w-full bg-black text-white font-black uppercase py-3 border-2 border-black shadow-[4px_4px_0px_0px_rgba(249,115,22,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(249,115,22,1)] transition-all">
+          <Button variant="black" className="w-full py-3 h-auto">
             Submit Application
-          </button>
+          </Button>
         </div>
 
         {/* AI Magic Overlay effect */}
