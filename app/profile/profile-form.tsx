@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ResumeManager } from "./resume-manager";
 import { updateProfile } from "./actions";
 import { toast } from "@/components/ui/toast";
 import {
@@ -258,16 +259,12 @@ export default function ProfileForm({ user }: { user: any }) {
             placeholder="30"
           />
         </div>
-        <div className="mt-6">
-          <ProfileInput
-            label="Resume URL"
-            name="resumeUrl"
-            defaultValue={user.resumeUrl}
-            placeholder="https://..."
-            icon={FileText}
-          />
-        </div>
       </Section>
+
+      <ResumeManager
+        resumes={user.resumes || []}
+        membership={user.membership}
+      />
 
       {/* Socials */}
       <Section title="Social Links" icon={Globe}>

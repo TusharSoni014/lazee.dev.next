@@ -66,6 +66,21 @@ model User {
   // CTC
   currency   String?
   currentCtc Float?
+
+  resumes Resume[]
+}
+
+model Resume {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key       String // The S3 key
+  url       String // The full public/presigned url or bucket reference
+  name      String // Original filename
+  version   Int      @default(1)
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum Membership {

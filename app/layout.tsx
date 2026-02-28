@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toast";
 import { Footer } from "@/components/footer";
+import { Providers as QueryProvider } from "@/components/providers/query-provider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -35,12 +36,14 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <SessionProvider>
-            <SiteHeader />
-            <main className="pt-16 grow bg-[#fefaf6] text-black transition-colors duration-500">
-              {children}
-            </main>
-            <Footer />
-            <ExtensionAuthSync />
+            <QueryProvider>
+              <SiteHeader />
+              <main className="pt-16 grow bg-[#fefaf6] text-black transition-colors duration-500">
+                {children}
+              </main>
+              <Footer />
+              <ExtensionAuthSync />
+            </QueryProvider>
           </SessionProvider>
           <Toaster />
         </ThemeProvider>
