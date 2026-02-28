@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "motion/react";
 import { updateProfile } from "./actions";
 import { toast } from "@/components/ui/toast";
 import {
@@ -17,6 +16,7 @@ import {
   Link as LinkIcon,
   CreditCard,
   Coins,
+  IdCard,
 } from "lucide-react";
 import clsx from "clsx";
 import { Button } from "@/components/ui/button";
@@ -53,81 +53,89 @@ export default function ProfileForm({ user }: { user: any }) {
   }
 
   return (
-    <form action={handleSubmit} className="space-y-12">
-      {/* Membership & Credits */}
-      <div className="grid gap-8 md:grid-cols-2">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="border-[3px] border-black bg-blue-400 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
-        >
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border-[3px] border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-              <CreditCard className="w-6 h-6 text-black" />
-            </div>
-            <div>
-              <h3 className="text-xl font-black uppercase tracking-tighter text-black font-heading">
-                Membership
-              </h3>
-              <p className="text-xs font-bold text-black/70 uppercase tracking-tight">
-                Current plan status
-              </p>
-            </div>
-          </div>
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-4xl font-black text-black font-heading uppercase">
-              {user.membership}
+    <form action={handleSubmit} className="space-y-10">
+      {/* Profile Header & Credits */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* User Identity & Membership */}
+        <div className="lg:col-span-2 border-[3px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row items-center gap-8">
+          <div className="h-32 w-32 shrink-0 rounded-none border-[3px] border-black bg-[#fefaf6] flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden relative group">
+            <span className="text-5xl font-black text-black uppercase">
+              {user.firstName ? user.firstName[0] : ""}
+              {user.lastName ? user.lastName[0] : ""}
+              {!user.firstName && !user.lastName && (
+                <UserIcon className="w-12 h-12" />
+              )}
             </span>
-            <span className="text-sm font-bold text-black/70 uppercase">
-              plan
-            </span>
+            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-          {user.membership === "FREE" && (
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full tracking-widest"
-            >
-              Upgrade to Pro
-            </Button>
-          )}
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="border-[3px] border-black bg-yellow-400 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
-        >
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border-[3px] border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-              <Coins className="w-6 h-6 text-black" />
-            </div>
+          <div className="flex-1 text-center md:text-left space-y-4">
             <div>
-              <h3 className="text-xl font-black uppercase tracking-tighter text-black font-heading">
-                Credits
-              </h3>
-              <p className="text-xs font-bold text-black/70 uppercase tracking-tight">
-                For AI autofills
+              <h2 className="text-3xl md:text-4xl font-black uppercase font-heading text-black tracking-tighter">
+                {user.firstName || "Anonymous"} {user.lastName || "User"}
+              </h2>
+              <p className="text-sm font-bold text-zinc-600 uppercase tracking-widest mt-1">
+                {user.email || "No Email"}
               </p>
             </div>
+
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+              <div className="inline-flex items-center gap-2 border-[3px] border-black bg-blue-400 px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <CreditCard className="w-5 h-5 text-black" />
+                <span className="font-black uppercase tracking-tight text-black flex items-center gap-2">
+                  {user.membership} PLAN
+                </span>
+              </div>
+              {user.membership === "FREE" && (
+                <Button
+                  type="button"
+                  size="sm"
+                  className="bg-black text-white hover:bg-zinc-800 tracking-widest uppercase font-bold px-4 py-2 h-auto"
+                >
+                  Upgrade
+                </Button>
+              )}
+            </div>
           </div>
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-4xl font-black text-black font-heading">
+        </div>
+
+        {/* Credits Punch Card */}
+        <div className="col-span-1 border-[3px] border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden">
+          {/* Barcode Decor */}
+          <div className="flex h-6 w-full opacity-60 space-x-1 px-6 pt-4 items-end justify-center">
+            <div className="w-2 bg-black h-full"></div>
+            <div className="w-1 bg-black h-full"></div>
+            <div className="w-4 bg-black h-full"></div>
+            <div className="w-1 bg-black h-full"></div>
+            <div className="w-2 bg-black h-[80%]"></div>
+            <div className="w-6 bg-black h-full"></div>
+            <div className="w-1 bg-black h-full"></div>
+            <div className="w-2 bg-black h-[60%]"></div>
+            <div className="w-3 bg-black h-full"></div>
+            <div className="w-1 bg-black h-full"></div>
+            <div className="w-4 bg-black h-[90%]"></div>
+          </div>
+
+          <div className="flex-1 p-6 flex flex-col items-center justify-center text-center mt-2">
+            <h3 className="text-sm font-black uppercase tracking-widest text-black/80 mb-2">
+              Credit Balance
+            </h3>
+            <div className="text-7xl font-black font-heading tracking-tighter text-black flex items-center justify-center">
               {user.credits}
-            </span>
-            <span className="text-sm font-bold text-black/70 uppercase">
-              available
-            </span>
+              <span className="text-3xl ml-1 text-black">⚡</span>
+            </div>
           </div>
-          <p className="text-xs font-bold uppercase tracking-tight text-black/60 border-t-[3px] border-black/10 pt-4 mt-auto">
-            2 credits per AI fill
-          </p>
-        </motion.div>
+
+          <div className="border-t-[3px] border-black border-dashed bg-white p-3 text-center">
+            <p className="text-[11px] font-black uppercase tracking-widest text-black">
+              2 CREDITS = 1 AI FILL
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Personal Info */}
-      <Section title="Personal Information" icon={UserIcon} delay={0.2}>
+      <Section title="Personal Information" icon={IdCard}>
         <div className="grid gap-6 md:grid-cols-3">
           <ProfileInput
             label="First Name"
@@ -157,7 +165,7 @@ export default function ProfileForm({ user }: { user: any }) {
                 <select
                   name="countryCode"
                   defaultValue={user.countryCode || "+1"}
-                  className="appearance-none h-[50px] w-28 rounded-none border-[3px] border-black bg-white px-4 py-2 text-sm font-bold text-black focus:outline-none focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  className="appearance-none h-[50px] w-28 rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                 >
                   {COUNTRY_CODES.map((c) => (
                     <option key={c.code} value={c.code}>
@@ -185,7 +193,7 @@ export default function ProfileForm({ user }: { user: any }) {
                 name="phoneNumber"
                 defaultValue={user.phoneNumber}
                 placeholder="1234567890"
-                className="h-[50px] flex-1"
+                className="h-[50px] flex-1 bg-zinc-100 placeholder:text-zinc-400"
               />
             </div>
           </div>
@@ -199,7 +207,7 @@ export default function ProfileForm({ user }: { user: any }) {
       </Section>
 
       {/* Professional */}
-      <Section title="Professional Details" icon={Briefcase} delay={0.3}>
+      <Section title="Professional Details" icon={Briefcase}>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-2">
             <Label>Current CTC</Label>
@@ -208,7 +216,7 @@ export default function ProfileForm({ user }: { user: any }) {
                 <select
                   name="currency"
                   defaultValue={user.currency || "USD"}
-                  className="appearance-none h-[50px] w-24 rounded-none border-[3px] border-black bg-white px-4 py-2 text-sm font-bold text-black focus:outline-none focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  className="appearance-none h-[50px] w-24 rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                 >
                   {CURRENCIES.map((c) => (
                     <option key={c} value={c}>
@@ -238,7 +246,7 @@ export default function ProfileForm({ user }: { user: any }) {
                 step="0.01"
                 defaultValue={user.currentCtc}
                 placeholder="100000"
-                className="h-[50px] flex-1"
+                className="h-[50px] flex-1 bg-zinc-100 placeholder:text-zinc-400"
               />
             </div>
           </div>
@@ -262,7 +270,7 @@ export default function ProfileForm({ user }: { user: any }) {
       </Section>
 
       {/* Socials */}
-      <Section title="Social Links" icon={Globe} delay={0.4}>
+      <Section title="Social Links" icon={Globe}>
         <div className="grid gap-6 md:grid-cols-2">
           <ProfileInput
             label="LinkedIn"
@@ -295,30 +303,25 @@ export default function ProfileForm({ user }: { user: any }) {
         </div>
       </Section>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="flex justify-end pt-8"
-      >
+      <div className="flex justify-end pt-4">
         <Button
           type="submit"
           disabled={loading}
-          className="px-8 py-6 tracking-widest"
+          className="px-8 py-6 tracking-widest bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all"
         >
           {loading ? (
             <>
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin mr-2" />
               Saving...
             </>
           ) : (
             <>
-              <Save className="h-5 w-5" />
+              <Save className="h-5 w-5 mr-2" />
               Save Changes
             </>
           )}
         </Button>
-      </motion.div>
+      </div>
     </form>
   );
 }
@@ -327,22 +330,15 @@ function Section({
   title,
   icon: Icon,
   children,
-  delay,
 }: {
   title: string;
   icon: any;
   children: React.ReactNode;
-  delay: number;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      className="border-[3px] border-black bg-white p-6 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
-    >
+    <div className="border-[3px] border-black bg-white p-6 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
       <div className="flex items-center gap-4 mb-8 border-b-[3px] border-black pb-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full border-[3px] border-black bg-zinc-100">
+        <div className="flex h-12 w-12 items-center justify-center rounded-none border-[3px] border-black bg-zinc-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
           <Icon className="w-6 h-6 text-black" />
         </div>
         <h2 className="text-2xl font-black uppercase tracking-tighter text-black font-heading">
@@ -350,13 +346,13 @@ function Section({
         </h2>
       </div>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <label className="block text-xs font-black text-black mb-2 uppercase tracking-widest">
+    <label className="block text-[11px] font-black text-black mb-2 uppercase tracking-widest pl-1">
       {children}
     </label>
   );
@@ -366,13 +362,16 @@ function ProfileInput({ label, icon: Icon, className, ...props }: any) {
   return (
     <div className={className}>
       <Label>{label}</Label>
-      <div className="relative">
+      <div className="relative group">
         <Input
-          className={clsx("h-[50px] w-full", Icon && "pl-12")}
+          className={clsx(
+            "h-[50px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]",
+            Icon && "pl-14",
+          )}
           {...props}
         />
         {Icon && (
-          <div className="absolute left-0 top-0 bottom-0 w-12 flex items-center justify-center border-r-[3px] border-black bg-zinc-100">
+          <div className="absolute left-0 top-0 bottom-0 w-[50px] flex items-center justify-center border-r-[3px] border-black bg-zinc-200">
             <Icon className="h-5 w-5 text-black" />
           </div>
         )}
