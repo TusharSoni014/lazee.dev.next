@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { motion, AnimatePresence } from "motion/react";
 
 export function ResumeManager({
   resumes: initialResumes,
@@ -147,11 +148,18 @@ export function ResumeManager({
   return (
     <>
       <div className="border-[3px] border-black bg-white p-6 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mt-10 relative">
-        {(isLoading || isFetching) && (
-          <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-[1px] flex items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-black" />
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {(isLoading || isFetching) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-10 bg-white/50 backdrop-blur-[1px] flex items-center justify-center"
+            >
+              <Loader2 className="w-8 h-8 animate-spin text-black" />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="flex items-center justify-between mb-8 border-b-[3px] border-black pb-4">
           <div className="flex items-center gap-4">
