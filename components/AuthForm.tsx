@@ -189,7 +189,10 @@ export default function AuthForm() {
             </div>
             <button
               className="text-black font-black uppercase text-sm tracking-widest hover:text-[#f26c0d] transition-colors border-b-2 border-black hover:border-[#f26c0d]"
-              onClick={() => setIsSent(false)}
+              onClick={() => {
+                setIsSent(false);
+                setEmail("");
+              }}
             >
               ← USE DIFFERENT EMAIL
             </button>

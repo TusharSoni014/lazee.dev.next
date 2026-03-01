@@ -37,6 +37,13 @@ export async function GET(request: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
+      include: {
+        resumes: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -65,6 +72,7 @@ export async function GET(request: NextRequest) {
         membership: user.membership,
         credits: user.credits,
         resumeUrl: user.resumeUrl,
+        resumes: user.resumes,
         countryCode: user.countryCode,
         phoneNumber: user.phoneNumber,
         country: user.country,

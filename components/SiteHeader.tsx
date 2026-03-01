@@ -3,9 +3,7 @@
 import Link from "next/link";
 import AuthButton from "./AuthButton";
 import { motion } from "motion/react";
-import { usePathname } from "next/navigation";
-import clsx from "clsx";
-import { useSession } from "next-auth/react";
+import { cn } from "@/lib/utils";
 
 export function SiteHeader() {
   return (
@@ -13,7 +11,7 @@ export function SiteHeader() {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-[#fefaf6] shadow-[0_4px_0_0_#000000]"
+      className="fixed top-0 left-0 right-0 z-50 bg-[#fefaf6]/80 backdrop-blur-md shadow-[0_4px_0_0_#000000]"
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <div className="flex items-center gap-8">
@@ -91,7 +89,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className={clsx(
+      className={cn(
         "text-sm font-bold uppercase tracking-wider transition-colors hover:text-orange-500",
         active ? "text-orange-500" : "text-black",
       )}
