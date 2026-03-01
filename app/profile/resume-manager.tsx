@@ -38,7 +38,11 @@ export function ResumeManager({
   const [deleteDialogId, setDeleteDialogId] = useState<string | null>(null);
 
   // Fetch resumes query
-  const { data: resumeData, isLoading } = useQuery({
+  const {
+    data: resumeData,
+    isLoading,
+    isFetching,
+  } = useQuery({
     queryKey: ["resumes"],
     queryFn: async () => {
       const result = await getResumes();
@@ -60,10 +64,10 @@ export function ResumeManager({
   // Upload mutation
   const uploadMutation = useMutation({
     mutationFn: (formData: FormData) => uploadResumeDirect(formData),
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       if (result.success) {
         toast.success("Resume uploaded successfully!");
-        queryClient.invalidateQueries({ queryKey: ["resumes"] });
+        await queryClient.invalidateQueries({ queryKey: ["resumes"] });
       } else {
         toast.error(result.error || "Failed to upload resume.");
       }
@@ -84,10 +88,10 @@ export function ResumeManager({
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteResume(id),
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       if (result.success) {
         toast.success("Resume deleted!");
-        queryClient.invalidateQueries({ queryKey: ["resumes"] });
+        await queryClient.invalidateQueries({ queryKey: ["resumes"] });
       } else {
         toast.error(result.error || "Failed to delete resume.");
       }
@@ -143,7 +147,7 @@ export function ResumeManager({
   return (
     <>
       <div className="border-[3px] border-black bg-white p-6 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mt-10 relative">
-        {isLoading && (
+        {(isLoading || isFetching) && (
           <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-[1px] flex items-center justify-center">
             <Loader2 className="w-8 h-8 animate-spin text-black" />
           </div>
@@ -190,11 +194,32 @@ export function ResumeManager({
         </div>
 
         {!canUpload && (
-          <div className="mb-6 p-4 border-[3px] border-black bg-yellow-100 font-bold text-sm tracking-wide shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            You have reached your limit of {maxResumes} resume
-            {maxResumes > 1 ? "s" : ""} on the {membership} plan.
-            {membership === "FREE" &&
-              " Upgrade to PRO to upload up to 10 versions."}
+          <div className="mb-6 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 p-4 md:p-6 border-[3px] border-black bg-[#FFD700] hover:bg-[#ffe135] transition-all duration-300 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 group">
+            <div className="flex items-center gap-4 relative z-10 w-full sm:w-auto flex-col sm:flex-row text-center sm:text-left">
+              <div className="w-14 h-14 bg-white border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center shrink-0 -rotate-6 group-hover:rotate-12 transition-transform duration-500">
+                <FileWarning className="w-8 h-8 text-black animate-pulse" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-2xl font-black uppercase text-black font-heading tracking-tighter">
+                  Limit Reached
+                </h3>
+                <p className="font-bold text-black/80 text-sm tracking-widest uppercase">
+                  {maxResumes} / {maxResumes} RESUMES ON {membership} PLAN
+                </p>
+              </div>
+            </div>
+
+            {membership === "FREE" && (
+              <Button
+                type="button"
+                className="w-full sm:w-auto bg-white text-black hover:bg-zinc-100 tracking-widest uppercase font-black px-8 py-6 border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-[2px] transition-all relative overflow-hidden text-lg"
+              >
+                <span className="relative z-10 flex items-center">
+                  UPGRADE{" "}
+                  <span className="mx-2 text-2xl animate-bounce">⚡</span> PRO
+                </span>
+              </Button>
+            )}
           </div>
         )}
 

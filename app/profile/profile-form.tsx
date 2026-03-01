@@ -18,6 +18,7 @@ import {
   CreditCard,
   Coins,
   IdCard,
+  Settings,
 } from "lucide-react";
 import clsx from "clsx";
 import { Button } from "@/components/ui/button";
@@ -81,19 +82,40 @@ export default function ProfileForm({ user }: { user: any }) {
             </div>
 
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-              <div className="inline-flex items-center gap-2 border-[3px] border-black bg-blue-400 px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                <CreditCard className="w-5 h-5 text-black" />
+              <div
+                className={clsx(
+                  "inline-flex items-center gap-2 border-[3px] border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+                  user.membership === "PRO"
+                    ? "bg-[linear-gradient(110deg,#FFD700_30%,#fffac7_50%,#FFD700_70%)] bg-[length:200%_100%] animate-[shimmer_2s_infinite_linear]"
+                    : "bg-blue-400",
+                )}
+              >
+                <CreditCard
+                  className={clsx(
+                    "w-5 h-5 text-black",
+                    user.membership === "PRO" && "animate-pulse",
+                  )}
+                />
                 <span className="font-black uppercase tracking-tight text-black flex items-center gap-2">
                   {user.membership} PLAN
                 </span>
               </div>
-              {user.membership === "FREE" && (
+              {user.membership === "FREE" ? (
                 <Button
                   type="button"
                   size="sm"
                   className="bg-black text-white hover:bg-zinc-800 tracking-widest uppercase font-bold px-4 py-2 h-auto"
                 >
                   Upgrade
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="icon"
+                  className="bg-white border-[3px] border-black text-black hover:bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all rounded-none h-10 w-10 flex items-center justify-center"
+                  title="Manage Subscription"
+                >
+                  <Settings className="w-5 h-5 text-black" />
                 </Button>
               )}
             </div>
