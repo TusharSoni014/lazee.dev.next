@@ -38,7 +38,7 @@ export default function RootLayout({
           <SessionProvider>
             <QueryProvider>
               <SiteHeader />
-              <main className="pt-16 grow bg-[#fefaf6] text-black transition-colors duration-500">
+              <main className="pt-16 grow bg-[#fefaf6] text-black transition-colors">
                 {children}
               </main>
               <Footer />

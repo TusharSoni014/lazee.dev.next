@@ -37,10 +37,7 @@ export default function AuthButton() {
   }
 
   return (
-    <Button
-      asChild
-      className="h-10 border-[3px] border-black bg-orange-500 text-white font-black hover:bg-orange-600 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all duration-200 rounded-none uppercase text-xs tracking-widest px-6"
-    >
+    <Button asChild variant="default">
       <Link href="/login">LOG IN</Link>
     </Button>
   );

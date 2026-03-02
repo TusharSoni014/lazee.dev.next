@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useProfile } from "@/hooks/useProfile";
 import { ResumeManager } from "./resume-manager";
 import { updateProfile } from "./actions";
 import { toast } from "@/components/ui/toast";
@@ -37,8 +38,17 @@ const COUNTRY_CODES = [
 
 const CURRENCIES = ["USD", "EUR", "GBP", "INR", "AUD", "CAD", "JPY"];
 
-export default function ProfileForm({ user }: { user: any }) {
+export default function ProfileForm({ user: initialUser }: { user: any }) {
+  const { data: user, isLoading: isLoadingProfile } = useProfile(initialUser);
   const [loading, setLoading] = useState(false);
+
+  if (!user) {
+    return (
+      <div className="flex justify-center p-12">
+        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+      </div>
+    );
+  }
 
   async function handleSubmit(formData: FormData) {
     setLoading(true);
@@ -144,7 +154,12 @@ export default function ProfileForm({ user }: { user: any }) {
               Credit Balance
             </h3>
             <div className="text-7xl font-black font-heading tracking-tighter text-black flex items-center justify-center">
-              {user.credits}
+              {Intl.NumberFormat("en-US", {
+                notation: "compact",
+                maximumFractionDigits: 1,
+              })
+                .format(user.credits || 0)
+                .toLowerCase()}
               <span className="text-3xl ml-1 text-black">⚡</span>
             </div>
           </div>

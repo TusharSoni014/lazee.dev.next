@@ -7,12 +7,7 @@ import { cn } from "@/lib/utils";
 
 export function SiteHeader() {
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-[#fefaf6]/80 backdrop-blur-md shadow-[0_4px_0_0_#000000]"
-    >
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#fefaf6]/80 backdrop-blur-md shadow-[0_4px_0_0_#000000]">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <div className="flex items-center gap-8">
           <Link
@@ -73,7 +68,7 @@ export function SiteHeader() {
           <AuthButton />
         </div>
       </div>
-    </motion.header>
+    </header>
   );
 }
 
