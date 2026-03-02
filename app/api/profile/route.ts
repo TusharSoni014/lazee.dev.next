@@ -43,6 +43,11 @@ export async function GET(request: NextRequest) {
             createdAt: "desc",
           },
         },
+        experiences: {
+          orderBy: {
+            startDate: "desc",
+          },
+        },
       },
     });
 
@@ -83,6 +88,7 @@ export async function GET(request: NextRequest) {
         portfolio: user.portfolio,
         currency: user.currency,
         currentCtc: user.currentCtc,
+        experiences: user.experiences,
         image: user.image || `${request.nextUrl.origin}/placeholder.jpg`,
       },
       { headers: getCorsHeaders(request.headers.get("origin")) },

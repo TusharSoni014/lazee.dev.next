@@ -24,6 +24,16 @@ import {
 import clsx from "clsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { format } from "date-fns";
+import { Plus, Trash2, Calendar as CalendarIcon } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
 const COUNTRY_CODES = [
   { code: "+1", name: "US/CA" },
@@ -41,6 +51,9 @@ const CURRENCIES = ["USD", "EUR", "GBP", "INR", "AUD", "CAD", "JPY"];
 export default function ProfileForm({ user: initialUser }: { user: any }) {
   const { data: user, isLoading: isLoadingProfile } = useProfile(initialUser);
   const [loading, setLoading] = useState(false);
+  const [experiences, setExperiences] = useState<any[]>(
+    user?.experiences || [],
+  );
 
   if (!user) {
     return (
@@ -50,10 +63,13 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
     );
   }
 
-  async function handleSubmit(formData: FormData) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setLoading(true);
 
+    const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
+    data.experiences = JSON.stringify(experiences);
     const result = await updateProfile(data);
 
     setLoading(false);
@@ -65,7 +81,7 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
   }
 
   return (
-    <form action={handleSubmit} className="space-y-10">
+    <form onSubmit={onSubmit} className="space-y-10">
       {/* Profile Header & Credits */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* User Identity & Membership */}
@@ -298,6 +314,11 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
         </div>
       </Section>
 
+      <ExperienceSection
+        experiences={experiences}
+        setExperiences={setExperiences}
+      />
+
       <ResumeManager
         resumes={user.resumes || []}
         membership={user.membership}
@@ -411,5 +432,194 @@ function ProfileInput({ label, icon: Icon, className, ...props }: any) {
         )}
       </div>
     </div>
+  );
+}
+
+function ExperienceSection({ experiences, setExperiences }: any) {
+  const addExperience = () => {
+    setExperiences([
+      {
+        id: crypto.randomUUID(),
+        companyName: "",
+        companyWebsite: "",
+        startDate: new Date(),
+        endDate: null,
+        isCurrent: false,
+        description: "",
+      },
+      ...experiences,
+    ]);
+  };
+
+  const removeExperience = (id: string) => {
+    setExperiences(experiences.filter((exp: any) => exp.id !== id));
+  };
+
+  const updateExperience = (id: string, field: string, value: any) => {
+    setExperiences(
+      experiences.map((exp: any) =>
+        exp.id === id ? { ...exp, [field]: value } : exp,
+      ),
+    );
+  };
+
+  return (
+    <Section title="Experience" icon={Briefcase}>
+      <div className="space-y-8">
+        {experiences.map((exp: any, index: number) => (
+          <div
+            key={exp.id || index}
+            className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all"
+          >
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => removeExperience(exp.id)}
+              className="absolute right-4 top-4 text-red-500 hover:text-red-600 bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all border-[3px] border-black rounded-none h-10 w-10 p-0"
+              title="Remove Experience"
+            >
+              <Trash2 className="w-5 h-5 mx-auto" />
+            </Button>
+            <div className="grid gap-6 md:grid-cols-2 mt-2">
+              <div className="space-y-2">
+                <Label>Company Name</Label>
+                <Input
+                  value={exp.companyName}
+                  onChange={(e) =>
+                    updateExperience(exp.id, "companyName", e.target.value)
+                  }
+                  placeholder="Acme Corp"
+                  className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Company Website</Label>
+                <Input
+                  value={exp.companyWebsite || ""}
+                  onChange={(e) =>
+                    updateExperience(exp.id, "companyWebsite", e.target.value)
+                  }
+                  placeholder="https://..."
+                  className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Start Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={clsx(
+                        "w-full h-[50px] justify-start text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white",
+                        !exp.startDate && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {exp.startDate ? (
+                        format(new Date(exp.startDate), "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-auto p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+                    align="start"
+                  >
+                    <Calendar
+                      mode="single"
+                      selected={
+                        exp.startDate ? new Date(exp.startDate) : undefined
+                      }
+                      onSelect={(date) =>
+                        updateExperience(exp.id, "startDate", date)
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-2 flex flex-col justify-start">
+                <Label>End Date</Label>
+                {!exp.isCurrent ? (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={clsx(
+                          "w-full h-[50px] justify-start text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white",
+                          !exp.endDate && "text-muted-foreground",
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {exp.endDate ? (
+                          format(new Date(exp.endDate), "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-auto p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+                      align="start"
+                    >
+                      <Calendar
+                        mode="single"
+                        selected={
+                          exp.endDate ? new Date(exp.endDate) : undefined
+                        }
+                        onSelect={(date) =>
+                          updateExperience(exp.id, "endDate", date)
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                ) : (
+                  <div className="h-[50px] w-full flex items-center px-4 border-[3px] border-black bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-zinc-500 font-bold">
+                    Present
+                  </div>
+                )}
+                <div className="flex items-center space-x-2 pt-2 h-5">
+                  <Checkbox
+                    id={`current-${exp.id}`}
+                    checked={exp.isCurrent}
+                    onCheckedChange={(checked) =>
+                      updateExperience(exp.id, "isCurrent", checked)
+                    }
+                    className="border-[3px] border-black rounded-none data-[state=checked]:bg-orange-500 data-[state=checked]:text-black"
+                  />
+                  <label
+                    htmlFor={`current-${exp.id}`}
+                    className="text-sm font-bold uppercase tracking-widest cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    I currently work here
+                  </label>
+                </div>
+              </div>
+              <div className="col-span-1 md:col-span-2 space-y-2 mt-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={exp.description || ""}
+                  onChange={(e) =>
+                    updateExperience(exp.id, "description", e.target.value)
+                  }
+                  placeholder="Describe your role and achievements..."
+                  className="min-h-[120px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+        <Button
+          type="button"
+          onClick={addExperience}
+          className="w-full h-14 bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all rounded-none font-black uppercase tracking-widest flex items-center justify-center gap-2 text-lg mt-6"
+        >
+          <Plus className="w-6 h-6" />
+          Add Experience
+        </Button>
+      </div>
+    </Section>
   );
 }
