@@ -25,7 +25,14 @@ import clsx from "clsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
-import { Plus, Trash2, Calendar as CalendarIcon } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Calendar as CalendarIcon,
+  Edit2,
+  X,
+  Check,
+} from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -436,190 +443,298 @@ function ProfileInput({ label, icon: Icon, className, ...props }: any) {
 }
 
 function ExperienceSection({ experiences, setExperiences }: any) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [tempExp, setTempExp] = useState<any>(null);
+
   const addExperience = () => {
-    setExperiences([
-      {
-        id: crypto.randomUUID(),
-        companyName: "",
-        companyWebsite: "",
-        startDate: new Date(),
-        endDate: null,
-        isCurrent: false,
-        description: "",
-      },
-      ...experiences,
-    ]);
+    const newExp = {
+      id: crypto.randomUUID(),
+      companyName: "",
+      companyWebsite: "",
+      startDate: new Date(),
+      endDate: null,
+      isCurrent: false,
+      description: "",
+    };
+    setTempExp(newExp);
+    setEditingId(newExp.id);
   };
 
   const removeExperience = (id: string) => {
     setExperiences(experiences.filter((exp: any) => exp.id !== id));
+    if (editingId === id) cancelEdit();
   };
 
-  const updateExperience = (id: string, field: string, value: any) => {
-    setExperiences(
-      experiences.map((exp: any) =>
-        exp.id === id ? { ...exp, [field]: value } : exp,
-      ),
-    );
+  const confirmExperience = () => {
+    if (!tempExp) return;
+    const exists = experiences.find((e: any) => e.id === tempExp.id);
+    if (exists) {
+      setExperiences(
+        experiences.map((e: any) => (e.id === tempExp.id ? tempExp : e)),
+      );
+    } else {
+      setExperiences([tempExp, ...experiences]);
+    }
+    setEditingId(null);
+    setTempExp(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setTempExp(null);
+  };
+
+  const editExperience = (exp: any) => {
+    setTempExp({ ...exp });
+    setEditingId(exp.id);
+  };
+
+  const updateTempExp = (field: string, value: any) => {
+    if (tempExp) {
+      setTempExp({ ...tempExp, [field]: value });
+    }
   };
 
   return (
     <Section title="Experience" icon={Briefcase}>
       <div className="space-y-8">
-        {experiences.map((exp: any, index: number) => (
-          <div
-            key={exp.id || index}
-            className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all"
-          >
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => removeExperience(exp.id)}
-              className="absolute right-4 top-4 text-red-500 hover:text-red-600 bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all border-[3px] border-black rounded-none h-10 w-10 p-0"
-              title="Remove Experience"
+        {experiences.map((exp: any, index: number) => {
+          if (editingId === exp.id && tempExp) {
+            return (
+              <ExperienceForm
+                key={tempExp.id}
+                exp={tempExp}
+                updateExperience={updateTempExp}
+                onConfirm={confirmExperience}
+                onCancel={cancelEdit}
+              />
+            );
+          }
+
+          return (
+            <div
+              key={exp.id || index}
+              className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-2"
             >
-              <Trash2 className="w-5 h-5 mx-auto" />
-            </Button>
-            <div className="grid gap-6 md:grid-cols-2 mt-2">
-              <div className="space-y-2">
-                <Label>Company Name</Label>
-                <Input
-                  value={exp.companyName}
-                  onChange={(e) =>
-                    updateExperience(exp.id, "companyName", e.target.value)
-                  }
-                  placeholder="Acme Corp"
-                  className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                />
+              <div className="absolute right-4 top-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                  type="button"
+                  onClick={() => editExperience(exp)}
+                  className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all"
+                  title="Edit Experience"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => removeExperience(exp.id)}
+                  className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all"
+                  title="Remove Experience"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label>Company Website</Label>
-                <Input
-                  value={exp.companyWebsite || ""}
-                  onChange={(e) =>
-                    updateExperience(exp.id, "companyWebsite", e.target.value)
-                  }
-                  placeholder="https://..."
-                  className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Start Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={clsx(
-                        "w-full h-[50px] justify-start text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white",
-                        !exp.startDate && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {exp.startDate ? (
-                        format(new Date(exp.startDate), "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
-                    align="start"
-                  >
-                    <Calendar
-                      mode="single"
-                      selected={
-                        exp.startDate ? new Date(exp.startDate) : undefined
-                      }
-                      onSelect={(date) =>
-                        updateExperience(exp.id, "startDate", date)
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="space-y-2 flex flex-col justify-start">
-                <Label>End Date</Label>
-                {!exp.isCurrent ? (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={clsx(
-                          "w-full h-[50px] justify-start text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white",
-                          !exp.endDate && "text-muted-foreground",
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {exp.endDate ? (
-                          format(new Date(exp.endDate), "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className="w-auto p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
-                      align="start"
-                    >
-                      <Calendar
-                        mode="single"
-                        selected={
-                          exp.endDate ? new Date(exp.endDate) : undefined
-                        }
-                        onSelect={(date) =>
-                          updateExperience(exp.id, "endDate", date)
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                ) : (
-                  <div className="h-[50px] w-full flex items-center px-4 border-[3px] border-black bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-zinc-500 font-bold">
-                    Present
-                  </div>
-                )}
-                <div className="flex items-center space-x-2 pt-2 h-5">
-                  <Checkbox
-                    id={`current-${exp.id}`}
-                    checked={exp.isCurrent}
-                    onCheckedChange={(checked) =>
-                      updateExperience(exp.id, "isCurrent", checked)
-                    }
-                    className="border-[3px] border-black rounded-none data-[state=checked]:bg-orange-500 data-[state=checked]:text-black"
-                  />
-                  <label
-                    htmlFor={`current-${exp.id}`}
-                    className="text-sm font-bold uppercase tracking-widest cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    I currently work here
-                  </label>
-                </div>
-              </div>
-              <div className="col-span-1 md:col-span-2 space-y-2 mt-2">
-                <Label>Description</Label>
-                <Textarea
-                  value={exp.description || ""}
-                  onChange={(e) =>
-                    updateExperience(exp.id, "description", e.target.value)
-                  }
-                  placeholder="Describe your role and achievements..."
-                  className="min-h-[120px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
-                />
-              </div>
+              <h3 className="text-xl font-black text-black uppercase pr-24">
+                {exp.companyName || "Untitled Company"}
+              </h3>
+              {exp.companyWebsite && (
+                <a
+                  href={exp.companyWebsite}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-blue-600 underline font-bold uppercase tracking-widest block w-fit"
+                >
+                  {exp.companyWebsite}
+                </a>
+              )}
+              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                {exp.startDate
+                  ? format(new Date(exp.startDate), "MMM yyyy")
+                  : "N/A"}{" "}
+                -{" "}
+                {exp.isCurrent
+                  ? "Present"
+                  : exp.endDate
+                    ? format(new Date(exp.endDate), "MMM yyyy")
+                    : "N/A"}
+              </p>
+              {exp.description && (
+                <p className="text-sm text-zinc-700 mt-4 whitespace-pre-wrap font-medium">
+                  {exp.description}
+                </p>
+              )}
             </div>
-          </div>
-        ))}
-        <Button
-          type="button"
-          onClick={addExperience}
-          className="w-full h-14 bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all rounded-none font-black uppercase tracking-widest flex items-center justify-center gap-2 text-lg mt-6"
-        >
-          <Plus className="w-6 h-6" />
-          Add Experience
-        </Button>
+          );
+        })}
+
+        {editingId &&
+          !experiences.find((e: any) => e.id === editingId) &&
+          tempExp && (
+            <ExperienceForm
+              exp={tempExp}
+              updateExperience={updateTempExp}
+              onConfirm={confirmExperience}
+              onCancel={cancelEdit}
+            />
+          )}
+
+        {!editingId && (
+          <Button
+            type="button"
+            onClick={addExperience}
+            className="w-full h-14 bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all rounded-none font-black uppercase tracking-widest flex items-center justify-center gap-2 text-lg mt-6"
+          >
+            <Plus className="w-6 h-6" />
+            Add Experience
+          </Button>
+        )}
       </div>
     </Section>
+  );
+}
+
+function ExperienceForm({ exp, updateExperience, onConfirm, onCancel }: any) {
+  return (
+    <div className="border-[3px] border-black p-6 md:p-8 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
+      <div className="flex border-b-[3px] border-black pb-4 mb-6">
+        <h3 className="text-lg font-black uppercase tracking-widest">
+          {exp.companyName ? `Editing: ${exp.companyName}` : "New Experience"}
+        </h3>
+      </div>
+      <div className="grid gap-6 md:grid-cols-2 mt-2">
+        <div className="space-y-2">
+          <Label>Company Name</Label>
+          <Input
+            value={exp.companyName}
+            onChange={(e) => updateExperience("companyName", e.target.value)}
+            placeholder="Acme Corp"
+            className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Company Website</Label>
+          <Input
+            value={exp.companyWebsite || ""}
+            onChange={(e) => updateExperience("companyWebsite", e.target.value)}
+            placeholder="https://..."
+            className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Start Date</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={clsx(
+                  "w-full h-[50px] justify-start text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white",
+                  !exp.startDate && "text-muted-foreground",
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {exp.startDate ? (
+                  format(new Date(exp.startDate), "PPP")
+                ) : (
+                  <span>Pick a date</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-auto p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white z-100"
+              align="start"
+            >
+              <Calendar
+                mode="single"
+                selected={exp.startDate ? new Date(exp.startDate) : undefined}
+                onSelect={(date) => updateExperience("startDate", date)}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div className="space-y-2 flex flex-col justify-start">
+          <Label>End Date</Label>
+          {!exp.isCurrent ? (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={clsx(
+                    "w-full h-[50px] justify-start text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white",
+                    !exp.endDate && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {exp.endDate ? (
+                    format(new Date(exp.endDate), "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-auto p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white z-100"
+                align="start"
+              >
+                <Calendar
+                  mode="single"
+                  selected={exp.endDate ? new Date(exp.endDate) : undefined}
+                  onSelect={(date) => updateExperience("endDate", date)}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          ) : (
+            <div className="h-[50px] w-full flex items-center px-4 border-[3px] border-black bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-zinc-500 font-bold">
+              Present
+            </div>
+          )}
+          <div className="flex items-center space-x-2 pt-2 h-5">
+            <Checkbox
+              id={`current-${exp.id}`}
+              checked={exp.isCurrent}
+              onCheckedChange={(checked) =>
+                updateExperience("isCurrent", checked)
+              }
+              className="border-[3px] border-black rounded-none data-[state=checked]:bg-orange-500 data-[state=checked]:text-black"
+            />
+            <label
+              htmlFor={`current-${exp.id}`}
+              className="text-sm font-bold uppercase tracking-widest cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              I currently work here
+            </label>
+          </div>
+        </div>
+        <div className="col-span-1 md:col-span-2 space-y-2 mt-2">
+          <Label>Description</Label>
+          <Textarea
+            value={exp.description || ""}
+            onChange={(e) => updateExperience("description", e.target.value)}
+            placeholder="Describe your role and achievements..."
+            className="min-h-[120px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
+          />
+        </div>
+      </div>
+      <div className="flex gap-4 mt-8 pt-6 border-t-[3px] border-black border-dashed">
+        <Button
+          type="button"
+          onClick={onConfirm}
+          className="flex-1 h-12 text-lg"
+        >
+          <Check className="w-5 h-5" />
+          Confirm
+        </Button>
+        <Button
+          type="button"
+          onClick={onCancel}
+          variant="outline"
+          className="flex-1 h-12 text-lg"
+        >
+          <X className="w-5 h-5" />
+          Cancel
+        </Button>
+      </div>
+    </div>
   );
 }
