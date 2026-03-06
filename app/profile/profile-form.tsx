@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { ResumeManager } from "./resume-manager";
-import { updateProfile } from "./actions";
+import { updateProfile, updateExperiences } from "./actions";
 import { toast } from "@/components/ui/toast";
 import {
   Loader2,
@@ -41,6 +41,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 const COUNTRY_CODES = [
   { code: "+1", name: "US/CA" },
@@ -76,7 +87,6 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
 
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
-    data.experiences = JSON.stringify(experiences);
     const result = await updateProfile(data);
 
     setLoading(false);
@@ -445,6 +455,7 @@ function ProfileInput({ label, icon: Icon, className, ...props }: any) {
 function ExperienceSection({ experiences, setExperiences }: any) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempExp, setTempExp] = useState<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const addExperience = () => {
     const newExp = {
@@ -460,23 +471,52 @@ function ExperienceSection({ experiences, setExperiences }: any) {
     setEditingId(newExp.id);
   };
 
-  const removeExperience = (id: string) => {
-    setExperiences(experiences.filter((exp: any) => exp.id !== id));
+  const removeExperience = async (id: string) => {
+    const newExperiences = experiences.filter((exp: any) => exp.id !== id);
+    setExperiences(newExperiences);
     if (editingId === id) cancelEdit();
+    await updateExperiences(newExperiences);
+    toast.success("Experience removed");
   };
 
-  const confirmExperience = () => {
-    if (!tempExp) return;
-    const exists = experiences.find((e: any) => e.id === tempExp.id);
+  const confirmExperience = async (data: any) => {
+    setIsSaving(true);
+    let newExperiences;
+    const exists = experiences.find((e: any) => e.id === data.id);
     if (exists) {
-      setExperiences(
-        experiences.map((e: any) => (e.id === tempExp.id ? tempExp : e)),
+      newExperiences = experiences.map((e: any) =>
+        e.id === data.id ? data : e,
       );
     } else {
-      setExperiences([tempExp, ...experiences]);
+      newExperiences = [data, ...experiences];
     }
-    setEditingId(null);
-    setTempExp(null);
+
+    // Sort before saving
+    newExperiences.sort((a: any, b: any) => {
+      const dateA = a.isCurrent
+        ? new Date().getTime()
+        : a.endDate
+          ? new Date(a.endDate).getTime()
+          : 0;
+      const dateB = b.isCurrent
+        ? new Date().getTime()
+        : b.endDate
+          ? new Date(b.endDate).getTime()
+          : 0;
+      return dateB - dateA;
+    });
+
+    const result = await updateExperiences(newExperiences);
+    setIsSaving(false);
+
+    if (result.success) {
+      setExperiences(newExperiences);
+      setEditingId(null);
+      setTempExp(null);
+      toast.success("Experience saved successfully");
+    } else {
+      toast.error("Failed to save experience");
+    }
   };
 
   const cancelEdit = () => {
@@ -489,24 +529,32 @@ function ExperienceSection({ experiences, setExperiences }: any) {
     setEditingId(exp.id);
   };
 
-  const updateTempExp = (field: string, value: any) => {
-    if (tempExp) {
-      setTempExp({ ...tempExp, [field]: value });
-    }
-  };
+  const sortedExperiences = [...experiences].sort((a: any, b: any) => {
+    const dateA = a.isCurrent
+      ? new Date().getTime()
+      : a.endDate
+        ? new Date(a.endDate).getTime()
+        : 0;
+    const dateB = b.isCurrent
+      ? new Date().getTime()
+      : b.endDate
+        ? new Date(b.endDate).getTime()
+        : 0;
+    return dateB - dateA;
+  });
 
   return (
     <Section title="Experience" icon={Briefcase}>
       <div className="space-y-8">
-        {experiences.map((exp: any, index: number) => {
+        {sortedExperiences.map((exp: any, index: number) => {
           if (editingId === exp.id && tempExp) {
             return (
               <ExperienceForm
                 key={tempExp.id}
                 exp={tempExp}
-                updateExperience={updateTempExp}
                 onConfirm={confirmExperience}
                 onCancel={cancelEdit}
+                isLoading={isSaving}
               />
             );
           }
@@ -572,9 +620,9 @@ function ExperienceSection({ experiences, setExperiences }: any) {
           tempExp && (
             <ExperienceForm
               exp={tempExp}
-              updateExperience={updateTempExp}
               onConfirm={confirmExperience}
               onCancel={cancelEdit}
+              isLoading={isSaving}
             />
           )}
 
@@ -593,7 +641,38 @@ function ExperienceSection({ experiences, setExperiences }: any) {
   );
 }
 
-function ExperienceForm({ exp, updateExperience, onConfirm, onCancel }: any) {
+const experienceSchema = z.object({
+  id: z.string().optional(),
+  companyName: z.string().min(1, "Company name is required"),
+  companyWebsite: z
+    .string()
+    .url("Must be a valid URL")
+    .optional()
+    .or(z.literal("")),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  isCurrent: z.boolean(),
+  description: z.string().optional(),
+});
+
+function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
+  const form = useForm<z.infer<typeof experienceSchema>>({
+    resolver: zodResolver(experienceSchema),
+    defaultValues: {
+      id: exp.id,
+      companyName: exp.companyName || "",
+      companyWebsite: exp.companyWebsite || "",
+      startDate: exp.startDate ? new Date(exp.startDate) : undefined,
+      endDate: exp.endDate ? new Date(exp.endDate) : undefined,
+      isCurrent: exp.isCurrent || false,
+      description: exp.description || "",
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof experienceSchema>) => {
+    onConfirm(values);
+  };
+
   return (
     <div className="border-[3px] border-black p-6 md:p-8 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
       <div className="flex border-b-[3px] border-black pb-4 mb-6">
@@ -601,140 +680,211 @@ function ExperienceForm({ exp, updateExperience, onConfirm, onCancel }: any) {
           {exp.companyName ? `Editing: ${exp.companyName}` : "New Experience"}
         </h3>
       </div>
-      <div className="grid gap-6 md:grid-cols-2 mt-2">
-        <div className="space-y-2">
-          <Label>Company Name</Label>
-          <Input
-            value={exp.companyName}
-            onChange={(e) => updateExperience("companyName", e.target.value)}
-            placeholder="Acme Corp"
-            className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Company Website</Label>
-          <Input
-            value={exp.companyWebsite || ""}
-            onChange={(e) => updateExperience("companyWebsite", e.target.value)}
-            placeholder="https://..."
-            className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Start Date</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={clsx(
-                  "w-full h-[50px] justify-start text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white",
-                  !exp.startDate && "text-muted-foreground",
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {exp.startDate ? (
-                  format(new Date(exp.startDate), "PPP")
-                ) : (
-                  <span>Pick a date</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-auto p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white z-100"
-              align="start"
-            >
-              <Calendar
-                mode="single"
-                selected={exp.startDate ? new Date(exp.startDate) : undefined}
-                onSelect={(date) => updateExperience("startDate", date)}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-        <div className="space-y-2 flex flex-col justify-start">
-          <Label>End Date</Label>
-          {!exp.isCurrent ? (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={clsx(
-                    "w-full h-[50px] justify-start text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white",
-                    !exp.endDate && "text-muted-foreground",
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {exp.endDate ? (
-                    format(new Date(exp.endDate), "PPP")
-                  ) : (
-                    <span>Pick a date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-auto p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white z-100"
-                align="start"
-              >
-                <Calendar
-                  mode="single"
-                  selected={exp.endDate ? new Date(exp.endDate) : undefined}
-                  onSelect={(date) => updateExperience("endDate", date)}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          ) : (
-            <div className="h-[50px] w-full flex items-center px-4 border-[3px] border-black bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-zinc-500 font-bold">
-              Present
-            </div>
-          )}
-          <div className="flex items-center space-x-2 pt-2 h-5">
-            <Checkbox
-              id={`current-${exp.id}`}
-              checked={exp.isCurrent}
-              onCheckedChange={(checked) =>
-                updateExperience("isCurrent", checked)
-              }
-              className="border-[3px] border-black rounded-none data-[state=checked]:bg-orange-500 data-[state=checked]:text-black"
+      <Form {...form}>
+        <div className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2 mt-2">
+            <FormField
+              control={form.control}
+              name="companyName"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Company Name
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Acme Corp"
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            <label
-              htmlFor={`current-${exp.id}`}
-              className="text-sm font-bold uppercase tracking-widest cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            <FormField
+              control={form.control}
+              name="companyWebsite"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Company Website
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      placeholder="https://..."
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Start Date
+                  </FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className={clsx(
+                            "w-full h-[50px] justify-start text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-auto p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white z-100"
+                      align="start"
+                    >
+                      <Calendar
+                        mode="single"
+                        selected={field.value || undefined}
+                        onSelect={field.onChange}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="space-y-2 flex flex-col justify-start">
+              <FormField
+                control={form.control}
+                name="endDate"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                      End Date
+                    </FormLabel>
+                    {!form.watch("isCurrent") ? (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={clsx(
+                                "w-full h-[50px] justify-start text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white",
+                                !field.value && "text-muted-foreground",
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-auto p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white z-[100]"
+                          align="start"
+                        >
+                          <Calendar
+                            mode="single"
+                            selected={field.value || undefined}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    ) : (
+                      <div className="h-[50px] w-full flex items-center px-4 border-[3px] border-black bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-zinc-500 font-bold">
+                        Present
+                      </div>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="isCurrent"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2 pt-2 h-5">
+                    <FormControl>
+                      <Checkbox
+                        id={`current-${exp.id}`}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        className="border-[3px] border-black rounded-none data-[state=checked]:bg-orange-500 data-[state=checked]:text-black mt-0"
+                      />
+                    </FormControl>
+                    <label
+                      htmlFor={`current-${exp.id}`}
+                      className="text-sm font-bold uppercase tracking-widest cursor-pointer leading-tight peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mt-0"
+                    >
+                      I currently work here
+                    </label>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem className="col-span-1 md:col-span-2 space-y-2 mt-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Description
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      value={field.value || ""}
+                      placeholder="Describe your role and achievements..."
+                      className="min-h-[120px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex gap-4 mt-8 pt-6 border-t-[3px] border-black border-dashed">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isLoading}
+              className="flex-1 h-12 text-lg disabled:opacity-50"
             >
-              I currently work here
-            </label>
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : (
+                <Check className="w-5 h-5 mr-2" />
+              )}
+              {isLoading ? "Saving..." : "Confirm"}
+            </Button>
+            <Button
+              type="button"
+              onClick={onCancel}
+              variant="outline"
+              className="flex-1 h-12 text-lg"
+            >
+              <X className="w-5 h-5" />
+              Cancel
+            </Button>
           </div>
         </div>
-        <div className="col-span-1 md:col-span-2 space-y-2 mt-2">
-          <Label>Description</Label>
-          <Textarea
-            value={exp.description || ""}
-            onChange={(e) => updateExperience("description", e.target.value)}
-            placeholder="Describe your role and achievements..."
-            className="min-h-[120px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
-          />
-        </div>
-      </div>
-      <div className="flex gap-4 mt-8 pt-6 border-t-[3px] border-black border-dashed">
-        <Button
-          type="button"
-          onClick={onConfirm}
-          className="flex-1 h-12 text-lg"
-        >
-          <Check className="w-5 h-5" />
-          Confirm
-        </Button>
-        <Button
-          type="button"
-          onClick={onCancel}
-          variant="outline"
-          className="flex-1 h-12 text-lg"
-        >
-          <X className="w-5 h-5" />
-          Cancel
-        </Button>
-      </div>
+      </Form>
     </div>
   );
 }

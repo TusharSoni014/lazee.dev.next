@@ -28,21 +28,6 @@ export async function updateProfile(data: any) {
         portfolio: data.portfolio,
         currency: data.currency,
         currentCtc: data.currentCtc ? parseFloat(data.currentCtc) : null,
-        experiences: data.experiences
-          ? {
-              deleteMany: {},
-              create: JSON.parse(data.experiences as string).map(
-                (exp: any) => ({
-                  companyName: exp.companyName,
-                  companyWebsite: exp.companyWebsite || null,
-                  startDate: exp.startDate ? new Date(exp.startDate) : null,
-                  endDate: exp.endDate ? new Date(exp.endDate) : null,
-                  isCurrent: Boolean(exp.isCurrent),
-                  description: exp.description || null,
-                }),
-              ),
-            }
-          : undefined,
       },
     });
 
@@ -51,5 +36,36 @@ export async function updateProfile(data: any) {
   } catch (error) {
     console.error("Failed to update profile", error);
     return { error: "Failed to update profile" };
+  }
+}
+
+export async function updateExperiences(experiences: any[]) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    return { error: "Not authenticated" };
+  }
+
+  try {
+    await prisma.user.update({
+      where: { email: session.user.email },
+      data: {
+        experiences: {
+          deleteMany: {},
+          create: experiences.map((exp: any) => ({
+            companyName: exp.companyName,
+            companyWebsite: exp.companyWebsite || null,
+            startDate: exp.startDate ? new Date(exp.startDate) : null,
+            endDate: exp.endDate ? new Date(exp.endDate) : null,
+            isCurrent: Boolean(exp.isCurrent),
+            description: exp.description || null,
+          })),
+        },
+      },
+    });
+    revalidatePath("/profile");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update experiences", error);
+    return { error: "Failed to update experiences" };
   }
 }
