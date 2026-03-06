@@ -63,6 +63,9 @@ model User {
   github    String?
   portfolio String?
 
+  // Skills
+  skills String[]
+
   // CTC
   currency   String?
   currentCtc Float?

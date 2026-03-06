@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { ResumeManager } from "./resume-manager";
 import { updateProfile, updateExperiences } from "./actions";
@@ -32,6 +32,7 @@ import {
   Edit2,
   X,
   Check,
+  Code,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
@@ -72,6 +73,18 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
   const [experiences, setExperiences] = useState<any[]>(
     user?.experiences || [],
   );
+  const [isDirty, setIsDirty] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
 
   if (!user) {
     return (
@@ -86,11 +99,13 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData);
+    const data: any = Object.fromEntries(formData);
+    data.skills = formData.getAll("skills") as string[];
     const result = await updateProfile(data);
 
     setLoading(false);
     if (result.success) {
+      setIsDirty(false);
       toast.success("Profile updated successfully!");
     } else {
       toast.error("Failed to update profile.");
@@ -98,7 +113,11 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-10">
+    <form
+      onSubmit={onSubmit}
+      className="space-y-10"
+      onChange={() => setIsDirty(true)}
+    >
       {/* Profile Header & Credits */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* User Identity & Membership */}
@@ -334,6 +353,11 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
       <ExperienceSection
         experiences={experiences}
         setExperiences={setExperiences}
+      />
+
+      <SkillsSection
+        skills={user.skills || []}
+        setDirty={() => setIsDirty(true)}
       />
 
       <ResumeManager
@@ -886,5 +910,160 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
         </div>
       </Form>
     </div>
+  );
+}
+
+const AVAILABLE_SKILLS = [
+  "Frontend",
+  "Backend",
+  "Full Stack",
+  "DevOps",
+  "React",
+  "Next.js",
+  "Vue.js",
+  "Angular",
+  "Svelte",
+  "Node.js",
+  "Express",
+  "NestJS",
+  "Python",
+  "Django",
+  "Flask",
+  "FastAPI",
+  "Java",
+  "Spring Boot",
+  "Go",
+  "Rust",
+  "C++",
+  "C#",
+  ".NET",
+  "Ruby on Rails",
+  "PHP",
+  "Laravel",
+  "Zustand",
+  "Redux",
+  "MobX",
+  "Recoil",
+  "React Native",
+  "Flutter",
+  "Swift",
+  "Kotlin",
+  "TypeScript",
+  "JavaScript",
+  "HTML",
+  "CSS",
+  "Tailwind CSS",
+  "Material UI",
+  "PostgreSQL",
+  "MySQL",
+  "MongoDB",
+  "Redis",
+  "GraphQL",
+  "REST API",
+  "Docker",
+  "Kubernetes",
+  "AWS",
+  "Google Cloud",
+  "Azure",
+  "CI/CD",
+  "Git",
+  "Linux",
+  "UI/UX Design",
+  "Figma",
+];
+
+function SkillsSection({
+  skills: initialSkills,
+  setDirty,
+}: {
+  skills: string[];
+  setDirty: () => void;
+}) {
+  const [selected, setSelected] = useState<Set<string>>(new Set(initialSkills));
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Section title="Technical Skills" icon={Code}>
+      <div className="space-y-4">
+        {Array.from(selected).map((skill) => (
+          <input key={skill} type="hidden" name="skills" value={skill} />
+        ))}
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full h-auto min-h-[50px] justify-between text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white whitespace-normal py-3 px-4"
+            >
+              <div className="flex flex-wrap gap-2">
+                {selected.size > 0 ? (
+                  Array.from(selected).map((skill) => (
+                    <span
+                      key={skill}
+                      className="inline-flex items-center gap-1 bg-yellow-300 border-[2px] border-black px-2 py-1 text-xs font-black uppercase text-black"
+                    >
+                      {skill}
+                      <X
+                        className="ml-1 h-3 w-3 cursor-pointer hover:bg-black hover:text-white rounded-full p-[1px] transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          const next = new Set(selected);
+                          next.delete(skill);
+                          setSelected(next);
+                          setDirty();
+                        }}
+                      />
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-zinc-500 font-bold uppercase tracking-widest text-sm">
+                    Select skills...
+                  </span>
+                )}
+              </div>
+              <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50 text-black border-black border-2 rounded-none p-0 bg-yellow-400" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            className="w-[var(--radix-popover-trigger-width)] p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-h-80 overflow-y-auto bg-white"
+            align="start"
+          >
+            <div className="p-4 flex flex-col gap-3">
+              {AVAILABLE_SKILLS.map((skill) => {
+                const isSelected = selected.has(skill);
+                return (
+                  <div key={skill} className="flex items-center space-x-3">
+                    <Checkbox
+                      id={`skill-${skill}`}
+                      checked={isSelected}
+                      onCheckedChange={(checked) => {
+                        const next = new Set(selected);
+                        if (checked) {
+                          next.add(skill);
+                        } else {
+                          next.delete(skill);
+                        }
+                        setSelected(next);
+                        setDirty();
+                      }}
+                      className="border-[2px] border-black rounded-none data-[state=checked]:bg-black text-white h-5 w-5 shrink-0"
+                    />
+                    <label
+                      htmlFor={`skill-${skill}`}
+                      className="text-sm font-bold uppercase tracking-wide leading-none cursor-pointer select-none"
+                    >
+                      {skill}
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+    </Section>
   );
 }

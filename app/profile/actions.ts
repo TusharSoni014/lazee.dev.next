@@ -28,14 +28,15 @@ export async function updateProfile(data: any) {
         portfolio: data.portfolio,
         currency: data.currency,
         currentCtc: data.currentCtc ? parseFloat(data.currentCtc) : null,
+        skills: data.skills || [],
       },
     });
 
     revalidatePath("/profile");
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to update profile", error);
-    return { error: "Failed to update profile" };
+    return { error: error.message || "Failed to update profile" };
   }
 }
 
