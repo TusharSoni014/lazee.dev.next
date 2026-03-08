@@ -70,3 +70,35 @@ export async function updateExperiences(experiences: any[]) {
     return { error: "Failed to update experiences" };
   }
 }
+
+export async function updateProjects(projects: any[]) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    return { error: "Not authenticated" };
+  }
+
+  try {
+    await prisma.user.update({
+      where: { email: session.user.email },
+      data: {
+        projects: {
+          deleteMany: {},
+          create: projects.map((proj: any) => ({
+            name: proj.name,
+            activeLink: proj.activeLink || null,
+            githubLink: proj.githubLink || null,
+            logoUrl: proj.logoUrl || null,
+            videoUrl: proj.videoUrl || null,
+            stacks: proj.stacks || [],
+            description: proj.description || null,
+          })),
+        },
+      },
+    });
+    revalidatePath("/profile");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update projects", error);
+    return { error: "Failed to update projects" };
+  }
+}

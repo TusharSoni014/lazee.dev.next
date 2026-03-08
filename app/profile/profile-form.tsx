@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { ResumeManager } from "./resume-manager";
 import { updateProfile, updateExperiences } from "./actions";
+import { ProjectSection } from "./project-section";
 import { toast } from "@/components/ui/toast";
 import {
   Loader2,
@@ -73,6 +74,7 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
   const [experiences, setExperiences] = useState<any[]>(
     user?.experiences || [],
   );
+  const [projects, setProjects] = useState<any[]>(user?.projects || []);
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
@@ -354,6 +356,8 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
         experiences={experiences}
         setExperiences={setExperiences}
       />
+
+      <ProjectSection projects={projects} setProjects={setProjects} />
 
       <SkillsSection
         skills={user.skills || []}

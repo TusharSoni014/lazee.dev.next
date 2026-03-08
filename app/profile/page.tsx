@@ -16,6 +16,7 @@ export default async function ProfilePage() {
     include: {
       resumes: { orderBy: { version: "desc" } },
       experiences: { orderBy: { startDate: "desc" } },
+      projects: { orderBy: { createdAt: "desc" } },
     },
   });
 
