@@ -14,3 +14,4 @@
 [ ] It will analyse the JD & your resume, based on that show like - 50% match, 90% match.
 [ ] skills section in profile page
 [ ] projects section with video in profile page
+[ ] extension feedback add in notion or email or a table or a dashboard

@@ -72,6 +72,7 @@ export function ExtensionAuthSync() {
             ) {
               console.log("[Lazee.dev] Auth synced with extension");
               lastSyncedRef.current = sessionKey;
+              localStorage.setItem("lazeeExtensionId", extensionId);
             }
           },
         );
@@ -84,7 +85,9 @@ export function ExtensionAuthSync() {
   useEffect(() => {
     if (status === "unauthenticated" && lastSyncedRef.current) {
       const urlParams = new URLSearchParams(window.location.search);
-      const extensionId = urlParams.get("extensionId");
+      const extensionId =
+        urlParams.get("extensionId") ||
+        localStorage.getItem("lazeeExtensionId");
 
       if (extensionId && window.chrome?.runtime?.sendMessage) {
         try {
@@ -93,6 +96,7 @@ export function ExtensionAuthSync() {
             { type: "LAZEE_AUTH_LOGOUT" },
             () => {
               lastSyncedRef.current = null;
+              localStorage.removeItem("lazeeExtensionId");
             },
           );
         } catch {

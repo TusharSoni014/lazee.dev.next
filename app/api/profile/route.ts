@@ -48,6 +48,11 @@ export async function GET(request: NextRequest) {
             startDate: "desc",
           },
         },
+        projects: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
       },
     });
 
@@ -89,6 +94,12 @@ export async function GET(request: NextRequest) {
         currency: user.currency,
         currentCtc: user.currentCtc,
         experiences: user.experiences,
+        projects: user.projects,
+        skills: user.skills,
+        specificQuestionGuidance: user.specificQuestionGuidance,
+        jobType: user.jobType,
+        telegram: user.telegram,
+        other: user.other,
         image: user.image || `${request.nextUrl.origin}/placeholder.jpg`,
       },
       { headers: getCorsHeaders(request.headers.get("origin")) },

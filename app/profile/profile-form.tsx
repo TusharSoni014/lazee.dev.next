@@ -21,6 +21,7 @@ import {
   Coins,
   IdCard,
   Settings,
+  Send,
 } from "lucide-react";
 import clsx from "clsx";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const COUNTRY_CODES = [
   { code: "+1", name: "US/CA" },
@@ -67,6 +75,34 @@ const COUNTRY_CODES = [
 ];
 
 const CURRENCIES = ["USD", "EUR", "GBP", "INR", "AUD", "CAD", "JPY"];
+
+const JOB_TYPES = [
+  "Software Engineering",
+  "Frontend Development",
+  "Backend Development",
+  "Full Stack Development",
+  "Mobile Development",
+  "Web3 / Smart Contracts",
+  "Blockchain Developer",
+  "Cloud Architecture",
+  "DevOps / SRE",
+  "Cybersecurity",
+  "Data Science / Engineering",
+  "Machine Learning / AI",
+  "Game Development",
+  "Developer Relations",
+  "Product Management",
+  "Project Management",
+  "UI/UX Design",
+  "Graphic Design",
+  "Marketing",
+  "Sales",
+  "Customer Support",
+  "Human Resources",
+  "Finance / Accounting",
+  "Operations",
+  "Other",
+];
 
 export default function ProfileForm({ user: initialUser }: { user: any }) {
   const { data: user, isLoading: isLoadingProfile } = useProfile(initialUser);
@@ -302,6 +338,25 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
       <Section title="Professional Details" icon={Briefcase}>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-2">
+            <Label>Looking For Role</Label>
+            <Select name="jobType" defaultValue={user.jobType || undefined}>
+              <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
+                <SelectValue placeholder="Select Role Type" />
+              </SelectTrigger>
+              <SelectContent className="rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                {JOB_TYPES.map((role) => (
+                  <SelectItem
+                    key={role}
+                    value={role}
+                    className="cursor-pointer font-bold focus:bg-orange-50 rounded-none"
+                  >
+                    {role}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
             <Label>Current CTC</Label>
             <div className="flex gap-4">
               <div className="relative">
@@ -400,6 +455,36 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
             placeholder="https://..."
             icon={LinkIcon}
           />
+          <ProfileInput
+            label="Telegram"
+            name="telegram"
+            defaultValue={user.telegram}
+            placeholder="https://t.me/..."
+            icon={Send}
+          />
+          <ProfileInput
+            label="Other Link"
+            name="other"
+            defaultValue={user.other}
+            placeholder="https://..."
+            icon={LinkIcon}
+          />
+        </div>
+      </Section>
+
+      {/* AI Settings */}
+      <Section title="AI Settings" icon={Settings}>
+        <div className="space-y-2">
+          <Label>Specific Question Guidance (Optional)</Label>
+          <Textarea
+            name="specificQuestionGuidance"
+            defaultValue={user.specificQuestionGuidance || ""}
+            placeholder="Mention any extra and specific detail to provide for the AI..."
+            className="min-h-[120px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
+          />
+          <p className="text-xs font-bold text-zinc-500 pt-1 uppercase tracking-widest">
+            Mention extra and specific detail to provide for the AI.
+          </p>
         </div>
       </Section>
 
@@ -672,6 +757,8 @@ function ExperienceSection({ experiences, setExperiences }: any) {
 const experienceSchema = z.object({
   id: z.string().optional(),
   companyName: z.string().min(1, "Company name is required"),
+  role: z.string().min(1, "Job title is required"),
+  location: z.string().optional(),
   companyWebsite: z
     .string()
     .url("Must be a valid URL")
@@ -689,6 +776,8 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
     defaultValues: {
       id: exp.id,
       companyName: exp.companyName || "",
+      role: exp.role || "",
+      location: exp.location || "",
       companyWebsite: exp.companyWebsite || "",
       startDate: exp.startDate ? new Date(exp.startDate) : undefined,
       endDate: exp.endDate ? new Date(exp.endDate) : undefined,
@@ -717,13 +806,55 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
               render={({ field }) => (
                 <FormItem className="space-y-2">
                   <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
-                    Company Name
+                    Company Name *
                   </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="Acme Corp"
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                      placeholder="Google"
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Job Title / Role *
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Senior Full Stack Engineer"
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 mt-4">
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Location
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      placeholder="Remote / San Francisco"
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
                     />
                   </FormControl>
                   <FormMessage />
@@ -743,48 +874,54 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                       {...field}
                       value={field.value || ""}
                       placeholder="https://..."
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
             <FormField
               control={form.control}
               name="startDate"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="flex flex-col">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1 mb-2">
                     Start Date
                   </FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant="outline"
+                          variant={"outline"}
                           className={clsx(
-                            "w-full h-[50px] justify-start text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white",
-                            !field.value && "text-muted-foreground",
+                            "h-[50px] w-full pl-3 text-left font-bold rounded-none border-[3px] border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+                            !field.value && "text-zinc-500",
                           )}
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
                           {field.value ? (
                             format(field.value, "PPP")
                           ) : (
                             <span>Pick a date</span>
                           )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent
-                      className="w-auto p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white z-100"
+                      className="w-auto p-0 rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                       align="start"
                     >
                       <Calendar
                         mode="single"
-                        selected={field.value || undefined}
+                        selected={field.value}
                         onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
                         initialFocus
                       />
                     </PopoverContent>
@@ -793,100 +930,103 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                 </FormItem>
               )}
             />
-            <div className="space-y-2 flex flex-col justify-start">
-              <FormField
-                control={form.control}
-                name="endDate"
-                render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
-                      End Date
-                    </FormLabel>
-                    {!form.watch("isCurrent") ? (
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={clsx(
-                                "w-full h-[50px] justify-start text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white",
-                                !field.value && "text-muted-foreground",
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          className="w-auto p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white z-[100]"
-                          align="start"
-                        >
-                          <Calendar
-                            mode="single"
-                            selected={field.value || undefined}
-                            onSelect={field.onChange}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    ) : (
-                      <div className="h-[50px] w-full flex items-center px-4 border-[3px] border-black bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-zinc-500 font-bold">
-                        Present
-                      </div>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="isCurrent"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 pt-2 h-5">
-                    <FormControl>
-                      <Checkbox
-                        id={`current-${exp.id}`}
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        className="border-[3px] border-black rounded-none data-[state=checked]:bg-orange-500 data-[state=checked]:text-black mt-0"
-                      />
-                    </FormControl>
-                    <label
-                      htmlFor={`current-${exp.id}`}
-                      className="text-sm font-bold uppercase tracking-widest cursor-pointer leading-tight peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mt-0"
-                    >
-                      I currently work here
-                    </label>
-                  </FormItem>
-                )}
-              />
-            </div>
             <FormField
               control={form.control}
-              name="description"
+              name="endDate"
               render={({ field }) => (
-                <FormItem className="col-span-1 md:col-span-2 space-y-2 mt-2">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
-                    Description
+                <FormItem className="flex flex-col">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1 mb-2">
+                    End Date
                   </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      value={field.value || ""}
-                      placeholder="Describe your role and achievements..."
-                      className="min-h-[120px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
-                    />
-                  </FormControl>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          disabled={form.watch("isCurrent")}
+                          className={clsx(
+                            "h-[50px] w-full pl-3 text-left font-bold rounded-none border-[3px] border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+                            !field.value && "text-zinc-500",
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>
+                              {form.watch("isCurrent")
+                                ? "Present"
+                                : "Pick a date"}
+                            </span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-auto p-0 rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                      align="start"
+                    >
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
+
+          <FormField
+            control={form.control}
+            name="isCurrent"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center gap-3 space-x-0 space-y-0 rounded-none border-[3px] border-black p-4 bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked);
+                      if (checked) form.setValue("endDate", undefined);
+                    }}
+                    className="border-[3px] border-black w-6 h-6 rounded-none data-[state=checked]:bg-black data-[state=checked]:text-white"
+                  />
+                </FormControl>
+                <div className="space-y-1">
+                  <FormLabel className="text-sm font-black text-black uppercase tracking-widest leading-none cursor-pointer">
+                    I currently work here
+                  </FormLabel>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                  Job Description
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    placeholder="Describe your role, responsibilities, and achievements..."
+                    className="min-h-[120px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <div className="flex gap-4 mt-8 pt-6 border-t-[3px] border-black border-dashed">
             <Button
               type="button"

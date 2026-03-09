@@ -30,11 +30,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import clsx from "clsx";
 
 const projectSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Project name is required"),
+  role: z.string().optional(),
+  contribution: z.string().optional(),
+  duration: z.string().optional(),
   activeLink: z
     .string()
     .url("Must be a valid URL")
@@ -49,6 +53,7 @@ const projectSchema = z.object({
   videoUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   stacks: z.string().optional(), // We'll parse this as comma-separated
   description: z.string().optional(),
+  isTopProject: z.boolean().optional(),
 });
 
 function Section({
@@ -84,12 +89,16 @@ export function ProjectSection({ projects, setProjects }: any) {
     const newProj = {
       id: crypto.randomUUID(),
       name: "",
+      role: "",
+      contribution: "",
+      duration: "",
       activeLink: "",
       githubLink: "",
       logoUrl: "",
       videoUrl: "",
       stacks: [],
       description: "",
+      isTopProject: false,
     };
     setTempProj(newProj);
     setEditingId(newProj.id);
@@ -127,6 +136,14 @@ export function ProjectSection({ projects, setProjects }: any) {
       );
     } else {
       newProjects = [projectData, ...projects];
+    }
+
+    // Ensure only one top project
+    if (projectData.isTopProject) {
+      newProjects = newProjects.map((p: any) => ({
+        ...p,
+        isTopProject: p.id === projectData.id,
+      }));
     }
 
     const result = await updateProjects(newProjects);
@@ -206,10 +223,25 @@ export function ProjectSection({ projects, setProjects }: any) {
                   </div>
                 )}
                 <div className="flex-1 pr-24">
-                  <h3 className="text-xl font-black text-black uppercase">
+                  <h3 className="text-xl font-black text-black uppercase flex items-center gap-2">
                     {proj.name || "Untitled Project"}
+                    {proj.isTopProject && (
+                      <span className="text-[10px] bg-orange-500 text-black px-2 py-0.5 border-2 border-black font-black uppercase tracking-widest shrink-0">
+                        🏆 Top Pick
+                      </span>
+                    )}
                   </h3>
-                  <div className="flex flex-wrap gap-3 mt-2">
+                  <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2">
+                    {proj.role && (
+                      <span className="text-xs font-bold text-black uppercase tracking-widest bg-zinc-100 px-2 py-0.5 border border-black italic">
+                        Role: {proj.role}
+                      </span>
+                    )}
+                    {proj.duration && (
+                      <span className="text-xs font-bold text-zinc-600 uppercase tracking-widest bg-zinc-100 px-2 py-0.5 border border-black">
+                        {proj.duration}
+                      </span>
+                    )}
                     {proj.activeLink && (
                       <a
                         href={proj.activeLink}
@@ -231,6 +263,12 @@ export function ProjectSection({ projects, setProjects }: any) {
                       </a>
                     )}
                   </div>
+                  {proj.contribution && (
+                    <p className="text-xs font-bold text-zinc-500 mt-2 uppercase tracking-wide">
+                      <span className="text-black">Contribution:</span>{" "}
+                      {proj.contribution}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -329,12 +367,16 @@ function ProjectForm({ proj, onConfirm, onCancel, isLoading }: any) {
     defaultValues: {
       id: proj.id,
       name: proj.name || "",
+      role: proj.role || "",
+      contribution: proj.contribution || "",
+      duration: proj.duration || "",
       activeLink: proj.activeLink || "",
       githubLink: proj.githubLink || "",
       logoUrl: proj.logoUrl || "",
       videoUrl: proj.videoUrl || "",
       stacks: proj.stacks || "",
       description: proj.description || "",
+      isTopProject: proj.isTopProject || false,
     },
   });
 
@@ -351,25 +393,90 @@ function ProjectForm({ proj, onConfirm, onCancel, isLoading }: any) {
       </div>
       <Form {...form}>
         <div className="space-y-6">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
-                  Project Name *
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="My Awesome App"
-                    className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="grid gap-6 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Project Name *
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="My Awesome App"
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Your Role
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      placeholder="Lead Developer"
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="duration"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Duration / Timeframe
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      placeholder="Jan 2024 - Present"
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="contribution"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Key Contribution
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      placeholder="Implemented Real-time Chat"
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <div className="grid gap-6 md:grid-cols-2">
             <FormField
@@ -497,6 +604,27 @@ function ProjectForm({ proj, onConfirm, onCancel, isLoading }: any) {
                   />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="isTopProject"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center gap-3 space-x-0 space-y-0 rounded-none border-[3px] border-black p-4 bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mt-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    className="border-[3px] border-black w-6 h-6 rounded-none data-[state=checked]:bg-black data-[state=checked]:text-white"
+                  />
+                </FormControl>
+                <div className="space-y-1">
+                  <FormLabel className="text-sm font-black text-black uppercase tracking-widest leading-none cursor-pointer">
+                    Mark as Top Project 🌟
+                  </FormLabel>
+                </div>
               </FormItem>
             )}
           />

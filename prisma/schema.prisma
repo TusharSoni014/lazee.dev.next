@@ -56,12 +56,18 @@ model User {
   country     String?
 
   noticePeriod Int? // In days
+  jobType      String?
 
   // Socials
   linkedin  String?
   twitter   String?
   github    String?
   portfolio String?
+  telegram  String?
+  other     String?
+
+  // AI Guidance
+  specificQuestionGuidance String? @db.Text
 
   // Skills
   skills String[]
@@ -76,18 +82,22 @@ model User {
 }
 
 model Project {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String
-  activeLink  String?
-  githubLink  String?
-  logoUrl     String?
-  videoUrl    String?
-  stacks      String[]
-  description String?  @db.Text
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  role         String?
+  contribution String?  @db.Text
+  duration     String?
+  activeLink   String?
+  githubLink   String?
+  logoUrl      String?
+  videoUrl     String?
+  stacks       String[]
+  description  String?  @db.Text
+  isTopProject Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Resume {
@@ -127,6 +137,8 @@ model Experience {
   userId         String
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   companyName    String
+  role           String?
+  location       String?
   companyWebsite String?
   startDate      DateTime?
   endDate        DateTime?
