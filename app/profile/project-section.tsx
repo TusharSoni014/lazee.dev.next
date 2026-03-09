@@ -258,12 +258,26 @@ export function ProjectSection({ projects, setProjects }: any) {
                   className="mt-2 border-[3px] border-black bg-black rounded-none overflow-hidden object-cover relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                   style={{ paddingBottom: "56.25%", height: 0 }}
                 >
-                  <iframe
-                    src={getEmbedUrl(proj.videoUrl)}
-                    className="absolute top-0 left-0 w-full h-full border-none"
-                    allowFullScreen
-                    title={proj.name}
-                  />
+                  {proj.videoUrl.includes("youtube.com") ||
+                  proj.videoUrl.includes("youtu.be") ||
+                  proj.videoUrl.includes("vimeo.com") ? (
+                    <iframe
+                      src={getEmbedUrl(proj.videoUrl)}
+                      className="absolute top-0 left-0 w-full h-full border-none"
+                      allowFullScreen
+                      title={proj.name}
+                    />
+                  ) : (
+                    <video
+                      src={proj.videoUrl}
+                      controls
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute top-0 left-0 w-full h-full object-cover"
+                    />
+                  )}
                 </div>
               )}
             </div>
