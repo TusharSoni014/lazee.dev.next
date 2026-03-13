@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useProfile } from "@/hooks/useProfile";
 import { ResumeManager } from "./resume-manager";
 import { updateProfile, updateExperiences } from "./actions";
@@ -161,13 +162,23 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
         {/* User Identity & Membership */}
         <div className="lg:col-span-2 border-[3px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row items-center gap-8">
           <div className="h-32 w-32 shrink-0 rounded-none border-[3px] border-black bg-[#fefaf6] flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden relative group">
-            <span className="text-5xl font-black text-black uppercase">
-              {user.firstName ? user.firstName[0] : ""}
-              {user.lastName ? user.lastName[0] : ""}
-              {!user.firstName && !user.lastName && (
-                <UserIcon className="w-12 h-12" />
-              )}
-            </span>
+            {user.image ? (
+              <Image
+                src={user.image}
+                alt={`${user.firstName || ""} ${user.lastName || ""}`}
+                width={128}
+                height={128}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-5xl font-black text-black uppercase">
+                {user.firstName ? user.firstName[0] : ""}
+                {user.lastName ? user.lastName[0] : ""}
+                {!user.firstName && !user.lastName && (
+                  <UserIcon className="w-12 h-12" />
+                )}
+              </span>
+            )}
             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 

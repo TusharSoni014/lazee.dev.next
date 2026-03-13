@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
         jobType: user.jobType,
         telegram: user.telegram,
         other: user.other,
-        image: user.image || `${request.nextUrl.origin}/placeholder.jpg`,
+        image: user.image,
       },
       { headers: getCorsHeaders(request.headers.get("origin")) },
     );
