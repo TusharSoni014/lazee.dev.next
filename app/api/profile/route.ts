@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { checkAndRefreshCredits } from "@/lib/credits";
 
 // CORS headers
 // Helper to get CORS headers
@@ -34,6 +35,9 @@ export async function GET(request: NextRequest) {
         { status: 401, headers: getCorsHeaders(request.headers.get("origin")) },
       );
     }
+
+    // Passive credit refresh
+    await checkAndRefreshCredits(session.user.email);
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },

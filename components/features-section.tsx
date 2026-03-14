@@ -93,7 +93,7 @@ export function FeaturesSection() {
               Supported on:
             </p>
             <div className="text-black text-xs font-bold text-center mt-1">
-              Chrome, Firefox, Safari
+              Chrome, Firefox, Edge
             </div>
           </div>
         </div>

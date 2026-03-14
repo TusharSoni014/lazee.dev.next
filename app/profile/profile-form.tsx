@@ -418,21 +418,26 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
         </div>
       </Section>
 
-      <ExperienceSection
-        experiences={experiences}
-        setExperiences={setExperiences}
-      />
+      <div
+        onChange={(e) => e.stopPropagation()}
+        onInput={(e) => e.stopPropagation()}
+      >
+        <ExperienceSection
+          experiences={experiences}
+          setExperiences={setExperiences}
+        />
 
-      <ProjectSection projects={projects} setProjects={setProjects} />
+        <ProjectSection projects={projects} setProjects={setProjects} />
+
+        <ResumeManager
+          resumes={user.resumes || []}
+          membership={user.membership}
+        />
+      </div>
 
       <SkillsSection
         skills={user.skills || []}
         setDirty={() => setIsDirty(true)}
-      />
-
-      <ResumeManager
-        resumes={user.resumes || []}
-        membership={user.membership}
       />
 
       {/* Socials */}

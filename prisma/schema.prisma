@@ -48,6 +48,8 @@ model User {
 
   membership Membership @default(FREE)
   credits    Int        @default(200)
+  lastCreditReset DateTime @default(now())
+  createdAt       DateTime @default(now())
 
   resumeUrl String?
 

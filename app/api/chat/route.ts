@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { buildSystemPrompt } from "@/lib/prompt";
+import { checkAndRefreshCredits } from "@/lib/credits";
 
 // CORS headers
 const corsHeaders = {
@@ -24,6 +25,9 @@ export async function POST(request: NextRequest) {
         { status: 401, headers: corsHeaders },
       );
     }
+
+    // Passive credit refresh
+    await checkAndRefreshCredits(session.user.email);
 
     const { messages, userProfile } = await request.json();
 
