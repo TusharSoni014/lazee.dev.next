@@ -18,13 +18,13 @@ export function SiteHeader() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
-            <NavLink href="#features" active={false}>
+            <NavLink href="/#features" active={false}>
               Features
             </NavLink>
-            <NavLink href="#pricing" active={false}>
+            <NavLink href="/#pricing" active={false}>
               Pricing
             </NavLink>
-            <NavLink href="#faq" active={false}>
+            <NavLink href="/#faq" active={false}>
               FAQ
             </NavLink>
           </nav>

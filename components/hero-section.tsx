@@ -1,9 +1,18 @@
+"use client";
+
+import { motion } from "motion/react";
 import { HeroDemo } from "@/components/hero-demo";
 
 export function HeroSection() {
   return (
     <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-24 mb-16 mt-8">
-      <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left gap-6 lg:gap-8 animate-fade-in-up">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4 }}
+        className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left gap-6 lg:gap-8"
+      >
         <div className="inline-block bg-[#ffeb3b] border-[3px] border-black px-4 py-2 mt-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-2 hover:rotate-0 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
           <span className="text-black text-sm sm:text-base font-black uppercase tracking-widest">
             Stop Typing. Start Applying.
@@ -25,12 +34,18 @@ export function HeroSection() {
           </span>
           , just results.
         </p>
-      </div>
+      </motion.div>
 
       {/* Right Demo Column */}
-      <div className="flex-1 w-full max-w-md lg:max-w-full flex justify-center lg:justify-end animate-fade-in-up [animation-delay:200ms]">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4 }}
+        className="flex-1 w-full max-w-md lg:max-w-full flex justify-center lg:justify-end"
+      >
         <HeroDemo />
-      </div>
+      </motion.div>
     </div>
   );
 }

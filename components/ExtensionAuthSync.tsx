@@ -73,6 +73,10 @@ export function ExtensionAuthSync() {
               console.log("[Lazee.dev] Auth synced with extension");
               lastSyncedRef.current = sessionKey;
               localStorage.setItem("lazeeExtensionId", extensionId);
+              
+              if (urlParams.get("extensionId")) {
+                window.location.href = `chrome-extension://${extensionId}/popup.html`;
+              }
             }
           },
         );

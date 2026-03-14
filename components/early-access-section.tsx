@@ -1,8 +1,17 @@
+"use client";
+
+import { motion } from "motion/react";
 import { EarlyAccessForm } from "@/components/early-access-form";
 
 export function EarlyAccessSection() {
   return (
-    <div className="flex flex-col items-center w-full max-w-[500px] mt-10 mb-20 animate-fade-in-up [animation-delay:400ms]">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col items-center w-full max-w-[500px] mt-10 mb-20"
+    >
       <div className="w-full mb-6 mt-4">
         <EarlyAccessForm />
       </div>
@@ -19,6 +28,6 @@ export function EarlyAccessSection() {
         </a>{" "}
         on Twitter for dev log updates.
       </p>
-    </div>
+    </motion.div>
   );
 }

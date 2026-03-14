@@ -21,11 +21,16 @@ export default function AuthForm() {
     }
 
     setIsEmailLoading(true);
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const extensionId = urlParams.get("extensionId");
+    const callbackUrl = extensionId ? `/?extensionId=${extensionId}` : "/";
+
     try {
       const result = await signIn("nodemailer", {
         email,
         redirect: false,
-        callbackUrl: "/",
+        callbackUrl,
       });
 
       if (result?.error) {
@@ -43,8 +48,11 @@ export default function AuthForm() {
 
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
+    const urlParams = new URLSearchParams(window.location.search);
+    const extensionId = urlParams.get("extensionId");
+    const callbackUrl = extensionId ? `/?extensionId=${extensionId}` : "/";
     try {
-      await signIn("google", { callbackUrl: "/" });
+      await signIn("google", { callbackUrl });
     } catch (error) {
       toast.error("Failed to sign in with Google");
       setIsGoogleLoading(false);

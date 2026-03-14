@@ -1,12 +1,19 @@
+"use client";
+
+import { motion } from "motion/react";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InstallModal } from "@/components/install-modal";
 
 export function PricingSection() {
   return (
-    <div
+    <motion.div
       id="pricing"
-      className="flex flex-col items-center w-full max-w-[1400px] mx-auto animate-fade-in-up [animation-delay:800ms] mb-20 px-4 md:px-8"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col items-center w-full max-w-[1400px] mx-auto mb-20 px-4 md:px-8"
     >
       <div className="mx-auto w-full max-w-5xl">
         {/* Section Header */}
@@ -179,6 +186,6 @@ export function PricingSection() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

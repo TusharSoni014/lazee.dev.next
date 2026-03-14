@@ -1,10 +1,17 @@
+"use client";
+
+import { motion } from "motion/react";
 import { ArrowRight, FileText, Globe, Wand2 } from "lucide-react";
 
 export function FeaturesSection() {
   return (
-    <div
+    <motion.div
       id="features"
-      className="flex flex-col items-center w-full max-w-[1400px] mx-auto animate-fade-in-up [animation-delay:600ms]"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col items-center w-full max-w-[1400px] mx-auto"
     >
       <div className="w-full mb-16 text-center max-w-4xl mx-auto">
         <div className="inline-block bg-[#ff80ab] border-[3px] border-black px-4 py-1 mb-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transform -rotate-2">
@@ -91,6 +98,6 @@ export function FeaturesSection() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
