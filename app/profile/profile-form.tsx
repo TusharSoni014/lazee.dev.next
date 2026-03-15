@@ -6,6 +6,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { ResumeManager } from "./resume-manager";
 import { updateProfile, updateExperiences } from "./actions";
 import { ProjectSection } from "./project-section";
+import { UsernameManager } from "./username-manager";
 import { toast } from "@/components/ui/toast";
 import {
   Loader2,
@@ -272,6 +273,9 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
           </div>
         </div>
       </div>
+
+      {/* Username / Public Profile Link */}
+      <UsernameManager currentUsername={user.username} />
 
       {/* Personal Info */}
       <Section title="Personal Information" icon={IdCard}>

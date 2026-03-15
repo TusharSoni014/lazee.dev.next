@@ -58,14 +58,16 @@
       transform: translate(0px, 0px) scale(1);
     }
   }
-  @keyframes shimmer {
-    0% {
-      background-position: 200% 0;
+  @keyframes scroll {
+    from {
+      transform: translateX(0);
     }
-    100% {
-      background-position: -200% 0;
+    to {
+      transform: translateX(-50%);
     }
   }
+
+  --animate-scroll: scroll 40s linear infinite;
   @keyframes fadeInDown {
     from {
       opacity: 0;

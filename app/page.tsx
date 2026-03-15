@@ -5,6 +5,7 @@ import { FaqSection } from "@/components/faq-section";
 import { HeroSection } from "@/components/hero-section";
 import { EarlyAccessSection } from "@/components/early-access-section";
 import { FeaturesSection } from "@/components/features-section";
+import { LogoCarousel } from "@/components/logo-carousel";
 
 export default function Home() {
   return (
@@ -17,9 +18,10 @@ export default function Home() {
         }}
       />
 
-      <main className="relative z-10 flex w-full max-w-6xl flex-col items-center px-4 sm:px-8 pt-6 lg:pt-12">
+      <main className="relative z-10 flex w-full max-w-6xl flex-col items-center px-4 sm:px-8 pt-6 lg:pt-12 overflow-visible">
         <HeroSection />
         <EarlyAccessSection />
+        <LogoCarousel />
         <FeaturesSection />
         <PricingSection />
         <FaqSection />

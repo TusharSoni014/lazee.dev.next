@@ -14,12 +14,12 @@ import { v4 as uuidv4 } from "uuid";
 
 export async function getResumes() {
   const session = await auth();
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return { error: "Not authenticated" };
   }
 
   const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+    where: { id: session.user.id },
     include: { resumes: { orderBy: { version: "desc" } } },
   });
 
@@ -57,12 +57,12 @@ function getS3Client() {
 
 export async function uploadResumeDirect(formData: FormData) {
   const session = await auth();
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return { error: "Not authenticated" };
   }
 
   const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+    where: { id: session.user.id },
     include: { resumes: true },
   });
 
@@ -128,10 +128,10 @@ export async function uploadResumeDirect(formData: FormData) {
 
 export async function deleteResume(id: string) {
   const session = await auth();
-  if (!session?.user?.email) return { error: "Not authenticated" };
+  if (!session?.user?.id) return { error: "Not authenticated" };
 
   const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+    where: { id: session.user.id },
   });
 
   if (!user) return { error: "User not found" };
@@ -167,10 +167,10 @@ export async function deleteResume(id: string) {
 
 export async function getPresignedUrl(resumeId: string) {
   const session = await auth();
-  if (!session?.user?.email) return { error: "Not authenticated" };
+  if (!session?.user?.id) return { error: "Not authenticated" };
 
   const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+    where: { id: session.user.id },
   });
 
   if (!user) return { error: "User not found" };

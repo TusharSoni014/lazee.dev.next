@@ -52,7 +52,7 @@ export default function AuthButton() {
 
   if (status === "loading") {
     return (
-      <div className="h-9 w-9 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800" />
+      <div className="h-9 w-9 animate-pulse rounded-full bg-zinc-200" />
     );
   }
 
@@ -60,7 +60,7 @@ export default function AuthButton() {
     return (
       <Popover>
         <PopoverTrigger asChild>
-          <button className="relative h-9 w-9 overflow-hidden rounded-full border-[3px] border-black transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+          <button className="relative h-9 w-9 overflow-hidden rounded-full transition-all hover:scale-110 active:scale-95 cursor-pointer">
             {session.user?.image ? (
               <Image
                 src={session.user.image}
@@ -123,7 +123,7 @@ export default function AuthButton() {
   }
 
   return (
-    <Button asChild variant="default">
+    <Button asChild variant="ghost" className="font-black hover:text-orange-500">
       <Link href="/login">LOG IN</Link>
     </Button>
   );
