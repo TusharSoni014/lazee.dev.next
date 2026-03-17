@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
@@ -44,7 +45,9 @@ export default function RootLayout({
               </main>
               <Footer />
               <ExtensionAuthSync />
-              <LoginSuccessModal />
+              <Suspense fallback={null}>
+                <LoginSuccessModal />
+              </Suspense>
             </QueryProvider>
           </SessionProvider>
           <Toaster />
