@@ -508,6 +508,19 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
         </div>
       </Section>
 
+      {/* Cover Letter */}
+      <Section title="Cover Letter" icon={FileText}>
+        <div className="space-y-2">
+          <Label>Default Cover Letter (Optional)</Label>
+          <Textarea
+            name="coverLetter"
+            defaultValue={user.coverLetter || ""}
+            placeholder="Write your default cover letter here. This will be available in the extension's Profile tab for quick autofill on job applications..."
+            className="min-h-[200px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
+          />
+        </div>
+      </Section>
+
       <div className="flex justify-end pt-4">
         <Button
           type="submit"

@@ -77,6 +77,15 @@ export function Footer() {
               <li>
                 <Link
                   className="group flex items-center gap-2 text-base font-bold text-slate-700 dark:text-slate-300 hover:text-primary transition-colors"
+                  href="/feedback"
+                >
+                  <span className="w-2 h-2 bg-black dark:bg-white group-hover:bg-primary transition-colors"></span>
+                  Feedback
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="group flex items-center gap-2 text-base font-bold text-slate-700 dark:text-slate-300 hover:text-primary transition-colors"
                   href="/privacy"
                 >
                   <span className="w-2 h-2 bg-black dark:bg-white group-hover:bg-primary transition-colors"></span>

@@ -33,6 +33,7 @@ export async function updateProfile(data: any) {
         currentCtc: data.currentCtc ? parseFloat(data.currentCtc) : null,
         skills: data.skills || [],
         specificQuestionGuidance: data.specificQuestionGuidance,
+        coverLetter: data.coverLetter,
       },
     });
 

@@ -101,6 +101,7 @@ export async function GET(request: NextRequest) {
         projects: user.projects,
         skills: user.skills,
         specificQuestionGuidance: user.specificQuestionGuidance,
+        coverLetter: user.coverLetter,
         jobType: user.jobType,
         telegram: user.telegram,
         other: user.other,

@@ -7,24 +7,44 @@ import { Button } from "./ui/button";
 
 const faqs = [
   {
-    question: "Is Lazee.dev completely free to use?",
+    question: "How does the AI autofill work?",
     answer:
-      "During our beta testing phase, Lazee.dev is completely free. We will introduce premium features later, but core autofill functionality will remain free.",
+      "Lazee.dev is a browser extension that automatically detects job application form fields and fills them using the profile data you've saved on lazee.dev. For AI-powered answers (like open-ended questions), it uses 2 credits per fill. Standard fields like name, email, phone, and socials are filled instantly for free — no credits needed.",
   },
   {
-    question: "How secure is my data?",
+    question: "What job boards and ATS platforms are supported?",
     answer:
-      "Extremely secure. All your data is encrypted and stored locally on your device. We never send your personal information to our servers.",
+      "We support all major hiring platforms including Workday, Greenhouse, Lever, Ashby, and LinkedIn Easy Apply. We're constantly expanding support for new ATS platforms and company career pages. Works across Chrome, Firefox, and Edge.",
   },
   {
-    question: "Which job boards are supported?",
+    question: "What is the credits system?",
     answer:
-      "We support major platforms including Workday, Greenhouse, Lever, Ashby, and basic LinkedIn Easy Apply forms. We continuously add support for new ATS platforms.",
+      "Credits power the AI-assisted fills. Every free account gets 200 credits per month, automatically refreshed. Each AI fill costs 2 credits. Pro users get 10,000 credits per month. Non-AI autofill (name, email, phone, social links, etc.) is completely free and unlimited on all plans.",
   },
   {
-    question: "Can I use it on multiple devices?",
+    question: "What's included in the Free vs Pro plan?",
     answer:
-      "Currently, data is stored locally. We are working on an encrypted sync feature to allow seamless usage across all your devices.",
+      "The Free plan includes 200 AI credits per month, unlimited basic profile data autofill, and basic AI suggestions. The Pro plan ($9/mo) gives you 10,000 credits per month, Bulk Apply Mode, access to beta features, and priority support — perfect for serious job hunters applying at scale.",
+  },
+  {
+    question: "What profile data can I store and autofill?",
+    answer:
+      "You can store a comprehensive profile including your name, phone number, country, job type preference, current CTC, notice period, work experience, projects, skills, multiple resumes, social links (LinkedIn, GitHub, Twitter, Portfolio, Telegram), a default cover letter, and custom AI guidance notes. All of this is available for autofill via the extension.",
+  },
+  {
+    question: "Can I store and use multiple resumes?",
+    answer:
+      "Yes! Lazee.dev supports managing multiple resume versions from your profile. You can upload different resumes (e.g., tailored for different roles) and switch between them directly from the extension when applying.",
+  },
+  {
+    question: "When will the browser extension be available?",
+    answer:
+      "The extension is currently in development and releasing soon. You can sign up now to fill out your profile and be ready to hit the ground running the moment it goes live. Follow @TusharSoni014 on X (Twitter) for real-time dev logs and launch updates.",
+  },
+  {
+    question: "What is the Public Profile feature?",
+    answer:
+      "You can set a custom username to get a shareable public profile link (e.g., lazee.dev/profile/yourusername). This lets you share your professional details publicly, making it easy to apply for jobs or share your profile with recruiters.",
   },
 ];
 

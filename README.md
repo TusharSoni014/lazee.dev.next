@@ -14,3 +14,4 @@
 [ ] extension feedback add in notion or email or a table or a dashboard
 [ ] add support for notion forms
 [ ] custom embed for whole website to support job application fill
+[ ] AI resume maker for each job post

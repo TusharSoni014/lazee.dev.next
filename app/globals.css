@@ -58,16 +58,6 @@
       transform: translate(0px, 0px) scale(1);
     }
   }
-  @keyframes scroll {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
-  }
-
-  --animate-scroll: scroll 40s linear infinite;
   @keyframes fadeInDown {
     from {
       opacity: 0;
@@ -179,7 +169,7 @@ body {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;

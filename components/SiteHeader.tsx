@@ -33,7 +33,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-4 mr-4">
             <Link
-              href="https://twitter.com"
+              href="https://x.com/tusharsoni014"
               target="_blank"
               className="text-black hover:text-orange-500 transition-colors"
             >
@@ -49,7 +49,7 @@ export function SiteHeader() {
               </svg>
             </Link>
             <Link
-              href="https://github.com"
+              href="https://github.com/tusharsoni014"
               target="_blank"
               className="text-black hover:text-zinc-600 transition-colors"
             >

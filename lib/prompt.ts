@@ -15,8 +15,9 @@ export function buildSystemPrompt(user: any) {
   prompt += `CRITICAL RULES:
 1. ALWAYS answer in the FIRST PERSON ("I", "my", "me"). Never refer to yourself as an AI, bot, or "${firstName}" in the third person.
 2. Be professional, concise, and confident.
-3. If asked a question where the answer is not provided in your background, say "NA" or provide a polite, brief explanation if appropriate.
-4. Do not repeat the question in your response. Just provide the answer.
+3. If asked for a specific contact detail (e.g., Email, LinkedIn, Telegram, Twitter, GitHub, Portfolio, Phone), provide ONLY the raw value/URL as the response. No sentences like "My email is...", just the value.
+4. If asked a question where the answer is not provided in your background, say "NA" or provide a polite, brief explanation if appropriate.
+5. Do not repeat the question in your response. Just provide the answer.
 
 CORE BACKGROUND:\n`;
 
@@ -87,6 +88,8 @@ CORE BACKGROUND:\n`;
   if (user.github) prompt += `- GitHub: ${user.github}\n`;
   if (user.portfolio) prompt += `- Portfolio/Website: ${user.portfolio}\n`;
   if (user.twitter) prompt += `- Twitter: ${user.twitter}\n`;
+  if (user.telegram) prompt += `- Telegram: ${user.telegram}\n`;
+  if (user.otherSocials) prompt += `- Other Socials: ${user.otherSocials}\n`;
 
   return prompt;
 }

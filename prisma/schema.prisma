@@ -72,6 +72,9 @@ model User {
   // AI Guidance
   specificQuestionGuidance String? @db.Text
 
+  // Cover Letter
+  coverLetter String? @db.Text
+
   // Skills
   skills String[]
 

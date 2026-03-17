@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { motion } from "motion/react";
 
 const logos = [
   { name: "Airtable", src: "airtable.jpg" },
@@ -8,7 +9,7 @@ const logos = [
   { name: "Glassdoor", src: "glassdoor.png" },
   { name: "Google Forms", src: "google-form.png" },
   { name: "Notion", src: "notion.png" },
-  { name: "Superteam", src: "superteam.jpg" },
+  { name: "Superteam", src: "superteam.png" },
   { name: "Wellfound", src: "wellfound.png" },
 ];
 
@@ -31,13 +32,26 @@ export function LogoCarousel() {
           {/* Enhanced Fade Effect */}
           <div className="absolute top-0 left-0 w-24 sm:w-48 h-full bg-linear-to-r from-white via-white/80 to-transparent z-10 pointer-events-none" />
           <div className="absolute top-0 right-0 w-24 sm:w-48 h-full bg-linear-to-l from-white via-white/80 to-transparent z-10 pointer-events-none" />
-          
-          <div className="flex overflow-hidden group">
-            <div className="flex animate-scroll whitespace-nowrap gap-12 sm:gap-24 items-center group-hover:paused">
+
+          <div className="flex overflow-hidden">
+            <motion.div
+              animate={{
+                x: ["0%", "-50%"],
+              }}
+              transition={{
+                x: {
+                  repeat: Infinity,
+                  repeatType: "loop",
+                  duration: 25,
+                  ease: "linear",
+                },
+              }}
+              className="flex whitespace-nowrap items-center"
+            >
               {duplicatedLogos.map((logo, index) => (
                 <div
                   key={`${logo.name}-${index}`}
-                  className="flex items-center justify-center grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                  className="flex items-center justify-center grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300 px-6 sm:px-12"
                 >
                   <div className="relative h-10 w-28 sm:h-12 sm:w-36 flex items-center justify-center">
                     <Image
@@ -50,7 +64,7 @@ export function LogoCarousel() {
                   </div>
                 </div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
