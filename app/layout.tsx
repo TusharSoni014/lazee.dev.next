@@ -3,6 +3,7 @@ import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import SessionProvider from "@/components/providers/SessionProvider";
 import { ExtensionAuthSync } from "@/components/ExtensionAuthSync";
+import { LoginSuccessModal } from "@/components/LoginSuccessModal";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toast";
@@ -43,6 +44,7 @@ export default function RootLayout({
               </main>
               <Footer />
               <ExtensionAuthSync />
+              <LoginSuccessModal />
             </QueryProvider>
           </SessionProvider>
           <Toaster />

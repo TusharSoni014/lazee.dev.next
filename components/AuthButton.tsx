@@ -123,7 +123,7 @@ export default function AuthButton() {
   }
 
   return (
-    <Button asChild variant="ghost" className="font-black hover:text-orange-500">
+    <Button asChild>
       <Link href="/login">LOG IN</Link>
     </Button>
   );

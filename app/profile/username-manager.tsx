@@ -154,8 +154,8 @@ export function UsernameManager({ currentUsername }: UsernameManagerProps) {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="rounded-none border-[4px] border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] bg-white max-w-md p-0">
-          <div className="bg-orange-500 border-b-[4px] border-black p-6">
+        <DialogContent className="max-w-md p-0">
+          <div className="bg-orange-500 border-b-4 border-black p-6">
             <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-black italic">
               {currentUsername ? "Change Your Alias" : "Claim Your Username"}
             </DialogTitle>
@@ -217,7 +217,7 @@ export function UsernameManager({ currentUsername }: UsernameManagerProps) {
             </div>
           </div>
 
-          <DialogFooter className="bg-zinc-50 border-t-[4px] border-black p-6 sm:justify-end gap-3">
+          <DialogFooter className="bg-zinc-50 border-t-4 border-black p-6 sm:justify-end gap-3">
             <Button
               type="button"
               variant="outline"

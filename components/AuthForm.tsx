@@ -24,7 +24,9 @@ export default function AuthForm() {
     
     const urlParams = new URLSearchParams(window.location.search);
     const extensionId = urlParams.get("extensionId");
-    const callbackUrl = extensionId ? `/?extensionId=${extensionId}` : "/";
+    const callbackUrl = extensionId 
+      ? `/?extensionId=${extensionId}&logged_in=true` 
+      : "/?logged_in=true";
 
     try {
       const result = await signIn("nodemailer", {
@@ -50,7 +52,9 @@ export default function AuthForm() {
     setIsGoogleLoading(true);
     const urlParams = new URLSearchParams(window.location.search);
     const extensionId = urlParams.get("extensionId");
-    const callbackUrl = extensionId ? `/?extensionId=${extensionId}` : "/";
+    const callbackUrl = extensionId 
+      ? `/?extensionId=${extensionId}&logged_in=true` 
+      : "/?logged_in=true";
     try {
       await signIn("google", { callbackUrl });
     } catch (error) {
