@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getCorsHeaders } from "@/lib/cors";
 
 function getS3Client() {
   const cloudflareBucketUrl = process.env.CLOUDFLARE_S3_BUCKET || "";
@@ -31,21 +32,6 @@ function getS3Client() {
   return { s3, bucketName };
 }
 
-function getCorsHeaders(origin: string | null) {
-  const isValidOrigin =
-    origin &&
-    (origin.startsWith("chrome-extension://") ||
-      origin.includes("localhost") ||
-      origin.includes("lazee.dev"));
-
-  return {
-    "Access-Control-Allow-Origin": isValidOrigin ? origin : "*",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Access-Control-Allow-Credentials": "true",
-  };
-}
-
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get("origin");
   return NextResponse.json({}, { headers: getCorsHeaders(origin) });
@@ -55,12 +41,15 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const origin = request.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
+
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Not authenticated" },
-        { status: 401, headers: getCorsHeaders(request.headers.get("origin")) },
+        { status: 401, headers: corsHeaders },
       );
     }
 
@@ -71,7 +60,7 @@ export async function GET(
     if (!user) {
       return NextResponse.json(
         { error: "User not found" },
-        { status: 404, headers: getCorsHeaders(request.headers.get("origin")) },
+        { status: 404, headers: corsHeaders },
       );
     }
 
@@ -85,7 +74,7 @@ export async function GET(
     if (!resume || resume.userId !== user.id) {
       return NextResponse.json(
         { error: "Resume not found or unauthorized" },
-        { status: 404, headers: getCorsHeaders(request.headers.get("origin")) },
+        { status: 404, headers: corsHeaders },
       );
     }
 
@@ -99,13 +88,13 @@ export async function GET(
 
     return NextResponse.json(
       { success: true, url: presignedUrl },
-      { headers: getCorsHeaders(request.headers.get("origin")) },
+      { headers: corsHeaders },
     );
   } catch (error) {
     console.error("Resume Presigned URL Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500, headers: getCorsHeaders(request.headers.get("origin")) },
+      { status: 500, headers: corsHeaders },
     );
   }
 }

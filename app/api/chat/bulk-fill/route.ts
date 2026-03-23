@@ -2,25 +2,44 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { buildSystemPrompt } from "@/lib/prompt";
+import { getCorsHeaders } from "@/lib/cors";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Allow-Credentials": "true",
-};
-
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get("origin");
+  return NextResponse.json({}, { headers: getCorsHeaders(origin) });
 }
 
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
+
   try {
     const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: "Not authenticated" },
         { status: 401, headers: corsHeaders },
+      );
+    }
+
+    // Rate limiting
+    const rateLimit = checkRateLimit(
+      `bulk-fill:${session.user.email}`,
+      RATE_LIMITS.bulkFill,
+    );
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          error: `Too many requests. Please try again in ${rateLimit.resetIn} seconds.`,
+        },
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Retry-After": String(rateLimit.resetIn),
+          },
+        },
       );
     }
 
@@ -72,10 +91,6 @@ export async function POST(request: NextRequest) {
     if (userProfile && !user.name) {
       systemContent += `\n\nCURRENT USER CONTEXT:\nName: ${userProfile.name || "Unknown"}\nEmail: ${userProfile.email || "Unknown"}\n`;
     }
-
-    console.log("--- BULK FILL SYSTEM PROMPT ---");
-    console.log(systemContent);
-    console.log("-------------------------------");
 
     const prompt = `Based on my background, please provide concise, professional answers for the following form fields. 
 Return the result as a strictly valid JSON object where keys are the EXACT IDs provided and values are the generated answers.
@@ -132,18 +147,15 @@ Format:
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       parsedResponses = JSON.parse(jsonMatch ? jsonMatch[0] : content);
     } catch (e) {
-      console.error("Failed to parse AI response as JSON:", content);
+      console.error("Failed to parse AI response as JSON");
       return NextResponse.json(
         { error: "AI failed to generate a valid JSON response" },
         { status: 500, headers: corsHeaders },
       );
     }
 
-    console.log("--- BULK FILL Parsed Response ---");
-    console.log(JSON.stringify(parsedResponses, null, 2));
-
     let finalResponses = parsedResponses.responses || parsedResponses;
-    if (typeof finalResponses !== 'object' || finalResponses === null) {
+    if (typeof finalResponses !== "object" || finalResponses === null) {
       finalResponses = {};
     }
 
@@ -157,7 +169,10 @@ Format:
       },
     });
 
-    return NextResponse.json({ responses: finalResponses }, { headers: corsHeaders });
+    return NextResponse.json(
+      { responses: finalResponses },
+      { headers: corsHeaders },
+    );
   } catch (error) {
     console.error("Bulk Fill Route Error:", error);
     return NextResponse.json(

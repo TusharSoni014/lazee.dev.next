@@ -3,26 +3,44 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { buildSystemPrompt } from "@/lib/prompt";
 import { checkAndRefreshCredits } from "@/lib/credits";
+import { getCorsHeaders } from "@/lib/cors";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
-// CORS headers
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Allow-Credentials": "true",
-};
-
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get("origin");
+  return NextResponse.json({}, { headers: getCorsHeaders(origin) });
 }
 
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
+
   try {
     const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: "Not authenticated" },
         { status: 401, headers: corsHeaders },
+      );
+    }
+
+    // Rate limiting
+    const rateLimit = checkRateLimit(
+      `chat:${session.user.email}`,
+      RATE_LIMITS.chat,
+    );
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          error: `Too many requests. Please try again in ${rateLimit.resetIn} seconds.`,
+        },
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Retry-After": String(rateLimit.resetIn),
+          },
+        },
       );
     }
 
@@ -55,10 +73,6 @@ export async function POST(request: NextRequest) {
     }
 
     let systemContent = buildSystemPrompt(user);
-
-    console.log("-----------------------------");
-    console.log(systemContent);
-    console.log("-----------------------------");
 
     // Inject dynamic user profile fields if sent from client as a fallback
     if (userProfile && !user.name) {

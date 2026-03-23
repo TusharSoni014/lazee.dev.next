@@ -89,7 +89,7 @@ CORE BACKGROUND:\n`;
   if (user.portfolio) prompt += `- Portfolio/Website: ${user.portfolio}\n`;
   if (user.twitter) prompt += `- Twitter: ${user.twitter}\n`;
   if (user.telegram) prompt += `- Telegram: ${user.telegram}\n`;
-  if (user.otherSocials) prompt += `- Other Socials: ${user.otherSocials}\n`;
+  if (user.other) prompt += `- Other Socials: ${user.other}\n`;
 
   return prompt;
 }

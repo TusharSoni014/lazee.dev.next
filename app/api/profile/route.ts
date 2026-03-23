@@ -2,24 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { checkAndRefreshCredits } from "@/lib/credits";
-
-// CORS headers
-// Helper to get CORS headers
-function getCorsHeaders(origin: string | null) {
-  // Allow extension, localhost, and production domain
-  const isValidOrigin =
-    origin &&
-    (origin.startsWith("chrome-extension://") ||
-      origin.includes("localhost") ||
-      origin.includes("lazee.dev"));
-
-  return {
-    "Access-Control-Allow-Origin": isValidOrigin ? origin : "*",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Access-Control-Allow-Credentials": "true",
-  };
-}
+import { getCorsHeaders } from "@/lib/cors";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get("origin");
@@ -27,12 +11,35 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const origin = request.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
+
   try {
     const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: "Not authenticated" },
-        { status: 401, headers: getCorsHeaders(request.headers.get("origin")) },
+        { status: 401, headers: corsHeaders },
+      );
+    }
+
+    // Rate limiting
+    const rateLimit = checkRateLimit(
+      `profile:${session.user.email}`,
+      RATE_LIMITS.profile,
+    );
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          error: `Too many requests. Please try again in ${rateLimit.resetIn} seconds.`,
+        },
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Retry-After": String(rateLimit.resetIn),
+          },
+        },
       );
     }
 
@@ -63,7 +70,7 @@ export async function GET(request: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { error: "User not found" },
-        { status: 404, headers: getCorsHeaders(request.headers.get("origin")) },
+        { status: 404, headers: corsHeaders },
       );
     }
 
@@ -107,13 +114,13 @@ export async function GET(request: NextRequest) {
         other: user.other,
         image: user.image,
       },
-      { headers: getCorsHeaders(request.headers.get("origin")) },
+      { headers: corsHeaders },
     );
   } catch (error) {
     console.error("Profile API Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500, headers: getCorsHeaders(request.headers.get("origin")) },
+      { status: 500, headers: corsHeaders },
     );
   }
 }

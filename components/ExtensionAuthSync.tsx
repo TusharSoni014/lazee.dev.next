@@ -88,7 +88,7 @@ export function ExtensionAuthSync() {
               "success" in response &&
               response.success
             ) {
-              console.log("[Lazee.dev] Auth synced with extension");
+              // Auth synced with extension
               lastSyncedRef.current = sessionKey;
               localStorage.setItem("lazeeExtensionId", extensionId);
               
@@ -125,7 +125,7 @@ export function ExtensionAuthSync() {
             },
           );
         } catch {
-          console.log("Failed to log out");
+          // Failed to log out
         }
       }
     }

@@ -31,7 +31,6 @@ export async function checkAndRefreshCredits(userEmail: string) {
   const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
   
   if (now.getTime() - lastReset.getTime() >= thirtyDaysInMs) {
-    console.log(`Refreshing credits for user ${userEmail}`);
     
     return await prisma.user.update({
       where: { email: userEmail },

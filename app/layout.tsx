@@ -22,8 +22,59 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Lazee.dev",
-  description: "Job Applications, 100x Faster",
+  metadataBase: new URL("https://lazee.dev"),
+  title: {
+    default: "Lazee.dev — Job Applications, 100x Faster",
+    template: "%s | Lazee.dev",
+  },
+  description:
+    "The AI-powered browser extension that auto-fills job applications using your profile. Save hours on repetitive forms and apply to jobs 100x faster.",
+  keywords: [
+    "job application autofill",
+    "AI job apply",
+    "browser extension",
+    "job hunting automation",
+    "auto fill forms",
+    "lazee.dev",
+  ],
+  authors: [{ name: "Lazee.dev" }],
+  creator: "Lazee.dev",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://lazee.dev",
+    siteName: "Lazee.dev",
+    title: "Lazee.dev — Job Applications, 100x Faster",
+    description:
+      "The AI-powered browser extension that auto-fills job applications using your profile. Apply to jobs 100x faster.",
+    images: [
+      {
+        url: "/logo.png",
+        width: 512,
+        height: 512,
+        alt: "Lazee.dev Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Lazee.dev — Job Applications, 100x Faster",
+    description:
+      "The AI-powered browser extension that auto-fills job applications using your profile.",
+    images: ["/logo.png"],
+    creator: "@tusharsoni014",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({
