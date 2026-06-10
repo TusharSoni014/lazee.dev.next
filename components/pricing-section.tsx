@@ -1,11 +1,47 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { motion } from "motion/react";
-import { Check, X } from "lucide-react";
+import { Check, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InstallModal } from "@/components/install-modal";
 
 export function PricingSection() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  async function handleGoPro() {
+    if (!session?.user) {
+      router.push("/login");
+      return;
+    }
+    setIsCheckingOut(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          product_cart: [
+            { product_id: "pdt_0NayYkMQdxcLwDxT4hxDk", quantity: 1 },
+          ],
+          customer: {
+            email: session.user.email,
+            name: session.user.name ?? session.user.email,
+          },
+          return_url: `${window.location.origin}/profile`,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to create checkout");
+      const { checkout_url } = await res.json();
+      window.location.href = checkout_url;
+    } catch {
+      setIsCheckingOut(false);
+    }
+  }
+
   return (
     <motion.div
       id="pricing"
@@ -174,14 +210,21 @@ export function PricingSection() {
               </li>
             </ul>
             <div className="mt-auto">
-              <InstallModal>
-                <Button
-                  variant="black"
-                  className="w-full py-3 h-auto shadow-[4px_4px_0px_0px_white] hover:shadow-[6px_6px_0px_0px_white]"
-                >
-                  Go Pro Now
-                </Button>
-              </InstallModal>
+              <Button
+                variant="black"
+                onClick={handleGoPro}
+                disabled={isCheckingOut}
+                className="w-full py-3 h-auto shadow-[4px_4px_0px_0px_white] hover:shadow-[6px_6px_0px_0px_white] disabled:opacity-70"
+              >
+                {isCheckingOut ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Redirecting...
+                  </span>
+                ) : (
+                  "Go Pro Now"
+                )}
+              </Button>
             </div>
           </div>
         </div>

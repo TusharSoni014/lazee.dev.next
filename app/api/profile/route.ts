@@ -92,6 +92,7 @@ export async function GET(request: NextRequest) {
         email: user.email,
         membership: user.membership,
         credits: user.credits,
+        dodoCustomerId: user.dodoCustomerId,
         resumeUrl: user.resumeUrl,
         resumes: user.resumes,
         countryCode: user.countryCode,

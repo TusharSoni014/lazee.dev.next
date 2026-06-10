@@ -109,6 +109,7 @@ const JOB_TYPES = [
 export default function ProfileForm({ user: initialUser }: { user: any }) {
   const { data: user, isLoading: isLoadingProfile } = useProfile(initialUser);
   const [loading, setLoading] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [experiences, setExperiences] = useState<any[]>(
     user?.experiences || [],
   );
@@ -150,6 +151,43 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
     } else {
       toast.error("Failed to update profile.");
     }
+  }
+
+  async function handleUpgrade() {
+    setIsCheckingOut(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          product_cart: [
+            { product_id: "pdt_0NayYkMQdxcLwDxT4hxDk", quantity: 1 },
+          ],
+          customer: {
+            email: user.email,
+            name:
+              [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+              user.name ||
+              user.email,
+          },
+          return_url: `${window.location.origin}/profile`,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to create checkout session");
+      const { checkout_url } = await res.json();
+      window.location.href = checkout_url;
+    } catch {
+      toast.error("Could not start checkout. Please try again.");
+      setIsCheckingOut(false);
+    }
+  }
+
+  function handleManageSubscription() {
+    if (!user.dodoCustomerId) {
+      toast.error("No subscription found.");
+      return;
+    }
+    window.location.href = `/api/customer-portal?customer_id=${user.dodoCustomerId}`;
   }
 
   return (
@@ -216,14 +254,24 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
                 <Button
                   type="button"
                   size="sm"
-                  className="bg-black text-white hover:bg-zinc-800 tracking-widest uppercase font-bold px-4 py-2 h-auto"
+                  onClick={handleUpgrade}
+                  disabled={isCheckingOut}
+                  className="bg-black text-white hover:bg-zinc-800 tracking-widest uppercase font-bold px-4 py-2 h-auto disabled:opacity-60"
                 >
-                  Upgrade
+                  {isCheckingOut ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Redirecting...
+                    </>
+                  ) : (
+                    "Upgrade to Pro"
+                  )}
                 </Button>
               ) : (
                 <Button
                   type="button"
                   size="icon"
+                  onClick={handleManageSubscription}
                   className="bg-white border-[3px] border-black text-black hover:bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all rounded-none h-10 w-10 flex items-center justify-center"
                   title="Manage Subscription"
                 >
