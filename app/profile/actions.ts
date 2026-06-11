@@ -3,9 +3,10 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 import { getS3Client } from "@/lib/s3";
+import { getR2KeyFromUrl } from "@/lib/utils";
 
 export async function updateProfile(data: any) {
   const session = await auth();
@@ -329,12 +330,94 @@ export async function uploadProjectScreenshot(formData: FormData) {
       }),
     );
 
-    const publicUrl = `${process.env.CLOUDFLARE_S3_BUCKET}/${key}`;
+    const publicUrlBase = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "https://pub-889628534b094cf89bcd7cd93528323d.r2.dev";
+    const publicUrl = `${publicUrlBase}/${key}`;
     return { success: true, url: publicUrl };
   } catch (error) {
     console.error("Failed to upload screenshot to S3:", error);
     return { error: "Failed to upload screenshot" };
   }
 }
+
+export async function uploadProjectLogo(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Not authenticated" };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+  });
+
+  if (!user) return { error: "User not found" };
+
+  const file = formData.get("file") as File;
+  if (!file) return { error: "No file provided" };
+  if (!file.type.startsWith("image/")) {
+    return { error: "Only image formats (PNG, JPG, WEBP, etc.) are allowed" };
+  }
+  if (file.size > 1 * 1024 * 1024) {
+    return { error: "File size exceeds 1MB limit" };
+  }
+
+  const { s3, bucketName } = getS3Client();
+  const fileExtension = file.name.split(".").pop();
+  const uniqueId = uuidv4();
+  const key = `logos/${user.id}/${uniqueId}.${fileExtension}`;
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+        Body: buffer,
+        ContentType: file.type,
+      }),
+    );
+
+    const publicUrlBase = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "https://pub-889628534b094cf89bcd7cd93528323d.r2.dev";
+    const publicUrl = `${publicUrlBase}/${key}`;
+    return { success: true, url: publicUrl };
+  } catch (error) {
+    console.error("Failed to upload logo to S3:", error);
+    return { error: "Failed to upload logo" };
+  }
+}
+
+export async function deleteProjectFile(url: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Not authenticated" };
+  }
+
+  const key = getR2KeyFromUrl(url);
+  if (!key) return { error: "Invalid file URL" };
+
+  // Verify that the file belongs to the authenticated user
+  const parts = key.split("/");
+  const userIdInKey = parts[1];
+  if (userIdInKey !== session.user.id) {
+    return { error: "Unauthorized file deletion" };
+  }
+
+  const { s3, bucketName } = getS3Client();
+  try {
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+      }),
+    );
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete file from S3:", error);
+    return { error: "Failed to delete file from server" };
+  }
+}
+
+
 
 

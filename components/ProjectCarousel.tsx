@@ -70,7 +70,7 @@ export function ProjectCarousel({ screenshots }: ProjectCarouselProps) {
       <button
         type="button"
         onClick={() => paginate(-1)}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 flex items-center justify-center border-[2px] border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-orange-50 active:bg-orange-100 transition-all rounded-none cursor-pointer opacity-0 group-hover:opacity-100 duration-200"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 flex items-center justify-center border-[2px] border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-orange-50 active:bg-orange-100 transition-all rounded-none cursor-pointer opacity-0 group-hover:opacity-100 duration-200"
         aria-label="Previous slide"
       >
         <ChevronLeft className="w-5 h-5 text-black" strokeWidth={2.5} />
@@ -80,7 +80,7 @@ export function ProjectCarousel({ screenshots }: ProjectCarouselProps) {
       <button
         type="button"
         onClick={() => paginate(1)}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 flex items-center justify-center border-[2px] border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-orange-50 active:bg-orange-100 transition-all rounded-none cursor-pointer opacity-0 group-hover:opacity-100 duration-200"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 flex items-center justify-center border-[2px] border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-orange-50 active:bg-orange-100 transition-all rounded-none cursor-pointer opacity-0 group-hover:opacity-100 duration-200"
         aria-label="Next slide"
       >
         <ChevronRight className="w-5 h-5 text-black" strokeWidth={2.5} />

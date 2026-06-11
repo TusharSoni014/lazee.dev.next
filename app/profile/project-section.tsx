@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateProjects, uploadProjectScreenshot } from "./actions";
+import { updateProjects, uploadProjectScreenshot, uploadProjectLogo, deleteProjectFile } from "./actions";
 import { toast } from "@/components/ui/toast";
 import {
   FolderGit2,
@@ -34,6 +34,8 @@ import {
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import clsx from "clsx";
+import { getPublicImageUrl } from "@/lib/utils";
+
 
 const projectSchema = z.object({
   id: z.string().optional(),
@@ -107,11 +109,27 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
   };
 
   const removeProject = async (id: string) => {
+    const projectToDelete = projects.find((proj: any) => proj.id === id);
     const newProjects = projects.filter((proj: any) => proj.id !== id);
     setProjects(newProjects);
     if (editingId === id) cancelEdit();
     await updateProjects(newProjects);
     toast.success("Project removed");
+
+    if (projectToDelete) {
+      const filesToDelete = [
+        projectToDelete.logoUrl,
+        ...(projectToDelete.screenshots || []),
+      ].filter(Boolean);
+
+      for (const fileUrl of filesToDelete) {
+        try {
+          await deleteProjectFile(fileUrl);
+        } catch (err) {
+          console.error("Failed to delete project file from R2 on project deletion:", err);
+        }
+      }
+    }
   };
 
   const confirmProject = async (data: any) => {
@@ -219,7 +237,7 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
                 {proj.logoUrl && (
                   <div className="w-16 h-16 shrink-0 border-[3px] border-black overflow-hidden bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                     <img
-                      src={proj.logoUrl}
+                      src={getPublicImageUrl(proj.logoUrl)}
                       alt={proj.name}
                       className="w-full h-full object-cover"
                     />
@@ -305,7 +323,7 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
                       return (
                         <a
                           key={idx}
-                          href={url}
+                          href={getPublicImageUrl(url)}
                           target="_blank"
                           rel="noreferrer"
                           className={clsx(
@@ -314,7 +332,7 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
                           )}
                         >
                           <img
-                            src={url}
+                            src={getPublicImageUrl(url)}
                             alt={`${proj.name} screenshot ${idx + 1}`}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
@@ -370,6 +388,7 @@ function ProjectForm({
   membership,
 }: any) {
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
@@ -390,6 +409,61 @@ function ProjectForm({
   });
 
   const screenshots = form.watch("screenshots") || [];
+  const logoUrl = form.watch("logoUrl") || "";
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Logo must be an image file.");
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > 1 * 1024 * 1024) {
+      toast.error("Logo file size must be at most 1MB.");
+      e.target.value = "";
+      return;
+    }
+
+    setIsUploadingLogo(true);
+
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = async () => {
+      if (img.width > 512 || img.height > 512) {
+        toast.error(`Logo dimensions must be at most 512x512 pixels (selected: ${img.width}x${img.height}).`);
+        setIsUploadingLogo(false);
+        URL.revokeObjectURL(img.src);
+        e.target.value = "";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        const result = await uploadProjectLogo(formData);
+        if (result.success && result.url) {
+          form.setValue("logoUrl", result.url, { shouldDirty: true });
+          toast.success("Logo uploaded successfully!");
+          form.handleSubmit(onSubmit)();
+        } else {
+          toast.error(`Failed to upload logo: ${result.error || "Upload failed"}`);
+        }
+      } catch (err: any) {
+        toast.error(`Failed to upload logo: ${err?.message || "Network or server error"}`);
+      } finally {
+        setIsUploadingLogo(false);
+        URL.revokeObjectURL(img.src);
+      }
+    };
+    img.onerror = () => {
+      toast.error("Failed to load image file.");
+      setIsUploadingLogo(false);
+      e.target.value = "";
+    };
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -449,8 +523,8 @@ function ProjectForm({
         } else {
           toast.error(`Failed to upload "${file.name}": ${result.error || "Upload failed"}`);
         }
-      } catch (err) {
-        toast.error(`Failed to upload "${file.name}": Network or server error`);
+      } catch (err: any) {
+        toast.error(`Failed to upload "${file.name}": ${err?.message || "Network or server error"}`);
       }
     }
 
@@ -462,6 +536,7 @@ function ProjectForm({
         shouldDirty: true,
       });
       toast.success(`Successfully uploaded ${successCount} screenshot(s)!`);
+      form.handleSubmit(onSubmit)();
     }
 
     e.target.value = "";
@@ -476,13 +551,23 @@ function ProjectForm({
       newScreenshots[index] = newScreenshots[targetIndex];
       newScreenshots[targetIndex] = temp;
       form.setValue("screenshots", newScreenshots, { shouldDirty: true });
+      form.handleSubmit(onSubmit)();
     }
   };
 
-  const deleteScreenshot = (index: number) => {
+  const deleteScreenshot = async (index: number) => {
     const current = form.getValues("screenshots") || [];
+    const urlToDelete = current[index];
     const newScreenshots = current.filter((_, i) => i !== index);
     form.setValue("screenshots", newScreenshots, { shouldDirty: true });
+    form.handleSubmit(onSubmit)();
+    if (urlToDelete) {
+      try {
+        await deleteProjectFile(urlToDelete);
+      } catch (err) {
+        console.error("Failed to delete screenshot from R2:", err);
+      }
+    }
   };
 
   const onSubmit = (values: z.infer<typeof projectSchema>) => {
@@ -631,17 +716,73 @@ function ProjectForm({
               control={form.control}
               name="logoUrl"
               render={({ field }) => (
-                <FormItem className="space-y-2 col-span-full md:col-span-1">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
-                    Logo URL (Square)
+                <FormItem className="space-y-2 col-span-full md:col-span-1 border-[3px] border-black p-5 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1 flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4" /> Project Logo (Max 512x512, 1MB)
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      value={field.value || ""}
-                      placeholder="https://..."
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                    />
+                    <div>
+                      <input
+                        type="file"
+                        id={`project-logo-input-${proj.id}`}
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleLogoChange}
+                        disabled={isUploadingLogo}
+                      />
+                      {logoUrl ? (
+                        <div className="flex items-center gap-4 mt-2">
+                          <div className="w-16 h-16 border-[3px] border-black overflow-hidden bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0">
+                            <img
+                              src={getPublicImageUrl(logoUrl)}
+                              alt="Project Logo Preview"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Button
+                              type="button"
+                              onClick={async () => {
+                                const currentLogo = form.getValues("logoUrl");
+                                form.setValue("logoUrl", "", { shouldDirty: true });
+                                form.handleSubmit(onSubmit)();
+                                if (currentLogo) {
+                                  try {
+                                    await deleteProjectFile(currentLogo);
+                                  } catch (err) {
+                                    console.error("Failed to delete logo from R2:", err);
+                                  }
+                                }
+                              }}
+                              className="bg-white border-[2px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all h-9 px-3 text-xs font-bold uppercase"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 mr-1" />
+                              Remove Logo
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-2">
+                          <Button
+                            type="button"
+                            disabled={isUploadingLogo}
+                            onClick={() =>
+                              document
+                                .getElementById(`project-logo-input-${proj.id}`)
+                                ?.click()
+                            }
+                            className="bg-black text-white hover:bg-zinc-800 border-[2px] border-black rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-1.5 h-10 px-4 text-xs font-black uppercase"
+                          >
+                            {isUploadingLogo ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Upload className="w-3.5 h-3.5" />
+                            )}
+                            {isUploadingLogo ? "Uploading..." : "Upload Logo"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -726,7 +867,7 @@ function ProjectForm({
                       >
                         <div className="aspect-video w-full border-[2px] border-black overflow-hidden bg-white relative">
                           <img
-                            src={url}
+                            src={getPublicImageUrl(url)}
                             alt={`Screenshot ${index + 1}`}
                             className="w-full h-full object-cover"
                           />

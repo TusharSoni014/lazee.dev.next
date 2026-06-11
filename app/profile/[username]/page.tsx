@@ -27,6 +27,7 @@ import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getS3Client } from "@/lib/s3";
 import { ProjectCarousel } from "@/components/ProjectCarousel";
+import { getPublicImageUrl } from "@/lib/utils";
 
 interface PublicProfilePageProps {
   params: Promise<{
@@ -537,7 +538,9 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                         {/* Screenshots Carousel/Grid */}
                         {(() => {
                           const maxScreenshots = user.membership === "PRO" ? 10 : 3;
-                          const activeScreenshots = (project.screenshots || []).slice(0, maxScreenshots);
+                          const activeScreenshots = (project.screenshots || [])
+                            .slice(0, maxScreenshots)
+                            .map((url) => getPublicImageUrl(url));
 
                           if (activeScreenshots.length === 0) return null;
 
