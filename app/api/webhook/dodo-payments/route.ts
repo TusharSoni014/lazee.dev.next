@@ -1,70 +1,132 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Webhooks } from "@dodopayments/nextjs";
+import { Subscription } from "@dodopayments/core";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export const POST = (req: NextRequest) =>
-  Webhooks({
+// ─── Shared helpers ────────────────────────────────────────────────────────────
+
+async function grantPro(email: string, customerId?: string) {
+  await prisma.user.update({
+    where: { email },
+    data: {
+      membership: "PRO",
+      credits: 10000,
+      ...(customerId ? { dodoCustomerId: customerId } : {}),
+    },
+  }); 
+}
+
+async function revokePro(email: string) {
+  await prisma.user.update({
+    where: { email },
+    // Reset to free tier and restart the monthly free-credit cycle from now
+    // (lib/credits.ts uses lastCreditReset for the 30-day FREE refresh).
+    data: { membership: "FREE", credits: 200, lastCreditReset: new Date() },
+  });
+}
+
+// ─── Dev handler (no signature verification) ───────────────────────────────────
+// dodo wh listen / dodo wh trigger don't use the dashboard webhook secret,
+// so we skip verification in development only.
+
+interface RawWebhookCustomer {
+  email?: string;
+  customer_id?: string;
+}
+
+interface RawWebhookData {
+  customer?: RawWebhookCustomer;
+}
+
+async function handleDevPayload(type: string, data: unknown) {
+  const d = (data ?? {}) as RawWebhookData;
+  const email = d.customer?.email;
+  const customerId = d.customer?.customer_id;
+
+  console.log(`[webhook-dev] ${type}`, email ?? "(no email)");
+
+  if (!email) return;
+
+  switch (type) {
+    // ── Grant PRO ────────────────────────────────────────────────────────────
+    case "subscription.active":
+    case "subscription.renewed":
+      await grantPro(email, customerId);
+      break;
+
+    // ── User cancelled but still paid until period ends → keep PRO ───────────
+    // subscription.expired will fire when the period actually ends
+    case "subscription.cancelled":
+      console.log("[webhook-dev] cancelled – keeping PRO until expiry");
+      break;
+
+    // ── Subscription actually ended / payment failed / paused → revoke ────────
+    case "subscription.expired":
+    case "subscription.failed":
+    case "subscription.on_hold":
+    case "subscription.paused":
+      await revokePro(email);
+      break;
+
+    default:
+      break;
+  }
+}
+
+// ─── Route handler ─────────────────────────────────────────────────────────────
+
+export async function POST(req: NextRequest) {
+  if (process.env.NODE_ENV === "development") {
+    try {
+      const body = (await req.json()) as { type?: string; data?: unknown };
+      await handleDevPayload(body?.type ?? "", body?.data);
+    } catch (err) {
+      console.error("[webhook-dev] error:", err);
+    }
+    return NextResponse.json({ received: true });
+  }
+
+  // Production: full signature verification via @dodopayments/nextjs
+  return Webhooks({
     webhookKey: process.env.DODO_PAYMENTS_WEBHOOK_KEY!,
 
+    // ── Grant PRO ──────────────────────────────────────────────────────────
     onSubscriptionActive: async (payload) => {
-      const data = payload.data as any;
-      const email: string | undefined = data?.customer?.email;
-      const customerId: string | undefined = data?.customer?.customer_id;
-      if (!email) return;
-      await prisma.user.update({
-        where: { email },
-        data: {
-          membership: "PRO",
-          credits: 10000,
-          ...(customerId ? { dodoCustomerId: customerId } : {}),
-        },
-      });
+      const sub: Subscription = payload.data;
+      await grantPro(sub.customer.email, sub.customer.customer_id);
     },
 
     onSubscriptionRenewed: async (payload) => {
-      const data = payload.data as any;
-      const email: string | undefined = data?.customer?.email;
-      const customerId: string | undefined = data?.customer?.customer_id;
-      if (!email) return;
-      await prisma.user.update({
-        where: { email },
-        data: {
-          membership: "PRO",
-          credits: 10000,
-          ...(customerId ? { dodoCustomerId: customerId } : {}),
-        },
-      });
+      const sub: Subscription = payload.data;
+      await grantPro(sub.customer.email, sub.customer.customer_id);
     },
 
+    // ── Cancelled: user keeps PRO until the billing period ends ────────────
+    // Do NOT revoke here — subscription.expired will fire when access ends
     onSubscriptionCancelled: async (payload) => {
-      const data = payload.data as any;
-      const email: string | undefined = data?.customer?.email;
-      if (!email) return;
-      await prisma.user.update({
-        where: { email },
-        data: { membership: "FREE" },
-      });
+      console.log(
+        "subscription.cancelled — keeping PRO until expiry:",
+        payload.data.customer.email,
+      );
     },
 
+    // ── Access actually ended → revoke PRO and reset credits to 200 ────────
     onSubscriptionExpired: async (payload) => {
-      const data = payload.data as any;
-      const email: string | undefined = data?.customer?.email;
-      if (!email) return;
-      await prisma.user.update({
-        where: { email },
-        data: { membership: "FREE" },
-      });
+      await revokePro(payload.data.customer.email);
     },
 
     onSubscriptionFailed: async (payload) => {
-      const data = payload.data as any;
-      const email: string | undefined = data?.customer?.email;
-      if (!email) return;
-      await prisma.user.update({
-        where: { email },
-        data: { membership: "FREE" },
-      });
+      await revokePro(payload.data.customer.email);
+    },
+
+    onSubscriptionOnHold: async (payload) => {
+      await revokePro(payload.data.customer.email);
+    },
+
+    onSubscriptionPaused: async (payload) => {
+      await revokePro(payload.data.customer.email);
     },
   })(req);
+}

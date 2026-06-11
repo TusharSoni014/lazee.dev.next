@@ -4,7 +4,17 @@ import { redirect } from "next/navigation";
 import ProfileForm from "./profile-form";
 import { SignOutButton } from "@/components/SignOutButton";
 
-export default async function ProfilePage() {
+export const dynamic = "force-dynamic";
+
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ payment?: string; status?: string }>;
+}) {
+  const params = await searchParams;
+  // Detect success from our own ?payment=success OR from Dodo's appended ?status=active
+  const paymentSuccess =
+    params.payment === "success" || params.status === "active";
   const session = await auth();
 
   if (!session?.user?.email) {
@@ -28,7 +38,7 @@ export default async function ProfilePage() {
     <div className="relative min-h-screen bg-[#fefaf6] selection:bg-orange-500 selection:text-white pb-20">
       {/* Background Pattern */}
       <div
-        className="fixed inset-0 z-0 opacity-[0.03]"
+        className="fixed inset-0 z-0 opacity-[0.03] pointer-events-none"
         style={{
           backgroundImage: `radial-gradient(#000 1px, transparent 1px)`,
           backgroundSize: "40px 40px",
@@ -48,7 +58,7 @@ export default async function ProfilePage() {
           </p>
         </div>
 
-        <ProfileForm user={user} />
+        <ProfileForm user={user} paymentSuccess={paymentSuccess} />
 
         <div className="mt-16 flex flex-col items-center border-t-[3px] border-black pt-8">
           <h2 className="mb-6 text-2xl font-black uppercase tracking-tighter text-black font-heading">

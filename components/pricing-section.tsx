@@ -31,7 +31,7 @@ export function PricingSection() {
             email: session.user.email,
             name: session.user.name ?? session.user.email,
           },
-          return_url: `${window.location.origin}/profile`,
+          return_url: `${window.location.origin}/profile?payment=success`,
         }),
       });
       if (!res.ok) throw new Error("Failed to create checkout");

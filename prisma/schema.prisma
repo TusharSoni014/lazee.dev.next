@@ -69,6 +69,7 @@ model User {
   portfolio String?
   telegram  String?
   other     String?
+  contactEmail String?
 
   // AI Guidance
   specificQuestionGuidance String? @db.Text
@@ -99,7 +100,7 @@ model Project {
   activeLink   String?
   githubLink   String?
   logoUrl      String?
-  videoUrl     String?
+  screenshots  String[]
   stacks       String[]
   description  String?  @db.Text
   isTopProject Boolean  @default(false)

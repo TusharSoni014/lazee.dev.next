@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useProfile } from "@/hooks/useProfile";
+import { useProfile, useProfileStatus } from "@/hooks/useProfile";
 import { ResumeManager } from "./resume-manager";
 import { updateProfile, updateExperiences } from "./actions";
 import { ProjectSection } from "./project-section";
@@ -106,10 +106,43 @@ const JOB_TYPES = [
   "Other",
 ];
 
-export default function ProfileForm({ user: initialUser }: { user: any }) {
-  const { data: user, isLoading: isLoadingProfile } = useProfile(initialUser);
+export default function ProfileForm({
+  user: initialUser,
+  paymentSuccess = false,
+}: {
+  user: any;
+  paymentSuccess?: boolean;
+}) {
+  const { data: user, isLoading: isLoadingProfile, refetch: refetchProfile } = useProfile(initialUser);
+  const { data: status, refetch: refetchStatus } = useProfileStatus({
+    membership: initialUser.membership,
+    credits: initialUser.credits,
+    dodoCustomerId: initialUser.dodoCustomerId,
+  });
+
+  const displayName = 
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() || 
+    user?.name || 
+    "Anonymous User";
+
+  const initials = (() => {
+    if (!user) return "";
+    if (user.firstName || user.lastName) {
+      return `${user.firstName ? user.firstName[0] : ""}${user.lastName ? user.lastName[0] : ""}`.toUpperCase();
+    }
+    if (user.name) {
+      const parts = user.name.trim().split(/\s+/);
+      if (parts.length > 1) {
+        return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+      }
+      return parts[0][0]?.toUpperCase() || "";
+    }
+    return "";
+  })();
+
   const [loading, setLoading] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [activating, setActivating] = useState(paymentSuccess);
   const [experiences, setExperiences] = useState<any[]>(
     user?.experiences || [],
   );
@@ -126,6 +159,32 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDirty]);
+
+  // Poll for Pro membership after a successful payment redirect
+  useEffect(() => {
+    if (!paymentSuccess) return;
+    if (status?.membership === "PRO") {
+      setActivating(false);
+      // Clean up the URL query param
+      const url = new URL(window.location.href);
+      url.searchParams.delete("payment");
+      window.history.replaceState({}, "", url.toString());
+      return;
+    }
+    let tries = 0;
+    const MAX_TRIES = 20;
+    const interval = setInterval(async () => {
+      tries++;
+      try {
+        await refetchStatus();
+      } catch {}
+      if (tries >= MAX_TRIES) {
+        clearInterval(interval);
+        setActivating(false);
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [paymentSuccess, status?.membership, refetchStatus]);
 
   if (!user) {
     return (
@@ -147,6 +206,7 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
     setLoading(false);
     if (result.success) {
       setIsDirty(false);
+      refetchProfile();
       toast.success("Profile updated successfully!");
     } else {
       toast.error("Failed to update profile.");
@@ -170,7 +230,7 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
               user.name ||
               user.email,
           },
-          return_url: `${window.location.origin}/profile`,
+          return_url: `${window.location.origin}/profile?payment=success`,
         }),
       });
       if (!res.ok) throw new Error("Failed to create checkout session");
@@ -183,11 +243,11 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
   }
 
   function handleManageSubscription() {
-    if (!user.dodoCustomerId) {
+    if (!status?.dodoCustomerId) {
       toast.error("No subscription found.");
       return;
     }
-    window.location.href = `/api/customer-portal?customer_id=${user.dodoCustomerId}`;
+    window.location.href = `/api/customer-portal?customer_id=${status.dodoCustomerId}`;
   }
 
   return (
@@ -196,6 +256,29 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
       className="space-y-10"
       onChange={() => setIsDirty(true)}
     >
+      {/* Payment Success Banner */}
+      {activating && status?.membership !== "PRO" && (
+        <div className="flex items-center gap-4 border-[3px] border-black bg-yellow-400 px-6 py-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <Loader2 className="w-5 h-5 shrink-0 animate-spin text-black" />
+          <div>
+            <p className="font-black uppercase text-black tracking-tight">
+              Activating your Pro subscription...
+            </p>
+            <p className="text-sm font-bold text-black/70">
+              Payment received. Your credits and Pro badge will appear in a
+              moment — hang tight!
+            </p>
+          </div>
+        </div>
+      )}
+      {activating && status?.membership === "PRO" && (
+        <div className="flex items-center gap-4 border-[3px] border-black bg-green-400 px-6 py-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <Check className="w-5 h-5 shrink-0 text-black" strokeWidth={3} />
+          <p className="font-black uppercase text-black tracking-tight">
+            You&apos;re now Pro! Your 10,000 credits are ready.
+          </p>
+        </div>
+      )}
       {/* Profile Header & Credits */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* User Identity & Membership */}
@@ -211,11 +294,7 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
               />
             ) : (
               <span className="text-5xl font-black text-black uppercase">
-                {user.firstName ? user.firstName[0] : ""}
-                {user.lastName ? user.lastName[0] : ""}
-                {!user.firstName && !user.lastName && (
-                  <UserIcon className="w-12 h-12" />
-                )}
+                {initials || <UserIcon className="w-12 h-12" />}
               </span>
             )}
             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -224,7 +303,7 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
           <div className="flex-1 text-center md:text-left space-y-4">
             <div>
               <h2 className="text-3xl md:text-4xl font-black uppercase font-heading text-black tracking-tighter">
-                {user.firstName || "Anonymous"} {user.lastName || "User"}
+                {displayName}
               </h2>
               <p className="text-sm font-bold text-zinc-600 uppercase tracking-widest mt-1">
                 {user.email || "No Email"}
@@ -235,22 +314,22 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
               <div
                 className={clsx(
                   "inline-flex items-center gap-2 border-[3px] border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-                  user.membership === "PRO"
-                    ? "bg-[linear-gradient(110deg,#FFD700_30%,#fffac7_50%,#FFD700_70%)] bg-[length:200%_100%] animate-[shimmer_2s_infinite_linear]"
+                  status?.membership === "PRO"
+                    ? "bg-[linear-gradient(110deg,#FFD700_30%,#fffac7_50%,#FFD700_70%)] bg-[length:200%_100%] animate-shimmer"
                     : "bg-blue-400",
                 )}
               >
                 <CreditCard
                   className={clsx(
                     "w-5 h-5 text-black",
-                    user.membership === "PRO" && "animate-pulse",
+                    status?.membership === "PRO" && "animate-pulse",
                   )}
                 />
                 <span className="font-black uppercase tracking-tight text-black flex items-center gap-2">
-                  {user.membership} PLAN
+                  {status?.membership} PLAN
                 </span>
               </div>
-              {user.membership === "FREE" ? (
+              {status?.membership === "FREE" ? (
                 <Button
                   type="button"
                   size="sm"
@@ -304,12 +383,7 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
               Credit Balance
             </h3>
             <div className="text-7xl font-black font-heading tracking-tighter text-black flex items-center justify-center">
-              {Intl.NumberFormat("en-US", {
-                notation: "compact",
-                maximumFractionDigits: 1,
-              })
-                .format(user.credits || 0)
-                .toLowerCase()}
+              {Intl.NumberFormat("en-US").format(status?.credits ?? 0)}
               <span className="text-3xl ml-1 text-black">⚡</span>
             </div>
           </div>
@@ -323,7 +397,12 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
       </div>
 
       {/* Username / Public Profile Link */}
-      <UsernameManager currentUsername={user.username} />
+      <UsernameManager
+        currentUsername={user.username}
+        resumes={user.resumes || []}
+        contactEmail={user.contactEmail}
+        currentEmail={user.email}
+      />
 
       {/* Personal Info */}
       <Section title="Personal Information" icon={IdCard}>
@@ -479,11 +558,15 @@ export default function ProfileForm({ user: initialUser }: { user: any }) {
           setExperiences={setExperiences}
         />
 
-        <ProjectSection projects={projects} setProjects={setProjects} />
+        <ProjectSection
+          projects={projects}
+          setProjects={setProjects}
+          membership={status?.membership || "FREE"}
+        />
 
         <ResumeManager
           resumes={user.resumes || []}
-          membership={user.membership}
+          membership={status?.membership || "FREE"}
         />
       </div>
 

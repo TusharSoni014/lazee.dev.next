@@ -3,6 +3,9 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { v4 as uuidv4 } from "uuid";
+import { getS3Client } from "@/lib/s3";
 
 export async function updateProfile(data: any) {
   const session = await auth();
@@ -167,7 +170,7 @@ export async function updateProjects(projects: any[]) {
             activeLink: proj.activeLink || null,
             githubLink: proj.githubLink || null,
             logoUrl: proj.logoUrl || null,
-            videoUrl: proj.videoUrl || null,
+            screenshots: proj.screenshots || [],
             stacks: proj.stacks || [],
             description: proj.description || null,
             isTopProject: Boolean(proj.isTopProject),
@@ -182,3 +185,156 @@ export async function updateProjects(projects: any[]) {
     return { error: "Failed to update projects" };
   }
 }
+
+export async function savePublicProfileSettings(data: {
+  username: string;
+  contactEmail: string;
+  primaryResumeId: string;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Not authenticated" };
+  }
+
+  const normalizedUsername = data.username.toLowerCase().trim();
+
+  if (normalizedUsername.length < 3) {
+    return { error: "Username must be at least 3 characters" };
+  }
+
+  if (!/^[a-z0-9-]+$/.test(normalizedUsername)) {
+    return { error: "Username can only contain letters, numbers, and hyphens" };
+  }
+
+  // Validate email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(data.contactEmail)) {
+    return { error: "Please enter a valid contact email address" };
+  }
+
+  try {
+    // Check username availability
+    const existingUser = await prisma.user.findUnique({
+      where: { username: normalizedUsername },
+    });
+
+    if (existingUser && existingUser.id !== session.user.id) {
+      return { error: "Username already taken" };
+    }
+
+    // Verify the resume belongs to the user
+    const resume = await prisma.resume.findUnique({
+      where: { id: data.primaryResumeId },
+    });
+
+    if (!resume || resume.userId !== session.user.id) {
+      return { error: "Selected resume not found or unauthorized" };
+    }
+
+    // Perform database updates in a transaction
+    await prisma.$transaction([
+      // Update username and contact email on user
+      prisma.user.update({
+        where: { id: session.user.id },
+        data: {
+          username: normalizedUsername,
+          contactEmail: data.contactEmail.trim(),
+        },
+      }),
+      // Set all of user's resumes to not primary
+      prisma.resume.updateMany({
+        where: { userId: session.user.id },
+        data: { isPrimary: false },
+      }),
+      // Set selected resume to primary
+      prisma.resume.update({
+        where: { id: data.primaryResumeId },
+        data: { isPrimary: true },
+      }),
+    ]);
+
+    revalidatePath("/profile");
+    revalidatePath(`/profile/${normalizedUsername}`);
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to save public profile settings:", error);
+    return { error: error.message || "Failed to save settings" };
+  }
+}
+
+export async function disablePublicSharing() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Not authenticated" };
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { username: true }
+    });
+
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { username: null },
+    });
+
+    revalidatePath("/profile");
+    if (user?.username) {
+      revalidatePath(`/profile/${user.username}`);
+    }
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to disable public sharing:", error);
+    return { error: error.message || "Failed to disable sharing" };
+  }
+}
+
+export async function uploadProjectScreenshot(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Not authenticated" };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+  });
+
+  if (!user) return { error: "User not found" };
+
+  const file = formData.get("file") as File;
+  if (!file) return { error: "No file provided" };
+  if (!file.type.startsWith("image/")) {
+    return { error: "Only image formats (PNG, JPG, WEBP, etc.) are allowed" };
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    return { error: "File size exceeds 2MB limit" };
+  }
+
+  const { s3, bucketName } = getS3Client();
+  const fileExtension = file.name.split(".").pop();
+  const uniqueId = uuidv4();
+  const key = `screenshots/${user.id}/${uniqueId}.${fileExtension}`;
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+        Body: buffer,
+        ContentType: file.type,
+      }),
+    );
+
+    const publicUrl = `${process.env.CLOUDFLARE_S3_BUCKET}/${key}`;
+    return { success: true, url: publicUrl };
+  } catch (error) {
+    console.error("Failed to upload screenshot to S3:", error);
+    return { error: "Failed to upload screenshot" };
+  }
+}
+
+

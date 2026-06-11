@@ -5,6 +5,8 @@ import { checkAndRefreshCredits } from "@/lib/credits";
 import { getCorsHeaders } from "@/lib/cors";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
+export const dynamic = "force-dynamic";
+
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get("origin");
   return NextResponse.json({}, { headers: getCorsHeaders(origin) });
@@ -114,8 +116,14 @@ export async function GET(request: NextRequest) {
         telegram: user.telegram,
         other: user.other,
         image: user.image,
+        contactEmail: user.contactEmail,
       },
-      { headers: corsHeaders },
+      {
+        headers: {
+          ...corsHeaders,
+          "Cache-Control": "no-store, max-age=0, must-revalidate",
+        },
+      },
     );
   } catch (error) {
     console.error("Profile API Error:", error);

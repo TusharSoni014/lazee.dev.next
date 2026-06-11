@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateProjects } from "./actions";
+import { updateProjects, uploadProjectScreenshot } from "./actions";
 import { toast } from "@/components/ui/toast";
 import {
   FolderGit2,
@@ -13,8 +13,10 @@ import {
   Loader2,
   ExternalLink,
   Github,
-  Video,
   Image as ImageIcon,
+  ArrowUp,
+  ArrowDown,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,10 +52,10 @@ const projectSchema = z.object({
     .optional()
     .or(z.literal("")),
   logoUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  videoUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   stacks: z.string().optional(), // We'll parse this as comma-separated
   description: z.string().optional(),
   isTopProject: z.boolean().optional(),
+  screenshots: z.array(z.string()).optional(),
 });
 
 function Section({
@@ -80,7 +82,7 @@ function Section({
   );
 }
 
-export function ProjectSection({ projects, setProjects }: any) {
+export function ProjectSection({ projects, setProjects, membership }: any) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempProj, setTempProj] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -95,7 +97,7 @@ export function ProjectSection({ projects, setProjects }: any) {
       activeLink: "",
       githubLink: "",
       logoUrl: "",
-      videoUrl: "",
+      screenshots: [],
       stacks: [],
       description: "",
       isTopProject: false,
@@ -184,6 +186,7 @@ export function ProjectSection({ projects, setProjects }: any) {
                 onConfirm={confirmProject}
                 onCancel={cancelEdit}
                 isLoading={isSaving}
+                membership={membership}
               />
             );
           }
@@ -291,31 +294,41 @@ export function ProjectSection({ projects, setProjects }: any) {
                 </p>
               )}
 
-              {proj.videoUrl && (
-                <div
-                  className="mt-2 border-[3px] border-black bg-black rounded-none overflow-hidden object-cover relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                  style={{ paddingBottom: "56.25%", height: 0 }}
-                >
-                  {proj.videoUrl.includes("youtube.com") ||
-                  proj.videoUrl.includes("youtu.be") ||
-                  proj.videoUrl.includes("vimeo.com") ? (
-                    <iframe
-                      src={getEmbedUrl(proj.videoUrl)}
-                      className="absolute top-0 left-0 w-full h-full border-none"
-                      allowFullScreen
-                      title={proj.name}
-                    />
-                  ) : (
-                    <video
-                      src={proj.videoUrl}
-                      controls
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      className="absolute top-0 left-0 w-full h-full object-cover"
-                    />
-                  )}
+              {proj.screenshots && proj.screenshots.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">
+                    Project Screenshots:
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {proj.screenshots.map((url: string, idx: number) => {
+                      const isActive = idx < (membership === "PRO" ? 10 : 3);
+                      return (
+                        <a
+                          key={idx}
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={clsx(
+                            "relative aspect-video border-2 border-black overflow-hidden group shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all bg-zinc-100",
+                            !isActive && "opacity-55 grayscale",
+                          )}
+                        >
+                          <img
+                            src={url}
+                            alt={`${proj.name} screenshot ${idx + 1}`}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          {!isActive && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-1 text-center">
+                              <span className="text-[8px] font-black text-white uppercase tracking-widest bg-red-600 px-1.5 py-0.5 border border-black">
+                                Hidden (Free Limit)
+                              </span>
+                            </div>
+                          )}
+                        </a>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -330,6 +343,7 @@ export function ProjectSection({ projects, setProjects }: any) {
               onConfirm={confirmProject}
               onCancel={cancelEdit}
               isLoading={isSaving}
+              membership={membership}
             />
           )}
 
@@ -348,20 +362,15 @@ export function ProjectSection({ projects, setProjects }: any) {
   );
 }
 
-function getEmbedUrl(url: string) {
-  if (url.includes("youtube.com") || url.includes("youtu.be")) {
-    const videoId =
-      url.split("v=")[1]?.split("&")[0] || url.split("youtu.be/")[1];
-    return `https://www.youtube.com/embed/${videoId}`;
-  }
-  if (url.includes("vimeo.com")) {
-    const videoId = url.split("vimeo.com/")[1];
-    return `https://player.vimeo.com/video/${videoId}`;
-  }
-  return url;
-}
+function ProjectForm({
+  proj,
+  onConfirm,
+  onCancel,
+  isLoading,
+  membership,
+}: any) {
+  const [isUploading, setIsUploading] = useState(false);
 
-function ProjectForm({ proj, onConfirm, onCancel, isLoading }: any) {
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
@@ -373,12 +382,108 @@ function ProjectForm({ proj, onConfirm, onCancel, isLoading }: any) {
       activeLink: proj.activeLink || "",
       githubLink: proj.githubLink || "",
       logoUrl: proj.logoUrl || "",
-      videoUrl: proj.videoUrl || "",
       stacks: proj.stacks || "",
       description: proj.description || "",
       isTopProject: proj.isTopProject || false,
+      screenshots: proj.screenshots || [],
     },
   });
+
+  const screenshots = form.watch("screenshots") || [];
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const maxAllowed = membership === "PRO" ? 10 : 3;
+    const currentCount = screenshots.length;
+    const remainingSlots = maxAllowed - currentCount;
+
+    if (remainingSlots <= 0) {
+      toast.error(
+        `You have already reached the limit of ${maxAllowed} screenshots.`,
+      );
+      e.target.value = "";
+      return;
+    }
+
+    let filesToUpload = files;
+    if (files.length > remainingSlots) {
+      toast.info(
+        `You can only upload ${remainingSlots} more screenshot(s). Only the first ${remainingSlots} will be uploaded.`,
+      );
+      filesToUpload = files.slice(0, remainingSlots);
+    }
+
+    const validFiles: File[] = [];
+    for (const file of filesToUpload) {
+      if (!file.type.startsWith("image/")) {
+        toast.error(`"${file.name}" is not an image file.`);
+        continue;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error(`"${file.name}" exceeds the 2MB size limit.`);
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) {
+      e.target.value = "";
+      return;
+    }
+
+    setIsUploading(true);
+
+    const successfulUrls: string[] = [];
+    let successCount = 0;
+
+    for (const file of validFiles) {
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        const result = await uploadProjectScreenshot(formData);
+        if (result.success && result.url) {
+          successfulUrls.push(result.url);
+          successCount++;
+        } else {
+          toast.error(`Failed to upload "${file.name}": ${result.error || "Upload failed"}`);
+        }
+      } catch (err) {
+        toast.error(`Failed to upload "${file.name}": Network or server error`);
+      }
+    }
+
+    setIsUploading(false);
+
+    if (successfulUrls.length > 0) {
+      const current = form.getValues("screenshots") || [];
+      form.setValue("screenshots", [...current, ...successfulUrls], {
+        shouldDirty: true,
+      });
+      toast.success(`Successfully uploaded ${successCount} screenshot(s)!`);
+    }
+
+    e.target.value = "";
+  };
+
+  const moveScreenshot = (index: number, direction: "up" | "down") => {
+    const current = form.getValues("screenshots") || [];
+    const newScreenshots = [...current];
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex >= 0 && targetIndex < newScreenshots.length) {
+      const temp = newScreenshots[index];
+      newScreenshots[index] = newScreenshots[targetIndex];
+      newScreenshots[targetIndex] = temp;
+      form.setValue("screenshots", newScreenshots, { shouldDirty: true });
+    }
+  };
+
+  const deleteScreenshot = (index: number) => {
+    const current = form.getValues("screenshots") || [];
+    const newScreenshots = current.filter((_, i) => i !== index);
+    form.setValue("screenshots", newScreenshots, { shouldDirty: true });
+  };
 
   const onSubmit = (values: z.infer<typeof projectSchema>) => {
     onConfirm(values);
@@ -526,7 +631,7 @@ function ProjectForm({ proj, onConfirm, onCancel, isLoading }: any) {
               control={form.control}
               name="logoUrl"
               render={({ field }) => (
-                <FormItem className="space-y-2">
+                <FormItem className="space-y-2 col-span-full md:col-span-1">
                   <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
                     Logo URL (Square)
                   </FormLabel>
@@ -542,26 +647,138 @@ function ProjectForm({ proj, onConfirm, onCancel, isLoading }: any) {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="videoUrl"
-              render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
-                    Demo Video Link (Youtube/Vimeo)
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      value={field.value || ""}
-                      placeholder="https://www.youtube.com/watch?v=..."
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+
+            {/* Screenshots Manager */}
+            <div className="col-span-full border-[3px] border-black p-5 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b-[2px] border-black pb-3 mb-4 gap-2">
+                <h4 className="text-sm font-black uppercase tracking-wider text-black flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5" /> Screenshots (
+                  {screenshots.length} / {membership === "PRO" ? 10 : 3})
+                </h4>
+                <div>
+                  <input
+                    type="file"
+                    id={`project-screenshot-input-${proj.id}`}
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileChange}
+                    disabled={
+                      isUploading ||
+                      screenshots.length >= (membership === "PRO" ? 10 : 3)
+                    }
+                  />
+                  <Button
+                    type="button"
+                    disabled={
+                      isUploading ||
+                      screenshots.length >= (membership === "PRO" ? 10 : 3)
+                    }
+                    onClick={() =>
+                      document
+                        .getElementById(`project-screenshot-input-${proj.id}`)
+                        ?.click()
+                    }
+                    size="sm"
+                    className="bg-black text-white hover:bg-zinc-800 border-[2px] border-black rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-1.5"
+                  >
+                    {isUploading ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Upload className="w-3.5 h-3.5" />
+                    )}
+                    {isUploading ? "Uploading..." : "Upload Screenshot"}
+                  </Button>
+                </div>
+              </div>
+
+              {membership === "FREE" && screenshots.length > 3 && (
+                <div className="border-[2px] border-black bg-yellow-100 p-3 mb-4 text-xs font-bold text-black flex flex-col gap-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  <p className="uppercase font-black text-[10px] text-orange-600">
+                    ⚠️ Membership Limit Warning
+                  </p>
+                  <p>
+                    You have {screenshots.length} screenshots, but only the
+                    first 3 will be active on your free plan. Delete screenshots
+                    or reorder them to bring your preferred screenshots to the
+                    top.
+                  </p>
+                </div>
               )}
-            />
+
+              {screenshots.length === 0 ? (
+                <div className="border-[2px] border-dashed border-zinc-300 py-8 text-center bg-zinc-50">
+                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest italic">
+                    No screenshots uploaded yet.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {screenshots.map((url: string, index: number) => {
+                    const isActive = index < (membership === "PRO" ? 10 : 3);
+                    return (
+                      <div
+                        key={index}
+                        className={clsx(
+                          "border-[2px] border-black p-3 bg-zinc-50 flex flex-col gap-3 relative shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]",
+                          !isActive && "opacity-60",
+                        )}
+                      >
+                        <div className="aspect-video w-full border-[2px] border-black overflow-hidden bg-white relative">
+                          <img
+                            src={url}
+                            alt={`Screenshot ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <span className="absolute top-2 left-2 bg-black text-white text-[9px] font-black border border-black px-1.5 py-0.5">
+                            #{index + 1}
+                          </span>
+                          {!isActive && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-1 text-center">
+                              <span className="text-[9px] font-black text-white uppercase tracking-widest bg-red-600 px-2 py-0.5 border border-black shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)]">
+                                Inactive (Free Limit)
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between border-t border-dashed border-zinc-300 pt-2">
+                          <div className="flex gap-1.5">
+                            <Button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => moveScreenshot(index, "up")}
+                              className="h-8 w-8 p-0 bg-white border-[2px] border-black text-black hover:bg-zinc-100 rounded-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] disabled:opacity-40 disabled:shadow-none"
+                              title="Move Left / Up"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              type="button"
+                              disabled={index === screenshots.length - 1}
+                              onClick={() => moveScreenshot(index, "down")}
+                              className="h-8 w-8 p-0 bg-white border-[2px] border-black text-black hover:bg-zinc-100 rounded-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] disabled:opacity-40 disabled:shadow-none"
+                              title="Move Right / Down"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+
+                          <Button
+                            type="button"
+                            onClick={() => deleteScreenshot(index)}
+                            className="h-8 w-8 p-0 bg-white border-[2px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 rounded-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                            title="Delete Screenshot"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
 
           <FormField
