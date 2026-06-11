@@ -88,6 +88,7 @@ export async function GET(request: NextRequest) {
       {
         id: user.id,
         name: fullName,
+        username: user.username,
         firstName: user.firstName,
         middleName: user.middleName,
         lastName: user.lastName,

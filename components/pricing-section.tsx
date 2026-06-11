@@ -7,17 +7,34 @@ import { motion } from "motion/react";
 import { Check, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InstallModal } from "@/components/install-modal";
+import { useProfileStatus } from "@/hooks/useProfile";
+import { toast } from "@/components/ui/toast";
 
 export function PricingSection() {
   const { data: session } = useSession();
   const router = useRouter();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const { data: status } = useProfileStatus(undefined, {
+    enabled: !!session,
+  });
+
+  const isPro = status?.membership === "PRO";
 
   async function handleGoPro() {
     if (!session?.user) {
       router.push("/login");
       return;
     }
+
+    if (isPro) {
+      if (!status?.dodoCustomerId) {
+        toast.error("No subscription found.");
+        return;
+      }
+      window.location.href = `/api/customer-portal?customer_id=${status.dodoCustomerId}`;
+      return;
+    }
+
     setIsCheckingOut(true);
     try {
       const res = await fetch("/api/checkout", {
@@ -221,6 +238,8 @@ export function PricingSection() {
                     <Loader2 className="w-4 h-4 animate-spin" />
                     Redirecting...
                   </span>
+                ) : isPro ? (
+                  "Manage Subscription"
                 ) : (
                   "Go Pro Now"
                 )}
