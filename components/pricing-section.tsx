@@ -70,180 +70,148 @@ export function PricingSection() {
     >
       <div className="mx-auto w-full max-w-5xl">
         {/* Section Header */}
-        <div className="mb-12 text-center">
-          <div className="inline-block border-2 border-black bg-white px-3 py-1 text-xs font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4">
+        <div className="mb-16 text-center">
+          <div className="inline-block border-2 border-black bg-white px-3.5 py-1.5 text-xs font-black uppercase tracking-widest shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)] mb-4">
             Simple Pricing
           </div>
-          <h2 className="mb-4 text-4xl font-black uppercase leading-none md:text-6xl text-black">
-            Stop Wasting Time <br />
-            <span className="bg-[#ff6b00] px-2 text-black">Applying</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-black uppercase leading-tight text-black">
+            Simple pricing. <br className="sm:hidden" />
+            <span className="text-purple-600">No bullshit.</span>
           </h2>
-          <p className="mx-auto max-w-xl text-lg font-medium text-slate-600">
-            Choose the plan that fits your job hunting speed. No hidden fees,
-            cancel anytime.
-          </p>
         </div>
 
         {/* Pricing Cards Container */}
-        <div className="grid gap-8 md:grid-cols-2 md:items-stretch max-w-4xl mx-auto">
+        <div className="grid gap-8 md:grid-cols-2 md:items-stretch max-w-3xl mx-auto">
           {/* Free Plan */}
-          <div className="group relative flex h-full flex-col rounded-none border-4 border-black bg-white p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <div className="group relative flex h-full flex-col rounded-2xl border-[3px] border-black bg-white p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
             <div className="mb-6">
-              <h3 className="mb-2 text-lg font-black uppercase tracking-wider text-slate-500">
-                For Job Hunters
+              <h3 className="mb-1.5 text-xs font-black uppercase tracking-widest text-zinc-400">
+                Free
               </h3>
               <div className="flex items-baseline gap-1">
-                <span className="text-5xl font-black tracking-tighter text-black">
-                  Free
+                <span className="text-5xl font-heading font-black tracking-tight text-black">
+                  $0
                 </span>
+                <span className="text-sm font-bold text-zinc-500">/month</span>
               </div>
-              <p className="mt-4 text-sm font-medium text-slate-600">
-                Perfect for casually browsing and applying to a few select
-                roles.
-              </p>
             </div>
+            
             <ul className="mb-8 flex flex-col gap-4 flex-1">
               <li className="flex items-center gap-3">
-                <div className="flex size-6 shrink-0 items-center justify-center rounded-none border-2 border-black bg-green-400">
-                  <Check
-                    className="w-4 h-4 text-black font-bold"
-                    strokeWidth={3}
-                  />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
                 </div>
-                <span className="font-bold text-black text-base">
-                  200 credits per month free
+                <span className="font-bold text-sm text-zinc-700">
+                  200 AI credits / month
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <div className="flex size-6 shrink-0 items-center justify-center rounded-none border-2 border-black bg-green-400">
-                  <Check
-                    className="w-4 h-4 text-black font-bold"
-                    strokeWidth={3}
-                  />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
                 </div>
-                <span className="font-bold text-black text-base">
-                  Unlimited profile data fill basic
+                <span className="font-bold text-sm text-zinc-700">
+                  Unlimited basic auto-fill
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <div className="flex size-6 shrink-0 items-center justify-center rounded-none border-2 border-black bg-green-400">
-                  <Check
-                    className="w-4 h-4 text-black font-bold"
-                    strokeWidth={3}
-                  />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
                 </div>
-                <span className="font-bold text-black text-base">
-                  Basic AI suggestions
+                <span className="font-bold text-sm text-zinc-700">
+                  Basic AI answers
                 </span>
               </li>
-              <li className="flex items-center gap-3 opacity-40">
-                <div className="flex size-6 shrink-0 items-center justify-center rounded-none border-2 border-slate-300 bg-slate-100">
-                  <X
-                    className="w-4 h-4 text-slate-400 font-bold"
-                    strokeWidth={3}
-                  />
+              <li className="flex items-center gap-3">
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
                 </div>
-                <span className="font-medium text-slate-400 line-through text-base">
-                  Bulk Apply Mode
+                <span className="font-bold text-sm text-zinc-700">
+                  Works on popular sites
                 </span>
               </li>
             </ul>
+
             <div className="mt-auto">
               <InstallModal>
-                <Button
-                  variant="outline"
-                  className="w-full h-12 tracking-wider"
-                >
-                  Get Started Free
-                </Button>
+                <button className="w-full h-12 border-2 border-black bg-white hover:bg-zinc-50 font-black uppercase text-xs tracking-wider shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer">
+                  Start for Free
+                </button>
               </InstallModal>
             </div>
           </div>
 
           {/* Pro Plan */}
-          <div className="relative flex h-full flex-col rounded-none border-4 border-black bg-[#ff6b00] p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <div className="relative flex h-full flex-col rounded-2xl border-[3px] border-purple-600 bg-white p-8 shadow-[6px_6px_0px_0px_rgba(147,51,234,1)]">
             {/* Badge */}
-            <div className="absolute -right-2 -top-6 rotate-3 border-2 border-black bg-white px-4 py-1 font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black text-sm">
-              Best Value
+            <div className="absolute -right-2 -top-5 rotate-3 border-2 border-black bg-[#ff6b00] text-white px-3.5 py-1 text-xs font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest">
+              Most Popular
             </div>
+            
             <div className="mb-6">
-              <h3 className="mb-2 text-lg font-black uppercase tracking-wider text-black/70">
-                For Power Users
+              <h3 className="mb-1.5 text-xs font-black uppercase tracking-widest text-purple-600">
+                Pro
               </h3>
               <div className="flex items-baseline gap-1">
-                <span className="text-5xl font-black tracking-tighter text-black">
+                <span className="text-5xl font-heading font-black tracking-tight text-black">
                   $9
                 </span>
-                <span className="text-xl font-bold text-black/70">/mo</span>
+                <span className="text-sm font-bold text-zinc-500">/month</span>
               </div>
-              <p className="mt-4 text-sm font-bold text-black/80">
-                Supercharge your job search with unlimited power and automation.
-              </p>
             </div>
+
             <ul className="mb-8 flex flex-col gap-4 flex-1">
               <li className="flex items-center gap-3">
-                <div className="flex size-6 shrink-0 items-center justify-center rounded-none border-2 border-black bg-white">
-                  <Check
-                    className="w-4 h-4 text-black font-bold"
-                    strokeWidth={3}
-                  />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-purple-50 border border-purple-200">
+                  <Check className="w-3.5 h-3.5 text-purple-600" strokeWidth={3} />
                 </div>
-                <span className="font-bold text-black text-base">
-                  10k credits per month
+                <span className="font-bold text-sm text-zinc-700">
+                  10,000 AI credits / month
+                </span>
+              </li>
+
+              <li className="flex items-center gap-3">
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-purple-50 border border-purple-200">
+                  <Check className="w-3.5 h-3.5 text-purple-600" strokeWidth={3} />
+                </div>
+                <span className="font-bold text-sm text-zinc-700">
+                  Advanced AI answers
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <div className="flex size-6 shrink-0 items-center justify-center rounded-none border-2 border-black bg-white">
-                  <Check
-                    className="w-4 h-4 text-black font-bold"
-                    strokeWidth={3}
-                  />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-purple-50 border border-purple-200">
+                  <Check className="w-3.5 h-3.5 text-purple-600" strokeWidth={3} />
                 </div>
-                <span className="font-bold text-black text-base">
-                  Access to beta features
+                <span className="font-bold text-sm text-zinc-700">
+                  Priority support
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <div className="flex size-6 shrink-0 items-center justify-center rounded-none border-2 border-black bg-white">
-                  <Check
-                    className="w-4 h-4 text-black font-bold"
-                    strokeWidth={3}
-                  />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-purple-50 border border-purple-200">
+                  <Check className="w-3.5 h-3.5 text-purple-600" strokeWidth={3} />
                 </div>
-                <span className="font-bold text-black text-base">
-                  Bulk Apply Mode
-                </span>
-              </li>
-              <li className="flex items-center gap-3">
-                <div className="flex size-6 shrink-0 items-center justify-center rounded-none border-2 border-black bg-white">
-                  <Check
-                    className="w-4 h-4 text-black font-bold"
-                    strokeWidth={3}
-                  />
-                </div>
-                <span className="font-bold text-black text-base">
-                  Priority Support
+                <span className="font-bold text-sm text-zinc-700">
+                  Early access to new features
                 </span>
               </li>
             </ul>
+
             <div className="mt-auto">
-              <Button
-                variant="black"
+              <button
                 onClick={handleGoPro}
                 disabled={isCheckingOut}
-                className="w-full py-3 h-auto shadow-[4px_4px_0px_0px_white] hover:shadow-[6px_6px_0px_0px_white] disabled:opacity-70"
+                className="w-full h-12 border-2 border-black bg-purple-600 hover:bg-purple-700 text-white font-black uppercase text-xs tracking-wider shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {isCheckingOut ? (
                   <span className="flex items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     Redirecting...
                   </span>
                 ) : isPro ? (
                   "Manage Subscription"
                 ) : (
-                  "Go Pro Now"
+                  "Get Pro"
                 )}
-              </Button>
+              </button>
             </div>
           </div>
         </div>
