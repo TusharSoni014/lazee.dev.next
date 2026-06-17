@@ -31,7 +31,7 @@ export function ComparisonSection() {
     >
       <div className="w-full bg-[#0d0d12] border-[3px] border-black rounded-3xl p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden">
         {/* Decorative background glow */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <h2 className="text-3xl md:text-4xl font-heading font-black text-center uppercase tracking-tight mb-12">
@@ -79,7 +79,7 @@ export function ComparisonSection() {
           </div>
 
           {/* Central Arrow Separator */}
-          <div className="flex shrink-0 items-center justify-center w-12 h-12 bg-purple-600 border-[3px] border-black rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white transform rotate-90 lg:rotate-0 my-2 lg:my-0">
+          <div className="flex shrink-0 items-center justify-center w-12 h-12 bg-orange-500 border-[3px] border-black rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white transform rotate-90 lg:rotate-0 my-2 lg:my-0">
             <ArrowRight className="w-6 h-6 animate-pulse" strokeWidth={3} />
           </div>
 
@@ -96,15 +96,15 @@ export function ComparisonSection() {
             </div>
             <div className="flex-1 flex flex-col gap-4 w-full">
               <div className="flex items-center gap-2 border-b-2 border-zinc-100 pb-2">
-                <span className="text-xs font-black uppercase bg-purple-50 px-2.5 py-1 text-purple-600 rounded-md">
+                <span className="text-xs font-black uppercase bg-orange-50 px-2.5 py-1 text-orange-500 rounded-md">
                   With Lazee
                 </span>
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-bold text-purple-500">
+                <span className="text-sm font-bold text-orange-500">
                   Apply to 10 jobs
                 </span>
-                <span className="text-4xl font-black text-purple-600 tracking-tight">
+                <span className="text-4xl font-black text-orange-500 tracking-tight">
                   4 <span className="text-lg font-bold">minutes</span>
                 </span>
               </div>

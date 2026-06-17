@@ -76,7 +76,7 @@ export function PricingSection() {
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-black uppercase leading-tight text-black">
             Simple pricing. <br className="sm:hidden" />
-            <span className="text-purple-600">No bullshit.</span>
+            <span className="text-orange-500">No bullshit.</span>
           </h2>
         </div>
 
@@ -141,14 +141,14 @@ export function PricingSection() {
           </div>
 
           {/* Pro Plan */}
-          <div className="relative flex h-full flex-col rounded-2xl border-[3px] border-purple-600 bg-white p-8 shadow-[6px_6px_0px_0px_rgba(147,51,234,1)]">
+          <div className="relative flex h-full flex-col rounded-2xl border-[3px] border-orange-500 bg-white p-8 shadow-[6px_6px_0px_0px_rgba(249,115,22,1)]">
             {/* Badge */}
             <div className="absolute -right-2 -top-5 rotate-3 border-2 border-black bg-[#ff6b00] text-white px-3.5 py-1 text-xs font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest">
               Most Popular
             </div>
             
             <div className="mb-6">
-              <h3 className="mb-1.5 text-xs font-black uppercase tracking-widest text-purple-600">
+              <h3 className="mb-1.5 text-xs font-black uppercase tracking-widest text-orange-500">
                 Pro
               </h3>
               <div className="flex items-baseline gap-1">
@@ -161,8 +161,8 @@ export function PricingSection() {
 
             <ul className="mb-8 flex flex-col gap-4 flex-1">
               <li className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-purple-50 border border-purple-200">
-                  <Check className="w-3.5 h-3.5 text-purple-600" strokeWidth={3} />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-orange-50 border border-orange-200">
+                  <Check className="w-3.5 h-3.5 text-orange-500" strokeWidth={3} />
                 </div>
                 <span className="font-bold text-sm text-zinc-700">
                   10,000 AI credits / month
@@ -170,24 +170,24 @@ export function PricingSection() {
               </li>
 
               <li className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-purple-50 border border-purple-200">
-                  <Check className="w-3.5 h-3.5 text-purple-600" strokeWidth={3} />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-orange-50 border border-orange-200">
+                  <Check className="w-3.5 h-3.5 text-orange-500" strokeWidth={3} />
                 </div>
                 <span className="font-bold text-sm text-zinc-700">
                   Advanced AI answers
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-purple-50 border border-purple-200">
-                  <Check className="w-3.5 h-3.5 text-purple-600" strokeWidth={3} />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-orange-50 border border-orange-200">
+                  <Check className="w-3.5 h-3.5 text-orange-500" strokeWidth={3} />
                 </div>
                 <span className="font-bold text-sm text-zinc-700">
                   Priority support
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-purple-50 border border-purple-200">
-                  <Check className="w-3.5 h-3.5 text-purple-600" strokeWidth={3} />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-orange-50 border border-orange-200">
+                  <Check className="w-3.5 h-3.5 text-orange-500" strokeWidth={3} />
                 </div>
                 <span className="font-bold text-sm text-zinc-700">
                   Early access to new features
@@ -199,7 +199,7 @@ export function PricingSection() {
               <button
                 onClick={handleGoPro}
                 disabled={isCheckingOut}
-                className="w-full h-12 border-2 border-black bg-purple-600 hover:bg-purple-700 text-white font-black uppercase text-xs tracking-wider shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center"
+                className="w-full h-12 border-2 border-black bg-orange-500 hover:bg-orange-600 text-white font-black uppercase text-xs tracking-wider shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {isCheckingOut ? (
                   <span className="flex items-center justify-center gap-2">

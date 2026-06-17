@@ -19,9 +19,9 @@ export function FooterCtaSection() {
       transition={{ duration: 0.5 }}
       className="w-full mb-12"
     >
-      <div className="w-full bg-[#1e1145] bg-gradient-to-br from-[#1b103c] via-[#2d1b66] to-[#120a2b] border-[3px] border-black rounded-3xl p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+      <div className="w-full bg-[#1c0f08] bg-gradient-to-br from-[#170a04] via-[#2c1305] to-[#0e0501] border-[3px] border-black rounded-3xl p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
         {/* Glow decoration */}
-        <div className="absolute top-0 left-0 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-0 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl pointer-events-none" />
 
         {/* Content (Left) */}
         <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4 relative z-10">
@@ -51,7 +51,7 @@ export function FooterCtaSection() {
 
         {/* Mascot (Right) */}
         <div className="w-48 h-48 sm:w-60 sm:h-60 relative shrink-0 z-10 flex items-center justify-center">
-          <div className="absolute inset-0 bg-purple-500/10 rounded-full blur-2xl -z-10" />
+          <div className="absolute inset-0 bg-orange-500/10 rounded-full blur-2xl -z-10" />
           <Image
             src="/ready-to-stop.png"
             alt="Relaxed developer mascot"

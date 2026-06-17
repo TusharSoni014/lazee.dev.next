@@ -20,7 +20,7 @@ export function StatsSection() {
     >
       <div className="w-full bg-[#0d0d12] border-[3px] border-black rounded-2xl p-8 sm:p-10 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden">
         {/* Glow decoration */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 relative z-10 text-center">
           {stats.map((stat, index) => (

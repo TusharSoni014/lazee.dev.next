@@ -91,7 +91,7 @@ export function FaqSection() {
                 </span>
                 <div
                   className={`flex items-center justify-center w-8 h-8 rounded-full border-2 border-black transition-all duration-200 shrink-0 ${
-                    isOpen ? "rotate-180 bg-purple-600 text-white" : "bg-purple-50 text-purple-600"
+                    isOpen ? "rotate-180 bg-orange-500 text-white" : "bg-orange-50 text-orange-500"
                   }`}
                 >
                   {isOpen ? (

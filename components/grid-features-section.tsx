@@ -14,10 +14,10 @@ export function GridFeaturesSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4 }}
-          className="bg-[#f3e8ff] border-[3px] border-black rounded-2xl p-6 sm:p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between min-h-[280px]"
+          className="bg-[#ffedd5] border-[3px] border-black rounded-2xl p-6 sm:p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between min-h-[280px]"
         >
           <div>
-            <span className="text-xs font-black uppercase text-purple-700 tracking-wider">AI-Powered Answers</span>
+            <span className="text-xs font-black uppercase text-orange-700 tracking-wider">AI-Powered Answers</span>
             <h4 className="text-xl sm:text-2xl font-heading font-black text-black uppercase mt-2 leading-tight">
               Smart, tailored answers for every question.
             </h4>
@@ -25,15 +25,15 @@ export function GridFeaturesSection() {
           
           {/* Card 1 Graphic */}
           <div className="mt-6 bg-white border-2 border-black rounded-xl p-4 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] flex flex-col gap-2 relative overflow-hidden">
-            <div className="flex items-center gap-1 text-purple-600 font-bold text-xs">
-              <Sparkles size={14} className="fill-purple-600" />
+            <div className="flex items-center gap-1 text-orange-600 font-bold text-xs">
+              <Sparkles size={14} className="fill-orange-600" />
               <span>AI Suggestion:</span>
             </div>
-            <p className="text-[10px] font-bold text-zinc-700 leading-normal border-l-2 border-purple-400 pl-2">
+            <p className="text-[10px] font-bold text-zinc-700 leading-normal border-l-2 border-orange-400 pl-2">
               "Over my 4 years of experience as a Frontend Engineer, I have successfully designed, built, and optimized complex React applications, improving performance by 30%..."
             </p>
             <div className="flex justify-end mt-1">
-              <span className="text-[8px] bg-purple-100 text-purple-600 border border-purple-200 px-2 py-0.5 font-bold uppercase rounded">
+              <span className="text-[8px] bg-orange-100 text-orange-600 border border-orange-200 px-2 py-0.5 font-bold uppercase rounded">
                 Refine Answer
               </span>
             </div>

@@ -39,7 +39,7 @@ const BADGE_COLORS = [
   "bg-orange-100 hover:bg-orange-200",
   "bg-yellow-100 hover:bg-yellow-200",
   "bg-cyan-100 hover:bg-cyan-200",
-  "bg-purple-100 hover:bg-purple-200",
+  "bg-amber-100 hover:bg-amber-200",
   "bg-pink-100 hover:bg-pink-200",
   "bg-emerald-100 hover:bg-emerald-200",
 ];
@@ -235,7 +235,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                     </div>
                   )}
                   {user.country && (
-                    <div className="inline-flex items-center gap-1.5 border-[2px] border-black px-2.5 py-1 bg-purple-200 text-black font-bold uppercase text-[10px] tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="inline-flex items-center gap-1.5 border-[2px] border-black px-2.5 py-1 bg-orange-200 text-black font-bold uppercase text-[10px] tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                       <Globe className="w-3.5 h-3.5 text-black" />
                       {user.country}
                     </div>

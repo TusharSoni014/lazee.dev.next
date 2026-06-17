@@ -14,15 +14,15 @@ export function HeroSection() {
 
   const features = [
     {
-      icon: <Zap size={14} className="text-purple-600 fill-purple-100" />,
+      icon: <Zap size={14} className="text-orange-500 fill-orange-100" />,
       text: "Unlimited Autofill",
     },
     {
-      icon: <Sparkles size={14} className="text-purple-600 fill-purple-100" />,
+      icon: <Sparkles size={14} className="text-orange-500 fill-orange-100" />,
       text: "AI Powered Answers",
     },
     {
-      icon: <Globe size={14} className="text-purple-600 fill-purple-100" />,
+      icon: <Globe size={14} className="text-orange-500 fill-orange-100" />,
       text: "Works on Popular Sites",
     },
   ];
@@ -44,9 +44,9 @@ export function HeroSection() {
         className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left gap-6 md:gap-7"
       >
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 bg-[#f3e8ff] border-2 border-purple-200 px-3.5 py-1.5 rounded-full shadow-[2px_2px_0px_0px_rgba(107,33,168,0.1)]">
-          <Sparkles size={14} className="text-purple-600 fill-purple-600/20" />
-          <span className="text-purple-800 text-xs sm:text-sm font-black uppercase tracking-wider">
+        <div className="inline-flex items-center gap-2 bg-orange-100 border-2 border-orange-200 px-3.5 py-1.5 rounded-full shadow-[2px_2px_0px_0px_rgba(249,115,22,0.1)]">
+          <Sparkles size={14} className="text-orange-500 fill-orange-500/20" />
+          <span className="text-orange-900 text-xs sm:text-sm font-black uppercase tracking-wider">
             Stop Typing. Start Applying.
           </span>
         </div>
@@ -54,7 +54,7 @@ export function HeroSection() {
         {/* Title */}
         <h1 className="max-w-xl text-4xl sm:text-5xl md:text-6xl font-heading font-black tracking-tight text-zinc-950 leading-[1.08] uppercase">
           Apply to jobs <br />
-          <span className="text-purple-600">100x faster</span> <br />
+          <span className="text-orange-500">100x faster</span> <br />
           with AI.
         </h1>
 
@@ -63,7 +63,7 @@ export function HeroSection() {
           Lazee.dev is the browser extension that{" "}
           <span className="text-zinc-950 font-black">autofills</span> job
           applications for you.{" "}
-          <span className="text-purple-600 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded inline-block font-black transform rotate-1">
+          <span className="text-orange-500 bg-orange-50 border border-orange-200/50 px-1.5 py-0.5 rounded inline-block font-black transform rotate-1">
             Zero hassle.
           </span>{" "}
           Just results.
@@ -118,7 +118,7 @@ export function HeroSection() {
               whileHover={{ y: -2, scale: 1.03 }}
               className="flex items-center gap-2 justify-center lg:justify-start"
             >
-              <div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-purple-50 border border-purple-200">
+              <div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-orange-50 border border-orange-200">
                 {feature.icon}
               </div>
               <span className="font-bold text-xs sm:text-sm text-zinc-600">

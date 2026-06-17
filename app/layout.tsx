@@ -49,10 +49,10 @@ export const metadata: Metadata = {
       "The AI-powered browser extension that auto-fills job applications using your profile. Apply to jobs 100x faster.",
     images: [
       {
-        url: "/logo.png",
-        width: 512,
-        height: 512,
-        alt: "Lazee.dev Logo",
+        url: "/og.jpg",
+        width: 1024,
+        height: 538,
+        alt: "Lazee.dev — Apply to jobs 100x faster with AI",
       },
     ],
   },
@@ -60,8 +60,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Lazee.dev — Job Applications, 100x Faster",
     description:
-      "The AI-powered browser extension that auto-fills job applications using your profile.",
-    images: ["/logo.png"],
+      "The AI-powered browser extension that auto-fills job applications using your profile. Apply to jobs 100x faster.",
+    images: ["/og.jpg"],
     creator: "@tusharsoni014",
   },
   robots: {

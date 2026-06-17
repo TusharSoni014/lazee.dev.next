@@ -90,7 +90,7 @@ export function HeroDemo() {
               <div className="flex-1 h-1.5 bg-zinc-100 border border-black/10 rounded-full overflow-hidden">
                 <motion.div
                   animate={step >= 3 ? { width: "80%" } : { width: "40%" }}
-                  className="h-full bg-purple-600"
+                  className="h-full bg-orange-500"
                 />
               </div>
               <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest shrink-0 leading-none">
@@ -166,17 +166,17 @@ export function HeroDemo() {
         </div>
 
         {/* Right Side: AI Assistant Side Panel */}
-        <div className="flex-1 p-3.5 bg-purple-50/50 flex flex-col justify-between overflow-hidden relative">
+        <div className="flex-1 p-3.5 bg-orange-50/50 flex flex-col justify-between overflow-hidden relative">
           {/* AI Panel Header */}
           <div className="bg-white border-2 border-black rounded-xl p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2 shrink-0">
-            <div className="size-6 bg-purple-600 border border-black flex items-center justify-center text-white rounded-lg">
+            <div className="size-6 bg-orange-500 border border-black flex items-center justify-center text-white rounded-lg">
               <Sparkles size={12} className="fill-white" />
             </div>
             <div className="flex flex-col">
               <span className="text-[9px] font-black text-black leading-none">
                 AI Assistant
               </span>
-              <span className="text-[8px] font-bold text-purple-600 mt-0.5 leading-none">
+              <span className="text-[8px] font-bold text-orange-500 mt-0.5 leading-none">
                 Writing answer...
               </span>
             </div>
@@ -192,7 +192,7 @@ export function HeroDemo() {
               <motion.span
                 animate={{ opacity: [1, 0] }}
                 transition={{ repeat: Infinity, duration: 0.6 }}
-                className="inline-block w-1 h-3 bg-purple-600 ml-0.5"
+                className="inline-block w-1 h-3 bg-orange-500 ml-0.5"
               />
             </div>
 
@@ -210,7 +210,7 @@ export function HeroDemo() {
                   <motion.div
                     animate={{ width: ["0%", "100%"] }}
                     transition={{ duration: 2, ease: "easeInOut" }}
-                    className="h-full bg-purple-600"
+                    className="h-full bg-orange-500"
                   />
                 </div>
               )}
@@ -222,8 +222,8 @@ export function HeroDemo() {
             <button
               className={`w-full py-2.5 border-2 border-black text-white text-[10px] font-black uppercase tracking-wider shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 step >= 2
-                  ? "bg-purple-700 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] translate-x-[1.5px] translate-y-[1.5px]"
-                  : "bg-purple-600 hover:bg-purple-700 hover:-translate-y-0.5 hover:shadow-[3.5px_3.5px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2.5px] active:translate-y-[2.5px] active:shadow-none"
+                  ? "bg-orange-600 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] translate-x-[1.5px] translate-y-[1.5px]"
+                  : "bg-orange-500 hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-[3.5px_3.5px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2.5px] active:translate-y-[2.5px] active:shadow-none"
               }`}
             >
               <Sparkles size={11} className="fill-white" />
