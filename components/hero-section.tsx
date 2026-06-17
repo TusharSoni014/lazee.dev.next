@@ -72,10 +72,8 @@ export function HeroSection() {
         {/* Call to Action Row */}
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center lg:justify-start mt-2">
           <InstallModal>
-            <motion.button
-              whileHover={{ y: -3, scale: 1.02 }}
-              whileTap={{ y: 1, scale: 0.98 }}
-              className="flex h-14 w-full sm:w-auto min-w-[240px] items-center justify-center border-2 border-black bg-black text-white hover:bg-zinc-900 px-6 text-base font-black uppercase tracking-tight shadow-[4px_4px_0px_0px_rgba(249,115,22,1)] hover:shadow-[5px_5px_0px_0px_rgba(249,115,22,1)] active:shadow-none transition-all cursor-pointer gap-2"
+            <button
+              className="flex h-14 w-full sm:w-auto min-w-[240px] items-center justify-center border-2 border-black bg-black text-white hover:bg-zinc-900 px-6 text-base font-black uppercase tracking-tight shadow-[4px_4px_0px_0px_rgba(249,115,22,1)] hover:shadow-[5px_5px_0px_0px_rgba(249,115,22,1)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer gap-2"
             >
               {isFirefox ? (
                 <FirefoxIcon
@@ -86,7 +84,7 @@ export function HeroSection() {
                 <Chrome size={18} className="fill-white text-black shrink-0" />
               )}
               <span>Add to {isFirefox ? "Firefox" : "Chrome"}</span>
-            </motion.button>
+            </button>
           </InstallModal>
 
           {/* Handdrawn It's free visual pointer */}
