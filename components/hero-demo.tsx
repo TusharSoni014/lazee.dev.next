@@ -7,7 +7,8 @@ import { Sparkles, Check, CheckCircle2 } from "lucide-react";
 export function HeroDemo() {
   const [step, setStep] = useState(0);
   const [typedText, setTypedText] = useState("");
-  const fullText = "I am excited about this opportunity because it aligns perfectly with my passion for building scalable web applications and solving real-world problems...";
+  const fullText =
+    "I am excited about this opportunity because it aligns perfectly with my passion for building scalable web applications and solving real-world problems...";
 
   useEffect(() => {
     let active = true;
@@ -76,23 +77,25 @@ export function HeroDemo() {
         </div>
       </div>
 
-      {/* Browser Content Area */}
       <div className="flex-1 flex flex-row overflow-hidden relative bg-[#fafafa]">
-        {/* Left Side: Job Form */}
         <div className="w-[52%] border-r-[3px] border-black p-4 flex flex-col gap-3 overflow-hidden bg-white">
-          {/* Form Header */}
           <div className="flex flex-col gap-1 border-b border-zinc-100 pb-2">
-            <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider leading-none">Job Application</span>
-            <h4 className="text-xs font-black text-black leading-tight">Senior Frontend Developer</h4>
-            {/* Mock Step Indicators */}
+            <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider leading-none">
+              Job Application
+            </span>
+            <h4 className="text-xs font-black text-black leading-tight">
+              Senior Frontend Developer
+            </h4>
             <div className="flex items-center gap-2 mt-1">
               <div className="flex-1 h-1.5 bg-zinc-100 border border-black/10 rounded-full overflow-hidden">
-                <motion.div 
-                  animate={step >= 3 ? { width: "100%" } : { width: "40%" }}
-                  className="h-full bg-purple-600" 
+                <motion.div
+                  animate={step >= 3 ? { width: "80%" } : { width: "40%" }}
+                  className="h-full bg-purple-600"
                 />
               </div>
-              <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest shrink-0 leading-none">Step 2 of 6</span>
+              <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest shrink-0 leading-none">
+                Step 2 of 3
+              </span>
             </div>
           </div>
 
@@ -125,10 +128,17 @@ export function HeroDemo() {
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          transition={{ delay: idx * 0.15 + 0.1, type: "spring", stiffness: 300 }}
+                          transition={{
+                            delay: idx * 0.15 + 0.1,
+                            type: "spring",
+                            stiffness: 300,
+                          }}
                           className="w-3.5 h-3.5 bg-green-500 rounded-full border border-black flex items-center justify-center shrink-0"
                         >
-                          <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
+                          <Check
+                            className="w-2.5 h-2.5 text-white"
+                            strokeWidth={4}
+                          />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -163,14 +173,20 @@ export function HeroDemo() {
               <Sparkles size={12} className="fill-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[9px] font-black text-black leading-none">AI Assistant</span>
-              <span className="text-[8px] font-bold text-purple-600 mt-0.5 leading-none">Writing answer...</span>
+              <span className="text-[9px] font-black text-black leading-none">
+                AI Assistant
+              </span>
+              <span className="text-[8px] font-bold text-purple-600 mt-0.5 leading-none">
+                Writing answer...
+              </span>
             </div>
           </div>
 
           {/* AI Answer Editor Card */}
           <div className="flex-1 my-3 bg-white border-2 border-black rounded-xl p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-1.5 overflow-hidden">
-            <span className="text-[8px] font-black uppercase text-zinc-400 leading-none">Why do you want this role?</span>
+            <span className="text-[8px] font-black uppercase text-zinc-400 leading-none">
+              Why do you want this role?
+            </span>
             <div className="flex-1 bg-zinc-50 border border-zinc-200 rounded p-2 text-[8px] font-bold text-zinc-600 leading-relaxed overflow-y-auto font-sans relative">
               {typedText}
               <motion.span
@@ -182,7 +198,13 @@ export function HeroDemo() {
 
             {/* Live Progress loading bar */}
             <div className="shrink-0 flex items-center justify-between text-[8px] font-bold text-zinc-400 mt-1">
-              <span>{step === 2 ? "Generating suggestion..." : step > 2 ? "Generated!" : "Ready"}</span>
+              <span>
+                {step === 2
+                  ? "Generating suggestion..."
+                  : step > 2
+                    ? "Generated!"
+                    : "Ready"}
+              </span>
               {step === 2 && (
                 <div className="w-16 h-1 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200/50">
                   <motion.div
