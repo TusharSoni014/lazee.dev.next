@@ -8,8 +8,22 @@ export const dynamic = "force-dynamic";
 // ─── Shared helpers ────────────────────────────────────────────────────────────
 
 async function grantPro(email: string, customerId?: string) {
+  const user = await prisma.user.findFirst({
+    where: {
+      email: {
+        equals: email,
+        mode: "insensitive",
+      },
+    },
+  });
+
+  if (!user) {
+    console.error(`[webhook-prod] User not found for email: ${email}`);
+    throw new Error(`User not found for email: ${email}`);
+  }
+
   await prisma.user.update({
-    where: { email },
+    where: { id: user.id },
     data: {
       membership: "PRO",
       credits: 10000,
@@ -19,8 +33,22 @@ async function grantPro(email: string, customerId?: string) {
 }
 
 async function revokePro(email: string) {
+  const user = await prisma.user.findFirst({
+    where: {
+      email: {
+        equals: email,
+        mode: "insensitive",
+      },
+    },
+  });
+
+  if (!user) {
+    console.error(`[webhook-prod] User not found for email: ${email}`);
+    throw new Error(`User not found for email: ${email}`);
+  }
+
   await prisma.user.update({
-    where: { email },
+    where: { id: user.id },
     // Reset to free tier and restart the monthly free-credit cycle from now
     // (lib/credits.ts uses lastCreditReset for the 30-day FREE refresh).
     data: { membership: "FREE", credits: 200, lastCreditReset: new Date() },
@@ -88,45 +116,71 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true });
   }
 
-  // Production: full signature verification via @dodopayments/nextjs
-  return Webhooks({
-    webhookKey: process.env.DODO_PAYMENTS_WEBHOOK_KEY!,
+  const webhookKey = process.env.DODO_PAYMENTS_WEBHOOK_KEY;
+  if (!webhookKey) {
+    console.error("[webhook-prod] Error: DODO_PAYMENTS_WEBHOOK_KEY environment variable is not configured.");
+    return NextResponse.json(
+      { error: "Webhook secret key is missing from server environment configuration." },
+      { status: 500 }
+    );
+  }
 
-    // ── Grant PRO ──────────────────────────────────────────────────────────
-    onSubscriptionActive: async (payload) => {
-      const sub: Subscription = payload.data;
-      await grantPro(sub.customer.email, sub.customer.customer_id);
-    },
+  try {
+    const handler = Webhooks({
+      webhookKey,
 
-    onSubscriptionRenewed: async (payload) => {
-      const sub: Subscription = payload.data;
-      await grantPro(sub.customer.email, sub.customer.customer_id);
-    },
+      // ── Grant PRO ──────────────────────────────────────────────────────────
+      onSubscriptionActive: async (payload) => {
+        const sub: Subscription = payload.data;
+        await grantPro(sub.customer.email, sub.customer.customer_id);
+      },
 
-    // ── Cancelled: user keeps PRO until the billing period ends ────────────
-    // Do NOT revoke here — subscription.expired will fire when access ends
-    onSubscriptionCancelled: async (payload) => {
-      console.log(
-        "subscription.cancelled — keeping PRO until expiry:",
-        payload.data.customer.email,
-      );
-    },
+      onSubscriptionRenewed: async (payload) => {
+        const sub: Subscription = payload.data;
+        await grantPro(sub.customer.email, sub.customer.customer_id);
+      },
 
-    // ── Access actually ended → revoke PRO and reset credits to 200 ────────
-    onSubscriptionExpired: async (payload) => {
-      await revokePro(payload.data.customer.email);
-    },
+      // ── Cancelled: user keeps PRO until the billing period ends ────────────
+      // Do NOT revoke here — subscription.expired will fire when access ends
+      onSubscriptionCancelled: async (payload) => {
+        console.log(
+          "[webhook-prod] subscription.cancelled — keeping PRO until expiry:",
+          payload.data.customer.email,
+        );
+      },
 
-    onSubscriptionFailed: async (payload) => {
-      await revokePro(payload.data.customer.email);
-    },
+      // ── Access actually ended → revoke PRO and reset credits to 200 ────────
+      onSubscriptionExpired: async (payload) => {
+        await revokePro(payload.data.customer.email);
+      },
 
-    onSubscriptionOnHold: async (payload) => {
-      await revokePro(payload.data.customer.email);
-    },
+      onSubscriptionFailed: async (payload) => {
+        await revokePro(payload.data.customer.email);
+      },
 
-    onSubscriptionPaused: async (payload) => {
-      await revokePro(payload.data.customer.email);
-    },
-  })(req);
+      onSubscriptionOnHold: async (payload) => {
+        await revokePro(payload.data.customer.email);
+      },
+
+      onSubscriptionPaused: async (payload) => {
+        await revokePro(payload.data.customer.email);
+      },
+    });
+
+    const res = await handler(req);
+
+    if (res.status >= 400) {
+      const clonedRes = res.clone();
+      const text = await clonedRes.text();
+      console.error(`[webhook-prod] Verification failed with status ${res.status}:`, text);
+    }
+
+    return res;
+  } catch (err: any) {
+    console.error("[webhook-prod] Exception caught in route handler:", err);
+    return NextResponse.json(
+      { error: err?.message || "Internal server error inside webhook handler" },
+      { status: 500 }
+    );
+  }
 }
