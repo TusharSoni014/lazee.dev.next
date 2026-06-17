@@ -163,12 +163,22 @@ export default function ProfileForm({
   // Poll for Pro membership after a successful payment redirect
   useEffect(() => {
     if (!paymentSuccess) return;
+
+    // Clean up the URL query params immediately to keep the address bar clean
+    const url = new URL(window.location.href);
+    let changed = false;
+    for (const key of ["payment", "subscription_id", "status", "email"]) {
+      if (url.searchParams.has(key)) {
+        url.searchParams.delete(key);
+        changed = true;
+      }
+    }
+    if (changed) {
+      window.history.replaceState({}, "", url.toString());
+    }
+
     if (status?.membership === "PRO") {
       setActivating(false);
-      // Clean up the URL query param
-      const url = new URL(window.location.href);
-      url.searchParams.delete("payment");
-      window.history.replaceState({}, "", url.toString());
       return;
     }
     let tries = 0;
