@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { Loader2, ArrowRight } from "lucide-react";
+import { Loader2, ArrowRight, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -21,11 +21,11 @@ export default function AuthForm() {
     }
 
     setIsEmailLoading(true);
-    
+
     const urlParams = new URLSearchParams(window.location.search);
     const extensionId = urlParams.get("extensionId");
-    const callbackUrl = extensionId 
-      ? `/?extensionId=${extensionId}&logged_in=true` 
+    const callbackUrl = extensionId
+      ? `/?extensionId=${extensionId}&logged_in=true`
       : "/?logged_in=true";
 
     try {
@@ -52,8 +52,8 @@ export default function AuthForm() {
     setIsGoogleLoading(true);
     const urlParams = new URLSearchParams(window.location.search);
     const extensionId = urlParams.get("extensionId");
-    const callbackUrl = extensionId 
-      ? `/?extensionId=${extensionId}&logged_in=true` 
+    const callbackUrl = extensionId
+      ? `/?extensionId=${extensionId}&logged_in=true`
       : "/?logged_in=true";
     try {
       await signIn("google", { callbackUrl });
@@ -89,7 +89,7 @@ export default function AuthForm() {
             <button
               onClick={handleGoogleLogin}
               disabled={isEmailLoading || isGoogleLoading}
-              className="flex w-full items-center justify-center gap-3 bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white h-16 px-6 border-[3px] border-black hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-[5px_5px_0px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[3px_3px_0px_0px_#000000] disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-3 bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white h-16 px-6 border-[3px] border-black dark:border-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-[5px_5px_0px_0px_#000000] dark:shadow-[5px_5px_0px_0px_#ffffff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[3px_3px_0px_0px_#000000] dark:active:shadow-[3px_3px_0px_0px_#ffffff] disabled:opacity-50 cursor-pointer"
             >
               {isGoogleLoading ? (
                 <Loader2 className="h-6 w-6 animate-spin text-black dark:text-white" />
@@ -125,11 +125,11 @@ export default function AuthForm() {
             </button>
 
             <div className="relative flex py-2 items-center">
-              <div className="grow h-[3px] bg-black dark:bg-slate-700"></div>
+              <div className="grow h-[3px] bg-black dark:bg-white"></div>
               <span className="shrink-0 mx-4 text-black dark:text-white font-black text-sm uppercase tracking-widest">
                 Or with email
               </span>
-              <div className="grow h-[3px] bg-black dark:bg-slate-700"></div>
+              <div className="grow h-[3px] bg-black dark:bg-white"></div>
             </div>
 
             <form onSubmit={handleEmailLogin} className="flex flex-col gap-6">
@@ -148,14 +148,14 @@ export default function AuthForm() {
                   value={email}
                   disabled={isEmailLoading || isGoogleLoading}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-14 px-4 bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white border-[3px] border-black focus:outline-none focus:border-black placeholder:text-slate-400 text-lg font-medium transition-all rounded-none shadow-[4px_4px_0px_0px_#000000] focus:shadow-[6px_6px_0px_0px_#f26c0d]"
+                  className="w-full h-14 px-4 bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white border-[3px] border-black dark:border-white focus:outline-none focus:border-[#f26c0d] dark:focus:border-[#f26c0d] placeholder:text-slate-400 text-lg font-medium transition-all rounded-none shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff] focus:shadow-[6px_6px_0px_0px_#f26c0d] dark:focus:shadow-[6px_6px_0px_0px_#f26c0d]"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isEmailLoading || isGoogleLoading}
-                className="group flex items-center justify-center gap-2 w-full h-16 bg-[#f26c0d] text-[#1c130d] transition-all cursor-pointer border-[3px] border-black shadow-[5px_5px_0px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[3px_3px_0px_0px_#000000] disabled:opacity-50"
+                className="group flex items-center justify-center gap-2 w-full h-16 bg-[#f26c0d] text-[#1c130d] transition-all cursor-pointer border-[3px] border-black dark:border-white shadow-[5px_5px_0px_0px_#000000] dark:shadow-[5px_5px_0px_0px_#ffffff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[3px_3px_0px_0px_#000000] dark:active:shadow-[3px_3px_0px_0px_#ffffff] disabled:opacity-50"
               >
                 {isEmailLoading ? (
                   <Loader2 className="h-6 w-6 animate-spin text-black" />
@@ -197,15 +197,23 @@ export default function AuthForm() {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center space-y-6 flex flex-col items-center"
           >
-            <div className="w-full p-6 border-[3px] border-black shadow-[5px_5px_0px_0px_#000000] bg-blue-50 text-black font-black text-lg leading-relaxed uppercase tracking-tight">
-              Check your inbox.
-              <br />
-              We sent a magic link.
-              <br />
-              Click it to log in.
+            <div className="w-full p-8 border-[3px] border-black dark:border-white shadow-[6px_6px_0px_0px_#f26c0d] bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white flex flex-col items-center text-center">
+              <div className="flex items-center justify-center w-16 h-16 bg-[#f26c0d] border-[3px] border-black dark:border-white text-[#1c130d] shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff] mb-6 animate-pulse">
+                <Mail className="h-8 w-8 stroke-[2.5]" />
+              </div>
+              <h3 className="text-2xl font-black uppercase tracking-tight mb-2">
+                Check your inbox
+              </h3>
+              <p className="text-slate-600 dark:text-slate-300 font-medium font-sans text-base leading-relaxed max-w-sm">
+                We sent a magic link to:
+                <span className="block font-black text-[#f26c0d] break-all my-2">
+                  {email}
+                </span>
+                Click the link in the email to log in instantly.
+              </p>
             </div>
             <button
-              className="text-black font-black uppercase text-sm tracking-widest hover:text-[#f26c0d] transition-colors border-b-2 border-black hover:border-[#f26c0d]"
+              className="text-black dark:text-white font-black uppercase text-sm tracking-widest hover:text-[#f26c0d] dark:hover:text-[#f26c0d] transition-colors border-b-2 border-black dark:border-white hover:border-[#f26c0d] dark:hover:border-[#f26c0d] cursor-pointer"
               onClick={() => {
                 setIsSent(false);
                 setEmail("");
