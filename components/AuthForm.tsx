@@ -66,7 +66,7 @@ export default function AuthForm() {
   return (
     <div className="flex flex-col gap-8 w-full font-heading">
       <div className="flex flex-col gap-2">
-        <h2 className="text-[#1c130d] dark:text-white text-4xl font-black tracking-tight uppercase lg:hidden">
+        <h2 className="text-[#1c130d] dark:text-white text-3xl sm:text-4xl font-black tracking-tight uppercase lg:hidden">
           Welcome Back
         </h2>
         <h2 className="text-[#1c130d] dark:text-white text-3xl font-black tracking-tight hidden lg:block uppercase font-heading">

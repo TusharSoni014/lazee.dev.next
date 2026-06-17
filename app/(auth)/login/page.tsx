@@ -19,16 +19,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-[#f8f7f5] dark:bg-[#221710] p-6 sm:p-12 md:p-20 relative">
-        <div className="lg:hidden absolute top-6 left-6 flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#f26c0d] flex items-center justify-center border-2 border-black">
-            <Bolt className="text-[#1c130d]" size={20} />
-          </div>
-          <span className="text-[#1c130d] dark:text-white text-xl font-bold tracking-tighter">
-            Lazee.dev
-          </span>
-        </div>
-
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-[#f8f7f5] dark:bg-[#221710] py-12 px-6 sm:p-12 md:p-20 relative">
         <div className="w-full max-w-md">
           <AuthForm />
         </div>

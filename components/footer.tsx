@@ -1,8 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { Zap, Heart, Coffee } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePathname } from "next/navigation";
 
 export function Footer() {
+  const pathname = usePathname();
+  if (pathname === "/login") return null;
+
   return (
     <footer className="w-full bg-white dark:bg-zinc-900 border-t-4 border-black mt-auto">
       <div className="max-w-7xl mx-auto px-6 py-16">
