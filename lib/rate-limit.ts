@@ -78,6 +78,7 @@ export function checkRateLimit(
 export const RATE_LIMITS = {
   chat: { maxRequests: 20, windowSeconds: 60 }, // 20 requests per minute
   bulkFill: { maxRequests: 10, windowSeconds: 60 }, // 10 requests per minute
+  coldDm: { maxRequests: 20, windowSeconds: 60 }, // 20 requests per minute
   feedback: { maxRequests: 5, windowSeconds: 300 }, // 5 requests per 5 minutes
   profile: { maxRequests: 30, windowSeconds: 60 }, // 30 requests per minute
 } as const;
