@@ -45,7 +45,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -143,6 +143,605 @@ const JOB_TYPES = [
   "Other",
 ];
 
+const personalSchema = z.object({
+  firstName: z.string().min(1, "First Name is required"),
+  middleName: z.string().optional(),
+  lastName: z.string().min(1, "Last Name is required"),
+  countryCode: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  country: z.string().optional(),
+  contactEmail: z.string().email("Invalid email address").min(1, "Contact Email is required"),
+});
+
+const professionalSchema = z.object({
+  jobType: z.string().optional().nullable(),
+  currency: z.string().optional().nullable(),
+  currentCtc: z.string()
+    .transform((val) => (val === "" ? null : Number(val)))
+    .refine((val) => val === null || !isNaN(val), { message: "Must be a number" })
+    .nullable()
+    .optional(),
+  noticePeriod: z.string()
+    .transform((val) => (val === "" ? null : parseInt(val, 10)))
+    .refine((val) => val === null || !isNaN(val), { message: "Must be an integer" })
+    .nullable()
+    .optional(),
+});
+
+const socialsSchema = z.object({
+  linkedin: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  github: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  twitter: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  portfolio: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  telegram: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  other: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+});
+
+const aiSettingsSchema = z.object({
+  specificQuestionGuidance: z.string().optional(),
+});
+
+const coverLetterSchema = z.object({
+  coverLetter: z.string().optional(),
+});
+
+interface FormInputProps {
+  control: any;
+  name: string;
+  label: string;
+  placeholder?: string;
+  icon?: any;
+  className?: string;
+  type?: string;
+}
+
+function FormInput({ control, name, label, placeholder, icon: Icon, className, type = "text" }: FormInputProps) {
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={clsx("space-y-2", className)}>
+          <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+            {label}
+          </FormLabel>
+          <FormControl>
+            <div className="relative group">
+              <Input
+                type={type}
+                {...field}
+                value={field.value ?? ""}
+                placeholder={placeholder}
+                className={clsx(
+                  "h-[50px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-none border-[3px] border-black text-black",
+                  Icon && "pl-14",
+                )}
+              />
+              {Icon && (
+                <div className="absolute left-0 top-0 bottom-0 w-[50px] flex items-center justify-center border-r-[3px] border-black bg-zinc-200">
+                  <Icon className="h-5 w-5 text-black" />
+                </div>
+              )}
+            </div>
+          </FormControl>
+          <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+function PersonalInformationForm({
+  user,
+  refetchProfile,
+  phoneOptions,
+  countryOptions,
+}: any) {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const initialCountryCode = (() => {
+    const initial = user?.countryCode || "+1";
+    const clean = initial.startsWith("+") ? initial : `+${initial}`;
+    const match = phoneList.find((c) => c.dial_code === clean);
+    return match ? match.dial_code : clean;
+  })();
+
+  const initialCountry = (() => {
+    const initial = user?.country || "";
+    const exactMatch = phoneList.find(
+      (c) =>
+        c.name.toLowerCase() === initial.toLowerCase() ||
+        c.code.toLowerCase() === initial.toLowerCase()
+    );
+    return exactMatch ? exactMatch.name : initial;
+  })();
+
+  const form = useForm<z.infer<typeof personalSchema>>({
+    resolver: zodResolver(personalSchema),
+    defaultValues: {
+      firstName: user.firstName || "",
+      middleName: user.middleName || "",
+      lastName: user.lastName || "",
+      countryCode: initialCountryCode,
+      phoneNumber: user.phoneNumber || "",
+      country: initialCountry,
+      contactEmail: user.contactEmail || user.email || "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof personalSchema>) => {
+    setIsSaving(true);
+    const result = await updateProfile(values);
+    setIsSaving(false);
+    if (result.success) {
+      refetchProfile();
+      toast.success("Personal information updated successfully!");
+    } else {
+      toast.error(result.error || "Failed to update personal information.");
+    }
+  };
+
+  return (
+    <Section title="Personal Information" icon={IdCard}>
+      <Form {...form}>
+        <div className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-3">
+            <FormInput control={form.control} name="firstName" label="First Name" placeholder="John" />
+            <FormInput control={form.control} name="middleName" label="Middle Name" placeholder="" />
+            <FormInput control={form.control} name="lastName" label="Last Name" placeholder="Doe" />
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem className="space-y-2 md:col-span-2">
+                  <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Phone Number
+                  </FormLabel>
+                  <FormControl>
+                    <div className="flex gap-2">
+                      <Combobox
+                        options={phoneOptions}
+                        value={form.watch("countryCode")}
+                        onChange={(val) => form.setValue("countryCode", val)}
+                        className="w-28 shrink-0"
+                      />
+                      <Input
+                        {...field}
+                        value={field.value ?? ""}
+                        placeholder="1234567890"
+                        className="h-[50px] flex-1 bg-zinc-100 placeholder:text-zinc-400 rounded-none border-[3px] border-black text-black focus:bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="country"
+              render={() => (
+                <FormItem className="space-y-2 md:col-span-1">
+                  <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Country
+                  </FormLabel>
+                  <FormControl>
+                    <Combobox
+                      options={countryOptions}
+                      value={form.watch("country")}
+                      onChange={(val) => form.setValue("country", val)}
+                      placeholder="Select Country"
+                      searchPlaceholder="Search country..."
+                    />
+                  </FormControl>
+                  <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <FormInput
+              control={form.control}
+              name="contactEmail"
+              label="Contact Email"
+              placeholder="your-contact-email@example.com"
+              className="md:col-span-2"
+            />
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSaving}
+              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Personal Info
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </Form>
+    </Section>
+  );
+}
+
+function ProfessionalDetailsForm({ user, refetchProfile }: any) {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const form = useForm<z.infer<typeof professionalSchema>>({
+    resolver: zodResolver(professionalSchema),
+    defaultValues: {
+      jobType: user.jobType || "",
+      currency: user.currency || "USD",
+      currentCtc: user.currentCtc !== null && user.currentCtc !== undefined ? String(user.currentCtc) : "",
+      noticePeriod: user.noticePeriod !== null && user.noticePeriod !== undefined ? String(user.noticePeriod) : "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof professionalSchema>) => {
+    setIsSaving(true);
+    const result = await updateProfile(values);
+    setIsSaving(false);
+    if (result.success) {
+      refetchProfile();
+      toast.success("Professional details updated successfully!");
+    } else {
+      toast.error(result.error || "Failed to update professional details.");
+    }
+  };
+
+  return (
+    <Section title="Professional Details" icon={Briefcase}>
+      <Form {...form}>
+        <div className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="jobType"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Looking For Role
+                  </FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value || undefined}>
+                      <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
+                        <SelectValue placeholder="Select Role Type" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        {JOB_TYPES.map((role) => (
+                          <SelectItem
+                            key={role}
+                            value={role}
+                            className="cursor-pointer font-bold focus:bg-orange-50 rounded-none"
+                          >
+                            {role}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="currentCtc"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Current CTC
+                  </FormLabel>
+                  <FormControl>
+                    <div className="flex gap-4">
+                      <div className="relative">
+                        <select
+                          value={form.watch("currency") || "USD"}
+                          onChange={(e) => form.setValue("currency", e.target.value)}
+                          className="appearance-none h-[50px] w-24 rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                        >
+                          {CURRENCIES.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+                          <svg
+                            className="w-3 h-3 text-black"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="square"
+                              strokeLinejoin="miter"
+                              strokeWidth="3"
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        {...field}
+                        value={field.value ?? ""}
+                        placeholder="100000"
+                        className="h-[50px] flex-1 bg-zinc-100 placeholder:text-zinc-400 rounded-none border-[3px] border-black text-black focus:bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                </FormItem>
+              )}
+            />
+
+            <FormInput
+              control={form.control}
+              name="noticePeriod"
+              label="Notice Period (Days)"
+              type="number"
+              placeholder="30"
+            />
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSaving}
+              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Professional Details
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </Form>
+    </Section>
+  );
+}
+
+function SocialLinksForm({ user, refetchProfile }: any) {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const form = useForm<z.infer<typeof socialsSchema>>({
+    resolver: zodResolver(socialsSchema),
+    defaultValues: {
+      linkedin: user.linkedin || "",
+      github: user.github || "",
+      twitter: user.twitter || "",
+      portfolio: user.portfolio || "",
+      telegram: user.telegram || "",
+      other: user.other || "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof socialsSchema>) => {
+    setIsSaving(true);
+    const result = await updateProfile(values);
+    setIsSaving(false);
+    if (result.success) {
+      refetchProfile();
+      toast.success("Social links updated successfully!");
+    } else {
+      toast.error(result.error || "Failed to update social links.");
+    }
+  };
+
+  return (
+    <Section title="Social Links" icon={Globe}>
+      <Form {...form}>
+        <div className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <FormInput control={form.control} name="linkedin" label="LinkedIn" placeholder="https://linkedin.com/in/..." icon={Linkedin} />
+            <FormInput control={form.control} name="github" label="GitHub" placeholder="https://github.com/..." icon={Github} />
+            <FormInput control={form.control} name="twitter" label="Twitter" placeholder="https://twitter.com/..." icon={Twitter} />
+            <FormInput control={form.control} name="portfolio" label="Portfolio" placeholder="https://..." icon={LinkIcon} />
+            <FormInput control={form.control} name="telegram" label="Telegram" placeholder="https://t.me/..." icon={Send} />
+            <FormInput control={form.control} name="other" label="Other Link" placeholder="https://..." icon={LinkIcon} />
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSaving}
+              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Social Links
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </Form>
+    </Section>
+  );
+}
+
+function AiSettingsForm({ user, refetchProfile }: any) {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const form = useForm<z.infer<typeof aiSettingsSchema>>({
+    resolver: zodResolver(aiSettingsSchema),
+    defaultValues: {
+      specificQuestionGuidance: user.specificQuestionGuidance || "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof aiSettingsSchema>) => {
+    setIsSaving(true);
+    const result = await updateProfile(values);
+    setIsSaving(false);
+    if (result.success) {
+      refetchProfile();
+      toast.success("AI Settings updated successfully!");
+    } else {
+      toast.error(result.error || "Failed to update AI Settings.");
+    }
+  };
+
+  return (
+    <Section title="AI Settings" icon={Settings}>
+      <Form {...form}>
+        <div className="space-y-6">
+          <FormField
+            control={form.control}
+            name="specificQuestionGuidance"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                  Specific Question Guidance (Optional)
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    placeholder="Mention any extra and specific detail to provide for the AI..."
+                    className="min-h-[120px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4 font-bold text-black"
+                  />
+                </FormControl>
+                <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                <p className="text-xs font-bold text-zinc-500 pt-1 uppercase tracking-widest">
+                  Mention extra and specific detail to provide for the AI.
+                </p>
+              </FormItem>
+            )}
+          />
+
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSaving}
+              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save AI Settings
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </Form>
+    </Section>
+  );
+}
+
+function CoverLetterForm({ user, refetchProfile }: any) {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const form = useForm<z.infer<typeof coverLetterSchema>>({
+    resolver: zodResolver(coverLetterSchema),
+    defaultValues: {
+      coverLetter: user.coverLetter || "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof coverLetterSchema>) => {
+    setIsSaving(true);
+    const result = await updateProfile(values);
+    setIsSaving(false);
+    if (result.success) {
+      refetchProfile();
+      toast.success("Cover letter updated successfully!");
+    } else {
+      toast.error(result.error || "Failed to update cover letter.");
+    }
+  };
+
+  return (
+    <Section title="Cover Letter" icon={FileText}>
+      <Form {...form}>
+        <div className="space-y-6">
+          <FormField
+            control={form.control}
+            name="coverLetter"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                  Default Cover Letter (Optional)
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    placeholder="Write your default cover letter here. This will be available in the extension's Profile tab for quick autofill on job applications..."
+                    className="min-h-[200px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4 font-bold text-black"
+                  />
+                </FormControl>
+                <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+              </FormItem>
+            )}
+          />
+
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSaving}
+              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Cover Letter
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </Form>
+    </Section>
+  );
+}
+
 export default function ProfileForm({
   user: initialUser,
   paymentSuccess = false,
@@ -177,60 +776,19 @@ export default function ProfileForm({
     return "";
   })();
 
-  const [loading, setLoading] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [activating, setActivating] = useState(paymentSuccess);
   const [experiences, setExperiences] = useState<any[]>(
     user?.experiences || [],
   );
   const [projects, setProjects] = useState<any[]>(user?.projects || []);
-  const [isDirty, setIsDirty] = useState(false);
-
-  const [selectedCountryCode, setSelectedCountryCode] = useState(() => {
-    const initial = user?.countryCode || "+1";
-    const clean = initial.startsWith("+") ? initial : `+${initial}`;
-    const match = phoneList.find((c) => c.dial_code === clean);
-    return match ? match.dial_code : clean;
-  });
-
-  const [selectedCountry, setSelectedCountry] = useState(() => {
-    const initial = user?.country || "";
-    const exactMatch = phoneList.find(
-      (c) =>
-        c.name.toLowerCase() === initial.toLowerCase() ||
-        c.code.toLowerCase() === initial.toLowerCase()
-    );
-    return exactMatch ? exactMatch.name : initial;
-  });
 
   useEffect(() => {
     if (user) {
-      if (user.countryCode) {
-        const clean = user.countryCode.startsWith("+") ? user.countryCode : `+${user.countryCode}`;
-        const match = phoneList.find((c) => c.dial_code === clean);
-        setSelectedCountryCode(match ? match.dial_code : clean);
-      }
-      if (user.country) {
-        const exactMatch = phoneList.find(
-          (c) =>
-            c.name.toLowerCase() === user.country.toLowerCase() ||
-            c.code.toLowerCase() === user.country.toLowerCase()
-        );
-        setSelectedCountry(exactMatch ? exactMatch.name : user.country);
-      }
+      if (user.experiences) setExperiences(user.experiences);
+      if (user.projects) setProjects(user.projects);
     }
   }, [user]);
-
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isDirty) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isDirty]);
 
   // Poll for Pro membership after a successful payment redirect
   useEffect(() => {
@@ -276,25 +834,6 @@ export default function ProfileForm({
     );
   }
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-    const data: any = Object.fromEntries(formData);
-    data.skills = formData.getAll("skills") as string[];
-    const result = await updateProfile(data);
-
-    setLoading(false);
-    if (result.success) {
-      setIsDirty(false);
-      refetchProfile();
-      toast.success("Profile updated successfully!");
-    } else {
-      toast.error("Failed to update profile.");
-    }
-  }
-
   async function handleUpgrade() {
     setIsCheckingOut(true);
     try {
@@ -333,11 +872,7 @@ export default function ProfileForm({
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="space-y-10"
-      onChange={() => setIsDirty(true)}
-    >
+    <div className="space-y-10">
       {/* Payment Success Banner */}
       {activating && status?.membership !== "PRO" && (
         <div className="flex items-center gap-4 border-[3px] border-black bg-yellow-400 px-6 py-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -486,147 +1021,17 @@ export default function ProfileForm({
         currentEmail={user.email}
       />
 
-      {/* Personal Info */}
-      <Section title="Personal Information" icon={IdCard}>
-        <div className="grid gap-6 md:grid-cols-3">
-          <ProfileInput
-            label="First Name"
-            name="firstName"
-            defaultValue={user.firstName}
-            placeholder="John"
-          />
-          <ProfileInput
-            label="Middle Name"
-            name="middleName"
-            defaultValue={user.middleName}
-            placeholder=""
-          />
-          <ProfileInput
-            label="Last Name"
-            name="lastName"
-            defaultValue={user.lastName}
-            placeholder="Doe"
-          />
-        </div>
+      <PersonalInformationForm
+        user={user}
+        refetchProfile={refetchProfile}
+        phoneOptions={phoneOptions}
+        countryOptions={countryOptions}
+      />
 
-        <div className="grid gap-6 md:grid-cols-3 mt-6">
-          <div className="space-y-2 md:col-span-1">
-            <Label>Phone Number</Label>
-            <div className="flex gap-2">
-              <Combobox
-                name="countryCode"
-                options={phoneOptions}
-                value={selectedCountryCode}
-                onChange={(val) => {
-                  setSelectedCountryCode(val);
-                  setIsDirty(true);
-                }}
-                className="w-24 shrink-0"
-              />
-              <Input
-                name="phoneNumber"
-                defaultValue={user.phoneNumber}
-                placeholder="1234567890"
-                className="h-[50px] flex-1 bg-zinc-100 placeholder:text-zinc-400"
-              />
-            </div>
-          </div>
-          <div className="space-y-2 md:col-span-1">
-            <Label>Country</Label>
-            <Combobox
-              name="country"
-              options={countryOptions}
-              value={selectedCountry}
-              onChange={(val) => {
-                setSelectedCountry(val);
-                setIsDirty(true);
-              }}
-              placeholder="Select Country"
-              searchPlaceholder="Search country..."
-            />
-          </div>
-          <ProfileInput
-            label="Contact Email"
-            name="contactEmail"
-            defaultValue={user.contactEmail || user.email}
-            placeholder="your-contact-email@example.com"
-            className="md:col-span-1"
-          />
-        </div>
-      </Section>
-
-      {/* Professional */}
-      <Section title="Professional Details" icon={Briefcase}>
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Looking For Role</Label>
-            <Select name="jobType" defaultValue={user.jobType || undefined}>
-              <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
-                <SelectValue placeholder="Select Role Type" />
-              </SelectTrigger>
-              <SelectContent className="rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                {JOB_TYPES.map((role) => (
-                  <SelectItem
-                    key={role}
-                    value={role}
-                    className="cursor-pointer font-bold focus:bg-orange-50 rounded-none"
-                  >
-                    {role}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Current CTC</Label>
-            <div className="flex gap-4">
-              <div className="relative">
-                <select
-                  name="currency"
-                  defaultValue={user.currency || "USD"}
-                  className="appearance-none h-[50px] w-24 rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                >
-                  {CURRENCIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-                  <svg
-                    className="w-3 h-3 text-black"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="square"
-                      strokeLinejoin="miter"
-                      strokeWidth="3"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <Input
-                name="currentCtc"
-                type="number"
-                step="0.01"
-                defaultValue={user.currentCtc}
-                placeholder="100000"
-                className="h-[50px] flex-1 bg-zinc-100 placeholder:text-zinc-400"
-              />
-            </div>
-          </div>
-          <ProfileInput
-            label="Notice Period (Days)"
-            name="noticePeriod"
-            type="number"
-            defaultValue={user.noticePeriod}
-            placeholder="30"
-          />
-        </div>
-      </Section>
+      <ProfessionalDetailsForm
+        user={user}
+        refetchProfile={refetchProfile}
+      />
 
       <div
         onChange={(e) => e.stopPropagation()}
@@ -635,6 +1040,7 @@ export default function ProfileForm({
         <ExperienceSection
           experiences={experiences}
           setExperiences={setExperiences}
+          refetchProfile={refetchProfile}
         />
 
         <ProjectSection
@@ -651,106 +1057,24 @@ export default function ProfileForm({
 
       <SkillsSection
         skills={user.skills || []}
-        setDirty={() => setIsDirty(true)}
+        refetchProfile={refetchProfile}
       />
 
-      {/* Socials */}
-      <Section title="Social Links" icon={Globe}>
-        <div className="grid gap-6 md:grid-cols-2">
-          <ProfileInput
-            label="LinkedIn"
-            name="linkedin"
-            defaultValue={user.linkedin}
-            placeholder="https://linkedin.com/in/..."
-            icon={Linkedin}
-          />
-          <ProfileInput
-            label="GitHub"
-            name="github"
-            defaultValue={user.github}
-            placeholder="https://github.com/..."
-            icon={Github}
-          />
-          <ProfileInput
-            label="Twitter"
-            name="twitter"
-            defaultValue={user.twitter}
-            placeholder="https://twitter.com/..."
-            icon={Twitter}
-          />
-          <ProfileInput
-            label="Portfolio"
-            name="portfolio"
-            defaultValue={user.portfolio}
-            placeholder="https://..."
-            icon={LinkIcon}
-          />
-          <ProfileInput
-            label="Telegram"
-            name="telegram"
-            defaultValue={user.telegram}
-            placeholder="https://t.me/..."
-            icon={Send}
-          />
-          <ProfileInput
-            label="Other Link"
-            name="other"
-            defaultValue={user.other}
-            placeholder="https://..."
-            icon={LinkIcon}
-          />
-        </div>
-      </Section>
+      <SocialLinksForm
+        user={user}
+        refetchProfile={refetchProfile}
+      />
 
-      {/* AI Settings */}
-      <Section title="AI Settings" icon={Settings}>
-        <div className="space-y-2">
-          <Label>Specific Question Guidance (Optional)</Label>
-          <Textarea
-            name="specificQuestionGuidance"
-            defaultValue={user.specificQuestionGuidance || ""}
-            placeholder="Mention any extra and specific detail to provide for the AI..."
-            className="min-h-[120px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
-          />
-          <p className="text-xs font-bold text-zinc-500 pt-1 uppercase tracking-widest">
-            Mention extra and specific detail to provide for the AI.
-          </p>
-        </div>
-      </Section>
+      <AiSettingsForm
+        user={user}
+        refetchProfile={refetchProfile}
+      />
 
-      {/* Cover Letter */}
-      <Section title="Cover Letter" icon={FileText}>
-        <div className="space-y-2">
-          <Label>Default Cover Letter (Optional)</Label>
-          <Textarea
-            name="coverLetter"
-            defaultValue={user.coverLetter || ""}
-            placeholder="Write your default cover letter here. This will be available in the extension's Profile tab for quick autofill on job applications..."
-            className="min-h-[200px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
-          />
-        </div>
-      </Section>
-
-      <div className="flex justify-end pt-4">
-        <Button
-          type="submit"
-          disabled={loading}
-          className="px-8 py-6 tracking-widest bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save className="h-5 w-5 mr-2" />
-              Save Changes
-            </>
-          )}
-        </Button>
-      </div>
-    </form>
+      <CoverLetterForm
+        user={user}
+        refetchProfile={refetchProfile}
+      />
+    </div>
   );
 }
 
@@ -808,10 +1132,11 @@ function ProfileInput({ label, icon: Icon, className, ...props }: any) {
   );
 }
 
-function ExperienceSection({ experiences, setExperiences }: any) {
+function ExperienceSection({ experiences, setExperiences, refetchProfile }: any) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempExp, setTempExp] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const addExperience = () => {
     const newExp = {
@@ -828,11 +1153,23 @@ function ExperienceSection({ experiences, setExperiences }: any) {
   };
 
   const removeExperience = async (id: string) => {
+    setDeletingId(id);
     const newExperiences = experiences.filter((exp: any) => exp.id !== id);
-    setExperiences(newExperiences);
-    if (editingId === id) cancelEdit();
-    await updateExperiences(newExperiences);
-    toast.success("Experience removed");
+    try {
+      const result = await updateExperiences(newExperiences);
+      if (result.success) {
+        setExperiences(newExperiences);
+        if (editingId === id) cancelEdit();
+        toast.success("Experience removed");
+        refetchProfile();
+      } else {
+        toast.error("Failed to remove experience");
+      }
+    } catch {
+      toast.error("Failed to remove experience");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const confirmExperience = async (data: any) => {
@@ -870,6 +1207,7 @@ function ExperienceSection({ experiences, setExperiences }: any) {
       setEditingId(null);
       setTempExp(null);
       toast.success("Experience saved successfully");
+      refetchProfile();
     } else {
       toast.error("Failed to save experience");
     }
@@ -920,11 +1258,15 @@ function ExperienceSection({ experiences, setExperiences }: any) {
               key={exp.id || index}
               className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-2"
             >
-              <div className="absolute right-4 top-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className={clsx(
+                "absolute right-4 top-4 flex gap-2 transition-opacity",
+                deletingId === exp.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              )}>
                 <Button
                   type="button"
                   onClick={() => editExperience(exp)}
-                  className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all"
+                  disabled={deletingId === exp.id}
+                  className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
                   title="Edit Experience"
                 >
                   <Edit2 className="w-4 h-4" />
@@ -932,10 +1274,15 @@ function ExperienceSection({ experiences, setExperiences }: any) {
                 <Button
                   type="button"
                   onClick={() => removeExperience(exp.id)}
-                  className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all"
+                  disabled={!!deletingId}
+                  className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
                   title="Remove Experience"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  {deletingId === exp.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
                 </Button>
               </div>
               <h3 className="text-xl font-black text-black uppercase pr-24">
@@ -1146,9 +1493,9 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                           )}
                         >
                           {field.value ? (
-                            format(field.value, "PPP")
+                            format(field.value, "MMM yyyy")
                           ) : (
-                            <span>Pick a date</span>
+                            <span>Select month</span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -1158,14 +1505,9 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                       className="w-auto p-0 rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                       align="start"
                     >
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
+                      <MonthYearPicker
+                        value={field.value}
+                        onChange={field.onChange}
                       />
                     </PopoverContent>
                   </Popover>
@@ -1193,12 +1535,12 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                           )}
                         >
                           {field.value ? (
-                            format(field.value, "PPP")
+                            format(field.value, "MMM yyyy")
                           ) : (
                             <span>
                               {form.watch("isCurrent")
                                 ? "Present"
-                                : "Pick a date"}
+                                : "Select month"}
                             </span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
@@ -1209,14 +1551,9 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                       className="w-auto p-0 rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                       align="start"
                     >
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
+                      <MonthYearPicker
+                        value={field.value}
+                        onChange={field.onChange}
                       />
                     </PopoverContent>
                   </Popover>
@@ -1361,95 +1698,157 @@ const AVAILABLE_SKILLS = [
 
 function SkillsSection({
   skills: initialSkills,
-  setDirty,
+  refetchProfile,
 }: {
   skills: string[];
-  setDirty: () => void;
+  refetchProfile: () => Promise<any>;
 }) {
   const [selected, setSelected] = useState<Set<string>>(new Set(initialSkills));
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    setSelected(new Set(initialSkills));
+  }, [initialSkills]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const res = await updateProfile({ skills: Array.from(selected) });
+      if (res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("Skills updated successfully!");
+        await refetchProfile();
+      }
+    } catch (err) {
+      toast.error("Failed to save skills.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const filteredSkills = AVAILABLE_SKILLS.filter((skill) =>
+    skill.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <Section title="Technical Skills" icon={Code}>
-      <div className="space-y-4">
-        {Array.from(selected).map((skill) => (
-          <input key={skill} type="hidden" name="skills" value={skill} />
-        ))}
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className="w-full h-auto min-h-[50px] justify-between text-left font-normal border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white whitespace-normal py-3 px-4"
+      <div className="space-y-6">
+        {/* Existing skills container */}
+        <div className="w-full min-h-[80px] border-[3px] border-black p-4 bg-zinc-50 flex flex-wrap gap-2 items-center shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05)]">
+          {selected.size > 0 ? (
+            Array.from(selected).map((skill) => (
+              <span
+                key={skill}
+                className="inline-flex items-center gap-1 bg-yellow-300 border-[2px] border-black px-2.5 py-1 text-xs font-black uppercase text-black"
+              >
+                {skill}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = new Set(selected);
+                    next.delete(skill);
+                    setSelected(next);
+                  }}
+                  className="ml-1 hover:bg-black hover:text-white rounded-full p-[1px] transition-colors inline-flex items-center justify-center"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))
+          ) : (
+            <span className="text-zinc-500 font-bold uppercase tracking-widest text-xs py-2 pl-1">
+              No skills selected. Click &quot;Add Skills&quot; below to add.
+            </span>
+          )}
+        </div>
+
+        {/* Add Skills Button and Popover */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-[50px] inline-flex items-center gap-2 border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 bg-white py-3 px-6 font-black uppercase text-xs text-black transition-all"
+              >
+                <Plus className="h-4 w-4 text-black border-black border-2 rounded-none p-0 bg-yellow-400" />
+                Add Skills
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-[280px] p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white z-50"
+              align="start"
             >
-              <div className="flex flex-wrap gap-2">
-                {selected.size > 0 ? (
-                  Array.from(selected).map((skill) => (
-                    <span
-                      key={skill}
-                      className="inline-flex items-center gap-1 bg-yellow-300 border-[2px] border-black px-2 py-1 text-xs font-black uppercase text-black"
-                    >
-                      {skill}
-                      <X
-                        className="ml-1 h-3 w-3 cursor-pointer hover:bg-black hover:text-white rounded-full p-[1px] transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          const next = new Set(selected);
-                          next.delete(skill);
-                          setSelected(next);
-                          setDirty();
-                        }}
-                      />
-                    </span>
-                  ))
+              <div className="p-3 border-b-[3px] border-black bg-zinc-50">
+                <Input
+                  type="text"
+                  placeholder="Search skills..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="h-10 w-full bg-white placeholder:text-zinc-400 border-[2px] border-black rounded-none px-3 py-1 font-bold text-xs"
+                />
+              </div>
+              <div className="max-h-60 overflow-y-auto p-4 flex flex-col gap-3">
+                {filteredSkills.length > 0 ? (
+                  filteredSkills.map((skill) => {
+                    const isSelected = selected.has(skill);
+                    return (
+                      <div key={skill} className="flex items-center space-x-3">
+                        <Checkbox
+                          id={`skill-${skill}`}
+                          checked={isSelected}
+                          onCheckedChange={(checked) => {
+                            const next = new Set(selected);
+                            if (checked) {
+                              next.add(skill);
+                            } else {
+                              next.delete(skill);
+                            }
+                            setSelected(next);
+                          }}
+                          className="border-[2px] border-black rounded-none data-[state=checked]:bg-black text-white h-5 w-5 shrink-0"
+                        />
+                        <label
+                          htmlFor={`skill-${skill}`}
+                          className="text-sm font-bold uppercase tracking-wide leading-none cursor-pointer select-none"
+                        >
+                          {skill}
+                        </label>
+                      </div>
+                    );
+                  })
                 ) : (
-                  <span className="text-zinc-500 font-bold uppercase tracking-widest text-sm">
-                    Select skills...
-                  </span>
+                  <p className="text-zinc-500 font-bold uppercase text-xs text-center py-2">
+                    No matching skills
+                  </p>
                 )}
               </div>
-              <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50 text-black border-black border-2 rounded-none p-0 bg-yellow-400" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            className="w-[var(--radix-popover-trigger-width)] p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-h-80 overflow-y-auto bg-white"
-            align="start"
+            </PopoverContent>
+          </Popover>
+
+          {/* Save Button */}
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="h-[50px] px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
           >
-            <div className="p-4 flex flex-col gap-3">
-              {AVAILABLE_SKILLS.map((skill) => {
-                const isSelected = selected.has(skill);
-                return (
-                  <div key={skill} className="flex items-center space-x-3">
-                    <Checkbox
-                      id={`skill-${skill}`}
-                      checked={isSelected}
-                      onCheckedChange={(checked) => {
-                        const next = new Set(selected);
-                        if (checked) {
-                          next.add(skill);
-                        } else {
-                          next.delete(skill);
-                        }
-                        setSelected(next);
-                        setDirty();
-                      }}
-                      className="border-[2px] border-black rounded-none data-[state=checked]:bg-black text-white h-5 w-5 shrink-0"
-                    />
-                    <label
-                      htmlFor={`skill-${skill}`}
-                      className="text-sm font-bold uppercase tracking-wide leading-none cursor-pointer select-none"
-                    >
-                      {skill}
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
-          </PopoverContent>
-        </Popover>
+            {isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Save Skills
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </Section>
   );

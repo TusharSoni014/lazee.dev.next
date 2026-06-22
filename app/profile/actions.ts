@@ -14,32 +14,43 @@ export async function updateProfile(data: any) {
     return { error: "Not authenticated" };
   }
 
+  const updateData: any = {};
+
+  if (data.firstName !== undefined) updateData.firstName = data.firstName;
+  if (data.middleName !== undefined) updateData.middleName = data.middleName;
+  if (data.lastName !== undefined) updateData.lastName = data.lastName;
+  if (data.resumeUrl !== undefined) updateData.resumeUrl = data.resumeUrl;
+  if (data.countryCode !== undefined) updateData.countryCode = data.countryCode;
+  if (data.phoneNumber !== undefined) updateData.phoneNumber = data.phoneNumber;
+  if (data.country !== undefined) updateData.country = data.country;
+  if (data.jobType !== undefined) updateData.jobType = data.jobType;
+  if (data.linkedin !== undefined) updateData.linkedin = data.linkedin;
+  if (data.twitter !== undefined) updateData.twitter = data.twitter;
+  if (data.github !== undefined) updateData.github = data.github;
+  if (data.portfolio !== undefined) updateData.portfolio = data.portfolio;
+  if (data.telegram !== undefined) updateData.telegram = data.telegram;
+  if (data.other !== undefined) updateData.other = data.other;
+  if (data.currency !== undefined) updateData.currency = data.currency;
+  if (data.specificQuestionGuidance !== undefined) updateData.specificQuestionGuidance = data.specificQuestionGuidance;
+  if (data.coverLetter !== undefined) updateData.coverLetter = data.coverLetter;
+
+  if (data.noticePeriod !== undefined) {
+    updateData.noticePeriod = data.noticePeriod ? parseInt(data.noticePeriod) : null;
+  }
+  if (data.currentCtc !== undefined) {
+    updateData.currentCtc = data.currentCtc ? parseFloat(data.currentCtc) : null;
+  }
+  if (data.skills !== undefined) {
+    updateData.skills = data.skills || [];
+  }
+  if (data.contactEmail !== undefined) {
+    updateData.contactEmail = data.contactEmail ? data.contactEmail.trim() : null;
+  }
+
   try {
     await prisma.user.update({
       where: { id: session.user.id },
-      data: {
-        firstName: data.firstName,
-        middleName: data.middleName,
-        lastName: data.lastName,
-        resumeUrl: data.resumeUrl,
-        countryCode: data.countryCode,
-        phoneNumber: data.phoneNumber,
-        country: data.country,
-        noticePeriod: data.noticePeriod ? parseInt(data.noticePeriod) : null,
-        jobType: data.jobType,
-        linkedin: data.linkedin,
-        twitter: data.twitter,
-        github: data.github,
-        portfolio: data.portfolio,
-        telegram: data.telegram,
-        other: data.other,
-        currency: data.currency,
-        currentCtc: data.currentCtc ? parseFloat(data.currentCtc) : null,
-        skills: data.skills || [],
-        specificQuestionGuidance: data.specificQuestionGuidance,
-        coverLetter: data.coverLetter,
-        contactEmail: data.contactEmail ? data.contactEmail.trim() : null,
-      },
+      data: updateData,
     });
 
     revalidatePath("/profile");

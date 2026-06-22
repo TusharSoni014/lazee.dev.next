@@ -21,14 +21,30 @@ export default async function ProfilePage({
     redirect("/");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    include: {
-      resumes: { orderBy: { version: "desc" } },
-      experiences: { orderBy: { startDate: "desc" } },
-      projects: { orderBy: { createdAt: "desc" } },
-    },
-  });
+  let user = null;
+  const maxRetries = 3;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        include: {
+          resumes: { orderBy: { version: "desc" } },
+          experiences: { orderBy: { startDate: "desc" } },
+          projects: { orderBy: { createdAt: "desc" } },
+        },
+      });
+      break; // Success, exit retry loop
+    } catch (err: unknown) {
+      const code = (err as { code?: string })?.code;
+      const isTransient = code === "ECONNRESET" || code === "ETIMEDOUT" || code === "EPIPE";
+      if (isTransient && attempt < maxRetries) {
+        console.warn(`Profile DB query failed (attempt ${attempt}/${maxRetries}): ${code}. Retrying...`);
+        await new Promise((r) => setTimeout(r, 500 * attempt));
+        continue;
+      }
+      throw err; // Non-transient or exhausted retries
+    }
+  }
 
   if (!user) {
     redirect("/");

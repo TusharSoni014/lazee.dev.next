@@ -1,8 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { updateProjects, uploadProjectScreenshot, uploadProjectLogo, deleteProjectFile } from "./actions";
 import { toast } from "@/components/ui/toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   FolderGit2,
   Edit2,
@@ -53,7 +61,7 @@ const projectSchema = z.object({
     .url("Must be a valid URL")
     .optional()
     .or(z.literal("")),
-  logoUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  logoUrl: z.string().optional().or(z.literal("")),
   stacks: z.string().optional(), // We'll parse this as comma-separated
   description: z.string().optional(),
   isTopProject: z.boolean().optional(),
@@ -88,6 +96,7 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempProj, setTempProj] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const addProject = () => {
     const newProj = {
@@ -109,26 +118,38 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
   };
 
   const removeProject = async (id: string) => {
-    const projectToDelete = projects.find((proj: any) => proj.id === id);
-    const newProjects = projects.filter((proj: any) => proj.id !== id);
-    setProjects(newProjects);
-    if (editingId === id) cancelEdit();
-    await updateProjects(newProjects);
-    toast.success("Project removed");
+    setDeletingId(id);
+    try {
+      const projectToDelete = projects.find((proj: any) => proj.id === id);
+      const newProjects = projects.filter((proj: any) => proj.id !== id);
+      const result = await updateProjects(newProjects);
+      
+      if (result.success) {
+        setProjects(newProjects);
+        if (editingId === id) cancelEdit();
+        toast.success("Project removed successfully");
 
-    if (projectToDelete) {
-      const filesToDelete = [
-        projectToDelete.logoUrl,
-        ...(projectToDelete.screenshots || []),
-      ].filter(Boolean);
+        if (projectToDelete) {
+          const filesToDelete = [
+            projectToDelete.logoUrl,
+            ...(projectToDelete.screenshots || []),
+          ].filter(Boolean);
 
-      for (const fileUrl of filesToDelete) {
-        try {
-          await deleteProjectFile(fileUrl);
-        } catch (err) {
-          console.error("Failed to delete project file from R2 on project deletion:", err);
+          for (const fileUrl of filesToDelete) {
+            try {
+              await deleteProjectFile(fileUrl);
+            } catch (err) {
+              console.error("Failed to delete project file from R2 on project deletion:", err);
+            }
+          }
         }
+      } else {
+        toast.error(result.error || "Failed to remove project");
       }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to remove project");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -166,16 +187,24 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
       }));
     }
 
-    const result = await updateProjects(newProjects);
-    setIsSaving(false);
+    try {
+      const result = await updateProjects(newProjects);
+      setIsSaving(false);
 
-    if (result.success) {
-      setProjects(newProjects);
-      setEditingId(null);
-      setTempProj(null);
-      toast.success("Project saved successfully");
-    } else {
-      toast.error("Failed to save project");
+      if (result.success) {
+        setProjects(newProjects);
+        setEditingId(null);
+        setTempProj(null);
+        toast.success("Project saved successfully");
+        return { success: true };
+      } else {
+        toast.error(result.error || "Failed to save project");
+        return { success: false, error: result.error || "Failed to save project" };
+      }
+    } catch (err: any) {
+      setIsSaving(false);
+      toast.error(err?.message || "Failed to save project");
+      return { success: false, error: err?.message || "Failed to save project" };
     }
   };
 
@@ -212,24 +241,39 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
           return (
             <div
               key={proj.id || index}
-              className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-4"
+              className={clsx(
+                "border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-4",
+                deletingId === proj.id && "opacity-60 pointer-events-none"
+              )}
             >
+              {deletingId === proj.id && (
+                <div className="absolute inset-0 bg-white/70 flex flex-col items-center justify-center gap-2 z-20">
+                  <Loader2 className="w-8 h-8 animate-spin text-black" />
+                  <span className="text-xs font-black uppercase tracking-wider text-black">Deleting Project...</span>
+                </div>
+              )}
               <div className="absolute right-4 top-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                 <Button
                   type="button"
+                  disabled={!!deletingId || isSaving}
                   onClick={() => editProject(proj)}
-                  className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all"
+                  className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50 disabled:pointer-events-none"
                   title="Edit Project"
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>
                 <Button
                   type="button"
+                  disabled={!!deletingId || isSaving}
                   onClick={() => removeProject(proj.id)}
-                  className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all"
+                  className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50 disabled:pointer-events-none"
                   title="Remove Project"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  {deletingId === proj.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
                 </Button>
               </div>
 
@@ -380,6 +424,29 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
   );
 }
 
+interface LocalScreenshot {
+  id: string;
+  type: "existing" | "pending";
+  url?: string;
+  file?: File;
+  previewUrl: string;
+}
+
+interface LocalLogo {
+  type: "existing" | "pending";
+  url?: string;
+  file?: File;
+  previewUrl: string;
+}
+
+interface SaveProgress {
+  isOpen: boolean;
+  status: "idle" | "uploading_logo" | "uploading_screenshots" | "saving_db" | "success" | "error";
+  currentUploadIndex: number;
+  totalUploads: number;
+  errorMessage?: string;
+}
+
 function ProjectForm({
   proj,
   onConfirm,
@@ -387,8 +454,31 @@ function ProjectForm({
   isLoading,
   membership,
 }: any) {
-  const [isUploading, setIsUploading] = useState(false);
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [localLogo, setLocalLogo] = useState<LocalLogo | null>(() => {
+    if (proj.logoUrl) {
+      return { type: "existing", url: proj.logoUrl, previewUrl: proj.logoUrl };
+    }
+    return null;
+  });
+
+  const [localScreenshots, setLocalScreenshots] = useState<LocalScreenshot[]>(() => {
+    return (proj.screenshots || []).map((url: string) => ({
+      id: crypto.randomUUID(),
+      type: "existing",
+      url,
+      previewUrl: url,
+    }));
+  });
+
+  const [removedLogoUrl, setRemovedLogoUrl] = useState<string | null>(null);
+  const [removedScreenshotUrls, setRemovedScreenshotUrls] = useState<string[]>([]);
+
+  const [saveProgress, setSaveProgress] = useState<SaveProgress>({
+    isOpen: false,
+    status: "idle",
+    currentUploadIndex: 0,
+    totalUploads: 0,
+  });
 
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
@@ -411,7 +501,38 @@ function ProjectForm({
   const screenshots = form.watch("screenshots") || [];
   const logoUrl = form.watch("logoUrl") || "";
 
-  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Keep refs of current pending URLs so the unmount cleanup can access them without triggers
+  const pendingUrlsRef = useRef<string[]>([]);
+  
+  useEffect(() => {
+    const urls: string[] = [];
+    localScreenshots.forEach(s => {
+      if (s.type === "pending" && s.previewUrl.startsWith("blob:")) {
+        urls.push(s.previewUrl);
+      }
+    });
+    if (localLogo && localLogo.type === "pending" && localLogo.previewUrl.startsWith("blob:")) {
+      urls.push(localLogo.previewUrl);
+    }
+    pendingUrlsRef.current = urls;
+  }, [localScreenshots, localLogo]);
+
+  useEffect(() => {
+    return () => {
+      // Clean up all pending URLs when form unmounts
+      pendingUrlsRef.current.forEach(url => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    };
+  }, []);
+
+  const isPendingSave = saveProgress.isOpen && saveProgress.status !== "error";
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -427,50 +548,46 @@ function ProjectForm({
       return;
     }
 
-    setIsUploadingLogo(true);
-
     const img = new Image();
     img.src = URL.createObjectURL(file);
-    img.onload = async () => {
+    img.onload = () => {
       if (img.width > 512 || img.height > 512) {
         toast.error(`Logo dimensions must be at most 512x512 pixels (selected: ${img.width}x${img.height}).`);
-        setIsUploadingLogo(false);
         URL.revokeObjectURL(img.src);
         e.target.value = "";
         return;
       }
 
-      const formData = new FormData();
-      formData.append("file", file);
-      try {
-        const result = await uploadProjectLogo(formData);
-        if (result.success && result.url) {
-          form.setValue("logoUrl", result.url, { shouldDirty: true });
-          toast.success("Logo uploaded successfully!");
-          form.handleSubmit(onSubmit)();
-        } else {
-          toast.error(`Failed to upload logo: ${result.error || "Upload failed"}`);
-        }
-      } catch (err: any) {
-        toast.error(`Failed to upload logo: ${err?.message || "Network or server error"}`);
-      } finally {
-        setIsUploadingLogo(false);
-        URL.revokeObjectURL(img.src);
+      // Check if we already have a pending local logo to revoke
+      if (localLogo && localLogo.type === "pending" && localLogo.previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(localLogo.previewUrl);
       }
+
+      // Track if we had an existing logo that's being replaced
+      if (localLogo && localLogo.type === "existing" && localLogo.url) {
+        setRemovedLogoUrl(localLogo.url);
+      }
+
+      setLocalLogo({
+        type: "pending",
+        file,
+        previewUrl: img.src,
+      });
+      form.setValue("logoUrl", img.src, { shouldDirty: true });
+      toast.success("Logo loaded successfully (pending save)!");
     };
     img.onerror = () => {
       toast.error("Failed to load image file.");
-      setIsUploadingLogo(false);
       e.target.value = "";
     };
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
     const maxAllowed = membership === "PRO" ? 10 : 3;
-    const currentCount = screenshots.length;
+    const currentCount = localScreenshots.length;
     const remainingSlots = maxAllowed - currentCount;
 
     if (remainingSlots <= 0) {
@@ -481,16 +598,16 @@ function ProjectForm({
       return;
     }
 
-    let filesToUpload = files;
+    let filesToAdd = files;
     if (files.length > remainingSlots) {
       toast.info(
-        `You can only upload ${remainingSlots} more screenshot(s). Only the first ${remainingSlots} will be uploaded.`,
+        `You can only add ${remainingSlots} more screenshot(s). Only the first ${remainingSlots} will be added.`,
       );
-      filesToUpload = files.slice(0, remainingSlots);
+      filesToAdd = files.slice(0, remainingSlots);
     }
 
-    const validFiles: File[] = [];
-    for (const file of filesToUpload) {
+    const newScreenshots: LocalScreenshot[] = [];
+    for (const file of filesToAdd) {
       if (!file.type.startsWith("image/")) {
         toast.error(`"${file.name}" is not an image file.`);
         continue;
@@ -499,79 +616,198 @@ function ProjectForm({
         toast.error(`"${file.name}" exceeds the 2MB size limit.`);
         continue;
       }
-      validFiles.push(file);
+
+      const previewUrl = URL.createObjectURL(file);
+      newScreenshots.push({
+        id: crypto.randomUUID(),
+        type: "pending",
+        file,
+        previewUrl,
+      });
     }
 
-    if (validFiles.length === 0) {
+    if (newScreenshots.length === 0) {
       e.target.value = "";
       return;
     }
 
-    setIsUploading(true);
-
-    const successfulUrls: string[] = [];
-    let successCount = 0;
-
-    for (const file of validFiles) {
-      const formData = new FormData();
-      formData.append("file", file);
-      try {
-        const result = await uploadProjectScreenshot(formData);
-        if (result.success && result.url) {
-          successfulUrls.push(result.url);
-          successCount++;
-        } else {
-          toast.error(`Failed to upload "${file.name}": ${result.error || "Upload failed"}`);
-        }
-      } catch (err: any) {
-        toast.error(`Failed to upload "${file.name}": ${err?.message || "Network or server error"}`);
-      }
-    }
-
-    setIsUploading(false);
-
-    if (successfulUrls.length > 0) {
-      const current = form.getValues("screenshots") || [];
-      form.setValue("screenshots", [...current, ...successfulUrls], {
-        shouldDirty: true,
-      });
-      toast.success(`Successfully uploaded ${successCount} screenshot(s)!`);
-      form.handleSubmit(onSubmit)();
-    }
-
+    const updated = [...localScreenshots, ...newScreenshots];
+    setLocalScreenshots(updated);
+    form.setValue("screenshots", updated.map(s => s.previewUrl), {
+      shouldDirty: true,
+    });
+    toast.success(`Successfully loaded ${newScreenshots.length} screenshot(s) (pending save)!`);
     e.target.value = "";
   };
 
   const moveScreenshot = (index: number, direction: "up" | "down") => {
-    const current = form.getValues("screenshots") || [];
-    const newScreenshots = [...current];
+    const newScreenshots = [...localScreenshots];
     const targetIndex = direction === "up" ? index - 1 : index + 1;
     if (targetIndex >= 0 && targetIndex < newScreenshots.length) {
       const temp = newScreenshots[index];
       newScreenshots[index] = newScreenshots[targetIndex];
       newScreenshots[targetIndex] = temp;
-      form.setValue("screenshots", newScreenshots, { shouldDirty: true });
-      form.handleSubmit(onSubmit)();
+      setLocalScreenshots(newScreenshots);
+      form.setValue("screenshots", newScreenshots.map(s => s.previewUrl), { shouldDirty: true });
     }
   };
 
-  const deleteScreenshot = async (index: number) => {
-    const current = form.getValues("screenshots") || [];
-    const urlToDelete = current[index];
-    const newScreenshots = current.filter((_, i) => i !== index);
-    form.setValue("screenshots", newScreenshots, { shouldDirty: true });
-    form.handleSubmit(onSubmit)();
-    if (urlToDelete) {
+  const deleteScreenshot = (index: number) => {
+    const item = localScreenshots[index];
+    if (item.type === "existing" && item.url) {
+      setRemovedScreenshotUrls(prev => [...prev, item.url!]);
+    } else if (item.type === "pending" && item.previewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(item.previewUrl);
+    }
+
+    const updated = localScreenshots.filter((_, i) => i !== index);
+    setLocalScreenshots(updated);
+    form.setValue("screenshots", updated.map(s => s.previewUrl), { shouldDirty: true });
+  };
+
+  const handleSaveProject = async (values: z.infer<typeof projectSchema>) => {
+    setSaveProgress({
+      isOpen: true,
+      status: "uploading_logo",
+      currentUploadIndex: 0,
+      totalUploads: 0,
+    });
+
+    let uploadedLogoUrl = (localLogo && localLogo.type === "existing") ? (localLogo.url || "") : "";
+
+    // 1. Upload Logo if pending
+    if (localLogo && localLogo.type === "pending" && localLogo.file) {
       try {
-        await deleteProjectFile(urlToDelete);
-      } catch (err) {
-        console.error("Failed to delete screenshot from R2:", err);
+        const formData = new FormData();
+        formData.append("file", localLogo.file);
+        const result = await uploadProjectLogo(formData);
+        if (result.success && result.url) {
+          uploadedLogoUrl = result.url;
+        } else {
+          throw new Error(result.error || "Failed to upload logo");
+        }
+      } catch (err: any) {
+        setSaveProgress({
+          isOpen: true,
+          status: "error",
+          currentUploadIndex: 0,
+          totalUploads: 0,
+          errorMessage: `Logo Upload failed: ${err.message || "Unknown error"}`,
+        });
+        return;
       }
     }
-  };
 
-  const onSubmit = (values: z.infer<typeof projectSchema>) => {
-    onConfirm(values);
+    // 2. Upload Screenshots if pending
+    const pendingScreenshots = localScreenshots.filter(s => s.type === "pending" && s.file);
+    const totalToUpload = pendingScreenshots.length;
+    
+    setSaveProgress(prev => ({
+      ...prev,
+      status: "uploading_screenshots",
+      currentUploadIndex: 0,
+      totalUploads: totalToUpload,
+    }));
+
+    const finalScreenshotUrls: string[] = [];
+    let currentUploadedCount = 0;
+
+    for (let i = 0; i < localScreenshots.length; i++) {
+      const item = localScreenshots[i];
+      if (item.type === "existing" && item.url) {
+        finalScreenshotUrls.push(item.url);
+      } else if (item.type === "pending" && item.file) {
+        currentUploadedCount++;
+        setSaveProgress(prev => ({
+          ...prev,
+          currentUploadIndex: currentUploadedCount,
+        }));
+
+        try {
+          const formData = new FormData();
+          formData.append("file", item.file);
+          const result = await uploadProjectScreenshot(formData);
+          if (result.success && result.url) {
+            finalScreenshotUrls.push(result.url);
+          } else {
+            throw new Error(result.error || `Failed to upload screenshot #${currentUploadedCount}`);
+          }
+        } catch (err: any) {
+          setSaveProgress({
+            isOpen: true,
+            status: "error",
+            currentUploadIndex: currentUploadedCount,
+            totalUploads: totalToUpload,
+            errorMessage: `Screenshot Upload failed: ${err.message || "Unknown error"}`,
+          });
+          return;
+        }
+      }
+    }
+
+    // 3. Save to Database
+    setSaveProgress(prev => ({
+      ...prev,
+      status: "saving_db",
+    }));
+
+    try {
+      const finalData = {
+        ...values,
+        logoUrl: uploadedLogoUrl,
+        screenshots: finalScreenshotUrls,
+      };
+
+      const result = await onConfirm(finalData);
+      if (result && result.success) {
+        setSaveProgress(prev => ({
+          ...prev,
+          status: "success",
+        }));
+
+        // Clean up local blob URLs
+        localScreenshots.forEach(s => {
+          if (s.type === "pending" && s.previewUrl.startsWith("blob:")) {
+            URL.revokeObjectURL(s.previewUrl);
+          }
+        });
+        if (localLogo && localLogo.type === "pending" && localLogo.previewUrl.startsWith("blob:")) {
+          URL.revokeObjectURL(localLogo.previewUrl);
+        }
+
+        // Clean up removed files from R2
+        if (removedLogoUrl) {
+          try {
+            await deleteProjectFile(removedLogoUrl);
+          } catch (err) {
+            console.error("Failed to delete old logo from R2:", err);
+          }
+        }
+        for (const url of removedScreenshotUrls) {
+          try {
+            await deleteProjectFile(url);
+          } catch (err) {
+            console.error("Failed to delete removed screenshot from R2:", err);
+          }
+        }
+
+        // Auto close after 1.5 seconds
+        setTimeout(() => {
+          setSaveProgress(prev => ({ ...prev, isOpen: false }));
+        }, 1500);
+
+      } else {
+        throw new Error(result?.error || "Failed to save project to database.");
+      }
+    } catch (err: any) {
+      setSaveProgress({
+        isOpen: true,
+        status: "error",
+        currentUploadIndex: currentUploadedCount,
+        totalUploads: totalToUpload,
+        errorMessage: `Database save failed: ${err.message || "Unknown error"}`,
+      });
+    }
   };
 
   return (
@@ -595,6 +831,7 @@ function ProjectForm({
                   <FormControl>
                     <Input
                       {...field}
+                      disabled={isPendingSave || isLoading}
                       placeholder="My Awesome App"
                       className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
                     />
@@ -614,6 +851,7 @@ function ProjectForm({
                   <FormControl>
                     <Input
                       {...field}
+                      disabled={isPendingSave || isLoading}
                       value={field.value || ""}
                       placeholder="Lead Developer"
                       className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
@@ -637,6 +875,7 @@ function ProjectForm({
                   <FormControl>
                     <Input
                       {...field}
+                      disabled={isPendingSave || isLoading}
                       value={field.value || ""}
                       placeholder="Jan 2024 - Present"
                       className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
@@ -657,6 +896,7 @@ function ProjectForm({
                   <FormControl>
                     <Input
                       {...field}
+                      disabled={isPendingSave || isLoading}
                       value={field.value || ""}
                       placeholder="Implemented Real-time Chat"
                       className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
@@ -680,6 +920,7 @@ function ProjectForm({
                   <FormControl>
                     <Input
                       {...field}
+                      disabled={isPendingSave || isLoading}
                       value={field.value || ""}
                       placeholder="https://..."
                       className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
@@ -700,6 +941,7 @@ function ProjectForm({
                   <FormControl>
                     <Input
                       {...field}
+                      disabled={isPendingSave || isLoading}
                       value={field.value || ""}
                       placeholder="https://github.com/..."
                       className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
@@ -728,7 +970,7 @@ function ProjectForm({
                         accept="image/*"
                         className="hidden"
                         onChange={handleLogoChange}
-                        disabled={isUploadingLogo}
+                        disabled={isPendingSave || isLoading}
                       />
                       {logoUrl ? (
                         <div className="flex items-center gap-4 mt-2">
@@ -742,19 +984,19 @@ function ProjectForm({
                           <div className="flex flex-col gap-2">
                             <Button
                               type="button"
-                              onClick={async () => {
-                                const currentLogo = form.getValues("logoUrl");
-                                form.setValue("logoUrl", "", { shouldDirty: true });
-                                form.handleSubmit(onSubmit)();
-                                if (currentLogo) {
-                                  try {
-                                    await deleteProjectFile(currentLogo);
-                                  } catch (err) {
-                                    console.error("Failed to delete logo from R2:", err);
+                              disabled={isPendingSave || isLoading}
+                              onClick={() => {
+                                if (localLogo) {
+                                  if (localLogo.type === "existing" && localLogo.url) {
+                                    setRemovedLogoUrl(localLogo.url);
+                                  } else if (localLogo.type === "pending" && localLogo.previewUrl.startsWith("blob:")) {
+                                    URL.revokeObjectURL(localLogo.previewUrl);
                                   }
                                 }
+                                setLocalLogo(null);
+                                form.setValue("logoUrl", "", { shouldDirty: true });
                               }}
-                              className="bg-white border-[2px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all h-9 px-3 text-xs font-bold uppercase"
+                              className="bg-white border-[2px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all h-9 px-3 text-xs font-bold uppercase disabled:opacity-50 disabled:pointer-events-none"
                             >
                               <Trash2 className="w-3.5 h-3.5 mr-1" />
                               Remove Logo
@@ -765,20 +1007,16 @@ function ProjectForm({
                         <div className="mt-2">
                           <Button
                             type="button"
-                            disabled={isUploadingLogo}
+                            disabled={isPendingSave || isLoading}
                             onClick={() =>
                               document
                                 .getElementById(`project-logo-input-${proj.id}`)
                                 ?.click()
                             }
-                            className="bg-black text-white hover:bg-zinc-800 border-[2px] border-black rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-1.5 h-10 px-4 text-xs font-black uppercase"
+                            className="bg-black text-white hover:bg-zinc-800 border-[2px] border-black rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-1.5 h-10 px-4 text-xs font-black uppercase disabled:opacity-50 disabled:pointer-events-none"
                           >
-                            {isUploadingLogo ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Upload className="w-3.5 h-3.5" />
-                            )}
-                            {isUploadingLogo ? "Uploading..." : "Upload Logo"}
+                            <Upload className="w-3.5 h-3.5" />
+                            Upload Logo
                           </Button>
                         </div>
                       )}
@@ -805,15 +1043,17 @@ function ProjectForm({
                     className="hidden"
                     onChange={handleFileChange}
                     disabled={
-                      isUploading ||
-                      screenshots.length >= (membership === "PRO" ? 10 : 3)
+                      isPendingSave ||
+                      isLoading ||
+                      localScreenshots.length >= (membership === "PRO" ? 10 : 3)
                     }
                   />
                   <Button
                     type="button"
                     disabled={
-                      isUploading ||
-                      screenshots.length >= (membership === "PRO" ? 10 : 3)
+                      isPendingSave ||
+                      isLoading ||
+                      localScreenshots.length >= (membership === "PRO" ? 10 : 3)
                     }
                     onClick={() =>
                       document
@@ -821,25 +1061,21 @@ function ProjectForm({
                         ?.click()
                     }
                     size="sm"
-                    className="bg-black text-white hover:bg-zinc-800 border-[2px] border-black rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-1.5"
+                    className="bg-black text-white hover:bg-zinc-800 border-[2px] border-black rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:pointer-events-none"
                   >
-                    {isUploading ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Upload className="w-3.5 h-3.5" />
-                    )}
-                    {isUploading ? "Uploading..." : "Upload Screenshot"}
+                    <Upload className="w-3.5 h-3.5" />
+                    Add Screenshot
                   </Button>
                 </div>
               </div>
 
-              {membership === "FREE" && screenshots.length > 3 && (
+              {membership === "FREE" && localScreenshots.length > 3 && (
                 <div className="border-[2px] border-black bg-yellow-100 p-3 mb-4 text-xs font-bold text-black flex flex-col gap-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                   <p className="uppercase font-black text-[10px] text-orange-600">
                     ⚠️ Membership Limit Warning
                   </p>
                   <p>
-                    You have {screenshots.length} screenshots, but only the
+                    You have {localScreenshots.length} screenshots, but only the
                     first 3 will be active on your free plan. Delete screenshots
                     or reorder them to bring your preferred screenshots to the
                     top.
@@ -847,7 +1083,7 @@ function ProjectForm({
                 </div>
               )}
 
-              {screenshots.length === 0 ? (
+              {localScreenshots.length === 0 ? (
                 <div className="border-[2px] border-dashed border-zinc-300 py-8 text-center bg-zinc-50">
                   <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest italic">
                     No screenshots uploaded yet.
@@ -855,11 +1091,12 @@ function ProjectForm({
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {screenshots.map((url: string, index: number) => {
+                  {localScreenshots.map((item, index: number) => {
                     const isActive = index < (membership === "PRO" ? 10 : 3);
+                    const url = item.previewUrl;
                     return (
                       <div
-                        key={index}
+                        key={item.id}
                         className={clsx(
                           "border-[2px] border-black p-3 bg-zinc-50 flex flex-col gap-3 relative shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]",
                           !isActive && "opacity-60",
@@ -887,18 +1124,18 @@ function ProjectForm({
                           <div className="flex gap-1.5">
                             <Button
                               type="button"
-                              disabled={index === 0}
+                              disabled={index === 0 || isPendingSave || isLoading}
                               onClick={() => moveScreenshot(index, "up")}
-                              className="h-8 w-8 p-0 bg-white border-[2px] border-black text-black hover:bg-zinc-100 rounded-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] disabled:opacity-40 disabled:shadow-none"
+                              className="h-8 w-8 p-0 bg-white border-[2px] border-black text-black hover:bg-zinc-100 rounded-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] disabled:opacity-40 disabled:shadow-none disabled:pointer-events-none"
                               title="Move Left / Up"
                             >
                               <ArrowUp className="w-3.5 h-3.5" />
                             </Button>
                             <Button
                               type="button"
-                              disabled={index === screenshots.length - 1}
+                              disabled={index === localScreenshots.length - 1 || isPendingSave || isLoading}
                               onClick={() => moveScreenshot(index, "down")}
-                              className="h-8 w-8 p-0 bg-white border-[2px] border-black text-black hover:bg-zinc-100 rounded-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] disabled:opacity-40 disabled:shadow-none"
+                              className="h-8 w-8 p-0 bg-white border-[2px] border-black text-black hover:bg-zinc-100 rounded-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] disabled:opacity-40 disabled:shadow-none disabled:pointer-events-none"
                               title="Move Right / Down"
                             >
                               <ArrowDown className="w-3.5 h-3.5" />
@@ -907,8 +1144,9 @@ function ProjectForm({
 
                           <Button
                             type="button"
+                            disabled={isPendingSave || isLoading}
                             onClick={() => deleteScreenshot(index)}
-                            className="h-8 w-8 p-0 bg-white border-[2px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 rounded-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                            className="h-8 w-8 p-0 bg-white border-[2px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 rounded-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50 disabled:pointer-events-none"
                             title="Delete Screenshot"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -933,6 +1171,7 @@ function ProjectForm({
                 <FormControl>
                   <Input
                     {...field}
+                    disabled={isPendingSave || isLoading}
                     placeholder="React, Next.js, Tailwind CSS"
                     className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
                   />
@@ -956,6 +1195,7 @@ function ProjectForm({
                 <FormControl>
                   <Textarea
                     {...field}
+                    disabled={isPendingSave || isLoading}
                     value={field.value || ""}
                     placeholder="Describe your project, your role, and the impact..."
                     className="min-h-[120px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
@@ -974,6 +1214,7 @@ function ProjectForm({
                 <FormControl>
                   <Checkbox
                     checked={field.value}
+                    disabled={isPendingSave || isLoading}
                     onCheckedChange={field.onChange}
                     className="border-[3px] border-black w-6 h-6 rounded-none data-[state=checked]:bg-black data-[state=checked]:text-white"
                   />
@@ -990,19 +1231,16 @@ function ProjectForm({
           <div className="flex gap-4 mt-8 pt-6 border-t-[3px] border-black border-dashed">
             <Button
               type="button"
-              onClick={form.handleSubmit(onSubmit)}
-              disabled={isLoading}
-              className="flex-1 h-12 text-lg disabled:opacity-50"
+              onClick={form.handleSubmit(handleSaveProject)}
+              disabled={isPendingSave || isLoading}
+              className="flex-1 h-12 text-lg disabled:opacity-50 bg-black text-white hover:bg-zinc-800 border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-black uppercase tracking-widest flex items-center justify-center gap-2"
             >
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              ) : (
-                <Check className="w-5 h-5 mr-2" />
-              )}
-              {isLoading ? "Saving..." : "Confirm"}
+              <Check className="w-5 h-5 mr-2" />
+              Save Project
             </Button>
             <Button
               type="button"
+              disabled={isPendingSave || isLoading}
               onClick={onCancel}
               variant="outline"
               className="flex-1 h-12 text-lg"
@@ -1013,6 +1251,111 @@ function ProjectForm({
           </div>
         </div>
       </Form>
+
+      {/* Multi-step loading modal */}
+      <Dialog open={saveProgress.isOpen} onOpenChange={(open) => {
+        if (!open && (saveProgress.status === "error" || saveProgress.status === "success")) {
+          setSaveProgress(prev => ({ ...prev, isOpen: false }));
+        }
+      }}>
+        <DialogContent 
+          showCloseButton={saveProgress.status === "error" || saveProgress.status === "success"}
+          className="sm:max-w-md border-4 border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white text-black p-6"
+        >
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black uppercase tracking-wider text-black font-heading">
+              Saving Project
+            </DialogTitle>
+            <DialogDescription className="text-zinc-600 font-medium">
+              Please wait while we upload your files and update the database.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-6 flex flex-col items-center justify-center gap-6">
+            {saveProgress.status !== "success" && saveProgress.status !== "error" ? (
+              <Loader2 className="w-12 h-12 text-orange-500 animate-spin" />
+            ) : saveProgress.status === "success" ? (
+              <div className="w-12 h-12 rounded-none border-[3px] border-black bg-green-500 flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <Check className="w-6 h-6 text-white stroke-[3px]" />
+              </div>
+            ) : (
+              <div className="w-12 h-12 rounded-none border-[3px] border-black bg-red-500 flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <X className="w-6 h-6 text-white stroke-[3px]" />
+              </div>
+            )}
+
+            <div className="text-center space-y-2">
+              <p className="text-sm font-black uppercase tracking-widest text-black">
+                {saveProgress.status === "uploading_logo" && "Step 1: Uploading Logo"}
+                {saveProgress.status === "uploading_screenshots" && 
+                  `Step 2: Uploading Screenshots (${saveProgress.currentUploadIndex} of ${saveProgress.totalUploads})`}
+                {saveProgress.status === "saving_db" && "Step 3: Saving to Database"}
+                {saveProgress.status === "success" && "Project Saved Successfully!"}
+                {saveProgress.status === "error" && "An Error Occurred"}
+              </p>
+              <p className="text-xs text-zinc-500 font-medium max-w-xs">
+                {saveProgress.status === "uploading_logo" && "Transferring your project logo to Cloudflare R2..."}
+                {saveProgress.status === "uploading_screenshots" && "Uploading your screenshot files to Cloudflare R2..."}
+                {saveProgress.status === "saving_db" && "Updating your profile and project records in the database..."}
+                {saveProgress.status === "success" && "Your project details and uploads have been successfully saved."}
+                {saveProgress.status === "error" && (saveProgress.errorMessage || "Failed to save project. Please try again.")}
+              </p>
+            </div>
+
+            <div className="w-full border-[3px] border-black p-4 bg-zinc-50 space-y-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              <div className="flex items-center text-xs font-black uppercase">
+                <span className="flex items-center gap-2">
+                  {saveProgress.status === "uploading_logo" ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+                  ) : ["uploading_screenshots", "saving_db", "success"].includes(saveProgress.status) ? (
+                    <Check className="w-4 h-4 text-green-600 stroke-[3px]" />
+                  ) : (
+                    <div className="w-4 h-4 rounded-full border-2 border-black bg-zinc-200" />
+                  )}
+                  1. Project Logo Upload
+                </span>
+              </div>
+
+              <div className="flex items-center text-xs font-black uppercase">
+                <span className="flex items-center gap-2">
+                  {saveProgress.status === "uploading_screenshots" ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+                  ) : ["saving_db", "success"].includes(saveProgress.status) ? (
+                    <Check className="w-4 h-4 text-green-600 stroke-[3px]" />
+                  ) : (
+                    <div className="w-4 h-4 rounded-full border-2 border-black bg-zinc-200" />
+                  )}
+                  2. Screenshot Uploads
+                </span>
+              </div>
+
+              <div className="flex items-center text-xs font-black uppercase">
+                <span className="flex items-center gap-2">
+                  {saveProgress.status === "saving_db" ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+                  ) : saveProgress.status === "success" ? (
+                    <Check className="w-4 h-4 text-green-600 stroke-[3px]" />
+                  ) : (
+                    <div className="w-4 h-4 rounded-full border-2 border-black bg-zinc-200" />
+                  )}
+                  3. Database Save
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {saveProgress.status === "error" && (
+            <DialogFooter className="mt-4">
+              <Button
+                onClick={() => setSaveProgress(prev => ({ ...prev, isOpen: false }))}
+                className="w-full bg-black text-white hover:bg-zinc-800 border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-black uppercase tracking-widest text-sm py-2.5"
+              >
+                Close & Modify
+              </Button>
+            </DialogFooter>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
