@@ -276,8 +276,8 @@ export function UsernameManager({
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-md p-0">
-          <div className="bg-orange-500 border-b-4 border-black p-6">
+        <DialogContent className="max-w-md p-0 max-h-[80dvh] flex flex-col">
+          <div className="bg-orange-500 border-b-4 border-black p-6 shrink-0">
             <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-black italic">
               {currentUsername ? "Public Sharing Settings" : "Claim Your Username"}
             </DialogTitle>
@@ -286,7 +286,7 @@ export function UsernameManager({
             </DialogDescription>
           </div>
 
-          <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+          <div className="p-8 space-y-6 flex-1 overflow-y-auto">
             {/* Username input */}
             <div className="space-y-3">
               <label className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
@@ -428,39 +428,43 @@ export function UsernameManager({
             </div>
           </div>
 
-          <DialogFooter className="bg-zinc-50 border-t-4 border-black p-6 sm:justify-end gap-3 flex-wrap">
-            {currentUsername && (
+          <DialogFooter className="bg-zinc-50 border-t-4 border-black p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0">
+            {currentUsername ? (
               <Button
                 type="button"
                 onClick={() => setIsDisableConfirmOpen(true)}
                 disabled={isSaving || isChecking || isUploadingResume}
-                className="mr-auto rounded-none border-[3px] border-black bg-red-500 text-white font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all h-12 px-4"
+                className="rounded-none border-[3px] border-black bg-red-500 text-white font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all h-11 px-3 text-xs w-full sm:w-auto"
               >
                 Disable Sharing
               </Button>
+            ) : (
+              <div className="hidden sm:block" />
             )}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-              className="rounded-none border-[3px] border-black bg-white text-black font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all h-12 px-6"
-            >
-              Cancel
-            </Button>
-            <Button
-              disabled={isSaving || isChecking || isUploadingResume || resumes.length === 0 || !!emailError || !isUsernameValid || !canSaveUsername}
-              onClick={handleSave}
-              className="rounded-none border-[3px] border-black bg-orange-500 text-black font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-2 h-12 px-8 min-w-[140px]"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save Sharing"
-              )}
-            </Button>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                className="rounded-none border-[3px] border-black bg-white text-black font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all h-11 px-4 text-xs w-full sm:w-auto"
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={isSaving || isChecking || isUploadingResume || resumes.length === 0 || !!emailError || !isUsernameValid || !canSaveUsername}
+                onClick={handleSave}
+                className="rounded-none border-[3px] border-black bg-orange-500 text-black font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2 h-11 px-4 text-xs min-w-[120px] w-full sm:w-auto"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Sharing"
+                )}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

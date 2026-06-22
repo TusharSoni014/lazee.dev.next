@@ -28,6 +28,26 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getS3Client } from "@/lib/s3";
 import { ProjectCarousel } from "@/components/ProjectCarousel";
 import { getPublicImageUrl } from "@/lib/utils";
+import phoneList from "@/lib/phone_list.json";
+
+function getFlagEmoji(countryCode: string) {
+  if (!countryCode || countryCode.length !== 2) return "";
+  const codePoints = countryCode
+    .toUpperCase()
+    .split("")
+    .map((char) => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+}
+
+function getFlagAndDialCode(dialCode: string) {
+  if (!dialCode) return "";
+  const cleanDialCode = dialCode.trim();
+  const match = phoneList.find((c) => c.dial_code === cleanDialCode);
+  if (match) {
+    return `${getFlagEmoji(match.code)} ${cleanDialCode}`;
+  }
+  return cleanDialCode;
+}
 
 interface PublicProfilePageProps {
   params: Promise<{
@@ -317,7 +337,10 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                   {user.phoneNumber && (
                     <div className="flex items-center gap-2.5 text-xs font-bold text-zinc-700">
                       <Phone className="w-4 h-4 text-black shrink-0" />
-                      <span>{user.phoneNumber}</span>
+                      <span>
+                        {user.countryCode ? `${getFlagAndDialCode(user.countryCode)} ` : ""}
+                        {user.phoneNumber}
+                      </span>
                     </div>
                   )}
                   {user.country && (

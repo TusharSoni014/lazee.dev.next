@@ -64,17 +64,54 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import phoneList from "@/lib/phone_list.json";
+import { Combobox } from "@/components/ui/combobox";
 
-const COUNTRY_CODES = [
-  { code: "+1", name: "US/CA" },
-  { code: "+44", name: "UK" },
-  { code: "+91", name: "India" },
-  { code: "+61", name: "Australia" },
-  { code: "+86", name: "China" },
-  { code: "+49", name: "Germany" },
-  { code: "+33", name: "France" },
-  { code: "+81", name: "Japan" },
-];
+function getFlagEmoji(countryCode: string) {
+  if (!countryCode || countryCode.length !== 2) return "";
+  const codePoints = countryCode
+    .toUpperCase()
+    .split("")
+    .map((char) => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+}
+
+const phoneOptions = phoneList.map((c) => ({
+  value: c.dial_code,
+  key: `${c.code}-${c.dial_code}`,
+  label: (
+    <span className="flex items-center gap-2">
+      <span>{getFlagEmoji(c.code)}</span>
+      <span>{c.dial_code}</span>
+      <span className="text-zinc-500 font-normal">({c.name})</span>
+    </span>
+  ),
+  displayLabel: (
+    <span className="flex items-center gap-2">
+      <span>{getFlagEmoji(c.code)}</span>
+      <span>{c.dial_code}</span>
+    </span>
+  ),
+  searchString: `${c.dial_code} ${c.name} ${c.code}`,
+}));
+
+const countryOptions = phoneList.map((c) => ({
+  value: c.name,
+  key: c.code,
+  label: (
+    <span className="flex items-center gap-2">
+      <span>{getFlagEmoji(c.code)}</span>
+      <span>{c.name}</span>
+    </span>
+  ),
+  displayLabel: (
+    <span className="flex items-center gap-2">
+      <span>{getFlagEmoji(c.code)}</span>
+      <span>{c.name}</span>
+    </span>
+  ),
+  searchString: `${c.name} ${c.code}`,
+}));
 
 const CURRENCIES = ["USD", "EUR", "GBP", "INR", "AUD", "CAD", "JPY"];
 
@@ -148,6 +185,41 @@ export default function ProfileForm({
   );
   const [projects, setProjects] = useState<any[]>(user?.projects || []);
   const [isDirty, setIsDirty] = useState(false);
+
+  const [selectedCountryCode, setSelectedCountryCode] = useState(() => {
+    const initial = user?.countryCode || "+1";
+    const clean = initial.startsWith("+") ? initial : `+${initial}`;
+    const match = phoneList.find((c) => c.dial_code === clean);
+    return match ? match.dial_code : clean;
+  });
+
+  const [selectedCountry, setSelectedCountry] = useState(() => {
+    const initial = user?.country || "";
+    const exactMatch = phoneList.find(
+      (c) =>
+        c.name.toLowerCase() === initial.toLowerCase() ||
+        c.code.toLowerCase() === initial.toLowerCase()
+    );
+    return exactMatch ? exactMatch.name : initial;
+  });
+
+  useEffect(() => {
+    if (user) {
+      if (user.countryCode) {
+        const clean = user.countryCode.startsWith("+") ? user.countryCode : `+${user.countryCode}`;
+        const match = phoneList.find((c) => c.dial_code === clean);
+        setSelectedCountryCode(match ? match.dial_code : clean);
+      }
+      if (user.country) {
+        const exactMatch = phoneList.find(
+          (c) =>
+            c.name.toLowerCase() === user.country.toLowerCase() ||
+            c.code.toLowerCase() === user.country.toLowerCase()
+        );
+        setSelectedCountry(exactMatch ? exactMatch.name : user.country);
+      }
+    }
+  }, [user]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -437,38 +509,20 @@ export default function ProfileForm({
           />
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 mt-6">
-          <div className="space-y-2">
+        <div className="grid gap-6 md:grid-cols-3 mt-6">
+          <div className="space-y-2 md:col-span-1">
             <Label>Phone Number</Label>
-            <div className="flex gap-4">
-              <div className="relative">
-                <select
-                  name="countryCode"
-                  defaultValue={user.countryCode || "+1"}
-                  className="appearance-none h-[50px] w-28 rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                >
-                  {COUNTRY_CODES.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.code}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2">
-                  <svg
-                    className="w-4 h-4 text-black"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="square"
-                      strokeLinejoin="miter"
-                      strokeWidth="3"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </div>
+            <div className="flex gap-2">
+              <Combobox
+                name="countryCode"
+                options={phoneOptions}
+                value={selectedCountryCode}
+                onChange={(val) => {
+                  setSelectedCountryCode(val);
+                  setIsDirty(true);
+                }}
+                className="w-24 shrink-0"
+              />
               <Input
                 name="phoneNumber"
                 defaultValue={user.phoneNumber}
@@ -477,11 +531,26 @@ export default function ProfileForm({
               />
             </div>
           </div>
+          <div className="space-y-2 md:col-span-1">
+            <Label>Country</Label>
+            <Combobox
+              name="country"
+              options={countryOptions}
+              value={selectedCountry}
+              onChange={(val) => {
+                setSelectedCountry(val);
+                setIsDirty(true);
+              }}
+              placeholder="Select Country"
+              searchPlaceholder="Search country..."
+            />
+          </div>
           <ProfileInput
-            label="Country"
-            name="country"
-            defaultValue={user.country}
-            placeholder="United States"
+            label="Contact Email"
+            name="contactEmail"
+            defaultValue={user.contactEmail || user.email}
+            placeholder="your-contact-email@example.com"
+            className="md:col-span-1"
           />
         </div>
       </Section>

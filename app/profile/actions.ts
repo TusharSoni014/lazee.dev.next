@@ -38,6 +38,7 @@ export async function updateProfile(data: any) {
         skills: data.skills || [],
         specificQuestionGuidance: data.specificQuestionGuidance,
         coverLetter: data.coverLetter,
+        contactEmail: data.contactEmail ? data.contactEmail.trim() : null,
       },
     });
 
