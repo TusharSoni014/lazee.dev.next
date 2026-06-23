@@ -8,6 +8,7 @@ const logos = [
   { name: "ClanX", src: "clanx.png" },
   { name: "Glassdoor", src: "glassdoor.png" },
   { name: "Google Forms", src: "google-form.png" },
+  { name: "Lever", src: "lever.png" },
   { name: "Notion", src: "notion.png" },
   { name: "Superteam", src: "superteam.png" },
   { name: "Wellfound", src: "wellfound.png" },
