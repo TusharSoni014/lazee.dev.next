@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useProfile, useProfileStatus } from "@/hooks/useProfile";
 import { ResumeManager } from "./resume-manager";
-import { updateProfile, updateExperiences } from "./actions";
+import { updateProfile, updateExperiences, updateEducation } from "./actions";
 import { ProjectSection } from "./project-section";
 import { UsernameManager } from "./username-manager";
 import { toast } from "@/components/ui/toast";
@@ -24,6 +24,7 @@ import {
   IdCard,
   Settings,
   Send,
+  Video,
 } from "lucide-react";
 import clsx from "clsx";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ import {
   X,
   Check,
   Code,
+  GraduationCap,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
@@ -150,6 +152,8 @@ const personalSchema = z.object({
   countryCode: z.string().optional(),
   phoneNumber: z.string().optional(),
   country: z.string().optional(),
+  city: z.string().optional(),
+  collegeName: z.string().optional(),
   contactEmail: z.string().email("Invalid email address").min(1, "Contact Email is required"),
 });
 
@@ -265,6 +269,8 @@ function PersonalInformationForm({
       countryCode: initialCountryCode,
       phoneNumber: user.phoneNumber || "",
       country: initialCountry,
+      city: user.city || "",
+      collegeName: user.collegeName || "",
       contactEmail: user.contactEmail || user.email || "",
     },
   });
@@ -287,7 +293,7 @@ function PersonalInformationForm({
         <div className="space-y-6">
           <div className="grid gap-6 md:grid-cols-3">
             <FormInput control={form.control} name="firstName" label="First Name" placeholder="John" />
-            <FormInput control={form.control} name="middleName" label="Middle Name" placeholder="" />
+            <FormInput control={form.control} name="middleName" label="MiddleName" placeholder="" />
             <FormInput control={form.control} name="lastName" label="Last Name" placeholder="Doe" />
           </div>
 
@@ -296,7 +302,7 @@ function PersonalInformationForm({
               control={form.control}
               name="phoneNumber"
               render={({ field }) => (
-                <FormItem className="space-y-2 md:col-span-2">
+                <FormItem className="space-y-2 md:col-span-1">
                   <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
                     Phone Number
                   </FormLabel>
@@ -304,7 +310,7 @@ function PersonalInformationForm({
                     <div className="flex gap-2">
                       <Combobox
                         options={phoneOptions}
-                        value={form.watch("countryCode")}
+                        value={form.watch("countryCode") || ""}
                         onChange={(val) => form.setValue("countryCode", val)}
                         className="w-28 shrink-0"
                       />
@@ -332,7 +338,7 @@ function PersonalInformationForm({
                   <FormControl>
                     <Combobox
                       options={countryOptions}
-                      value={form.watch("country")}
+                      value={form.watch("country") || ""}
                       onChange={(val) => form.setValue("country", val)}
                       placeholder="Select Country"
                       searchPlaceholder="Search country..."
@@ -341,6 +347,14 @@ function PersonalInformationForm({
                   <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
                 </FormItem>
               )}
+            />
+
+            <FormInput
+              control={form.control}
+              name="city"
+              label="City"
+              placeholder="San Francisco"
+              className="md:col-span-1"
             />
           </div>
 
@@ -351,6 +365,13 @@ function PersonalInformationForm({
               label="Contact Email"
               placeholder="your-contact-email@example.com"
               className="md:col-span-2"
+            />
+            <FormInput
+              control={form.control}
+              name="collegeName"
+              label="College / University"
+              placeholder="Stanford University"
+              className="md:col-span-1"
             />
           </div>
 
@@ -384,12 +405,12 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof professionalSchema>>({
-    resolver: zodResolver(professionalSchema),
+    resolver: zodResolver(professionalSchema) as any,
     defaultValues: {
       jobType: user.jobType || "",
       currency: user.currency || "USD",
-      currentCtc: user.currentCtc !== null && user.currentCtc !== undefined ? String(user.currentCtc) : "",
-      noticePeriod: user.noticePeriod !== null && user.noticePeriod !== undefined ? String(user.noticePeriod) : "",
+      currentCtc: (user.currentCtc !== null && user.currentCtc !== undefined ? String(user.currentCtc) : "") as any,
+      noticePeriod: (user.noticePeriod !== null && user.noticePeriod !== undefined ? String(user.noticePeriod) : "") as any,
     },
   });
 
@@ -782,11 +803,13 @@ export default function ProfileForm({
     user?.experiences || [],
   );
   const [projects, setProjects] = useState<any[]>(user?.projects || []);
+  const [educations, setEducations] = useState<any[]>(user?.educations || []);
 
   useEffect(() => {
     if (user) {
       if (user.experiences) setExperiences(user.experiences);
       if (user.projects) setProjects(user.projects);
+      if (user.educations) setEducations(user.educations);
     }
   }, [user]);
 
@@ -1043,6 +1066,12 @@ export default function ProfileForm({
           refetchProfile={refetchProfile}
         />
 
+        <EducationSection
+          educations={educations}
+          setEducations={setEducations}
+          refetchProfile={refetchProfile}
+        />
+
         <ProjectSection
           projects={projects}
           setProjects={setProjects}
@@ -1061,6 +1090,11 @@ export default function ProfileForm({
       />
 
       <SocialLinksForm
+        user={user}
+        refetchProfile={refetchProfile}
+      />
+
+      <IntroVideoForm
         user={user}
         refetchProfile={refetchProfile}
       />
@@ -1340,6 +1374,610 @@ function ExperienceSection({ experiences, setExperiences, refetchProfile }: any)
           </Button>
         )}
       </div>
+    </Section>
+  );
+}
+
+const educationSchema = z.object({
+  id: z.string().optional(),
+  schoolName: z.string().min(1, "School / College name is required"),
+  degree: z.string().optional(),
+  fieldOfStudy: z.string().optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  isCurrent: z.boolean(),
+  description: z.string().optional(),
+});
+
+function EducationSection({ educations, setEducations, refetchProfile }: any) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [tempEdu, setTempEdu] = useState<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const addEducation = () => {
+    const newEdu = {
+      id: crypto.randomUUID(),
+      schoolName: "",
+      degree: "",
+      fieldOfStudy: "",
+      startDate: new Date(),
+      endDate: null,
+      isCurrent: false,
+      description: "",
+    };
+    setTempEdu(newEdu);
+    setEditingId(newEdu.id);
+  };
+
+  const removeEducation = async (id: string) => {
+    setDeletingId(id);
+    const newEducations = educations.filter((edu: any) => edu.id !== id);
+    try {
+      const result = await updateEducation(newEducations);
+      if (result.success) {
+        setEducations(newEducations);
+        if (editingId === id) cancelEdit();
+        toast.success("Education removed");
+        refetchProfile();
+      } else {
+        toast.error("Failed to remove education");
+      }
+    } catch {
+      toast.error("Failed to remove education");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const confirmEducation = async (data: any) => {
+    setIsSaving(true);
+    let newEducations;
+    const exists = educations.find((e: any) => e.id === data.id);
+    if (exists) {
+      newEducations = educations.map((e: any) =>
+        e.id === data.id ? data : e,
+      );
+    } else {
+      newEducations = [data, ...educations];
+    }
+
+    // Sort before saving
+    newEducations.sort((a: any, b: any) => {
+      const dateA = a.isCurrent
+        ? new Date().getTime()
+        : a.endDate
+          ? new Date(a.endDate).getTime()
+          : 0;
+      const dateB = b.isCurrent
+        ? new Date().getTime()
+        : b.endDate
+          ? new Date(b.endDate).getTime()
+          : 0;
+      return dateB - dateA;
+    });
+
+    const result = await updateEducation(newEducations);
+    setIsSaving(false);
+
+    if (result.success) {
+      setEducations(newEducations);
+      setEditingId(null);
+      setTempEdu(null);
+      toast.success("Education saved successfully");
+      refetchProfile();
+    } else {
+      toast.error("Failed to save education");
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setTempEdu(null);
+  };
+
+  const editEducation = (edu: any) => {
+    setTempEdu({ ...edu });
+    setEditingId(edu.id);
+  };
+
+  const sortedEducations = [...educations].sort((a: any, b: any) => {
+    const dateA = a.isCurrent
+      ? new Date().getTime()
+      : a.endDate
+        ? new Date(a.endDate).getTime()
+        : 0;
+    const dateB = b.isCurrent
+      ? new Date().getTime()
+      : b.endDate
+        ? new Date(b.endDate).getTime()
+        : 0;
+    return dateB - dateA;
+  });
+
+  return (
+    <Section title="Education" icon={GraduationCap}>
+      <div className="space-y-8">
+        {sortedEducations.map((edu: any, index: number) => {
+          if (editingId === edu.id && tempEdu) {
+            return (
+              <EducationForm
+                key={tempEdu.id}
+                edu={tempEdu}
+                onConfirm={confirmEducation}
+                onCancel={cancelEdit}
+                isLoading={isSaving}
+              />
+            );
+          }
+
+          return (
+            <div
+              key={edu.id || index}
+              className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-2"
+            >
+              <div className={clsx(
+                "absolute right-4 top-4 flex gap-2 transition-opacity",
+                deletingId === edu.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              )}>
+                <Button
+                  type="button"
+                  onClick={() => editEducation(edu)}
+                  disabled={deletingId === edu.id}
+                  className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
+                  title="Edit Education"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => removeEducation(edu.id)}
+                  disabled={!!deletingId}
+                  className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
+                  title="Remove Education"
+                >
+                  {deletingId === edu.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+              <h3 className="text-xl font-black text-black uppercase pr-24">
+                {edu.schoolName || "Untitled Institution"}
+              </h3>
+              {edu.degree && (
+                <p className="text-sm font-bold text-black uppercase tracking-wider">
+                  {edu.degree}{edu.fieldOfStudy ? ` in ${edu.fieldOfStudy}` : ""}
+                </p>
+              )}
+              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                {edu.startDate
+                  ? format(new Date(edu.startDate), "MMM yyyy")
+                  : "N/A"}{" "}
+                -{" "}
+                {edu.isCurrent
+                  ? "Present"
+                  : edu.endDate
+                    ? format(new Date(edu.endDate), "MMM yyyy")
+                    : "N/A"}
+              </p>
+              {edu.description && (
+                <p className="text-sm text-zinc-700 mt-4 whitespace-pre-wrap font-medium">
+                  {edu.description}
+                </p>
+              )}
+            </div>
+          );
+        })}
+
+        {editingId &&
+          !educations.find((e: any) => e.id === editingId) &&
+          tempEdu && (
+            <EducationForm
+              edu={tempEdu}
+              onConfirm={confirmEducation}
+              onCancel={cancelEdit}
+              isLoading={isSaving}
+            />
+          )}
+
+        {!editingId && (
+          <Button
+            type="button"
+            onClick={addEducation}
+            className="w-full h-14 bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all rounded-none font-black uppercase tracking-widest flex items-center justify-center gap-2 text-lg mt-6"
+          >
+            <Plus className="w-6 h-6" />
+            Add Education
+          </Button>
+        )}
+      </div>
+    </Section>
+  );
+}
+
+function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
+  const form = useForm<z.infer<typeof educationSchema>>({
+    resolver: zodResolver(educationSchema),
+    defaultValues: {
+      id: edu.id,
+      schoolName: edu.schoolName || "",
+      degree: edu.degree || "",
+      fieldOfStudy: edu.fieldOfStudy || "",
+      startDate: edu.startDate ? new Date(edu.startDate) : undefined,
+      endDate: edu.endDate ? new Date(edu.endDate) : undefined,
+      isCurrent: edu.isCurrent || false,
+      description: edu.description || "",
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof educationSchema>) => {
+    onConfirm(values);
+  };
+
+  return (
+    <div className="border-[3px] border-black p-6 md:p-8 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
+      <div className="flex border-b-[3px] border-black pb-4 mb-6">
+        <h3 className="text-lg font-black uppercase tracking-widest">
+          {edu.schoolName ? `Editing: ${edu.schoolName}` : "New Education"}
+        </h3>
+      </div>
+      <Form {...form}>
+        <div className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2 mt-2">
+            <FormField
+              control={form.control}
+              name="schoolName"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    School / College Name *
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Stanford University"
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="degree"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Degree / Certification
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Bachelor of Science"
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 mt-4">
+            <FormField
+              control={form.control}
+              name="fieldOfStudy"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Field of Study
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Computer Science"
+                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex items-end h-[50px] pb-3 pl-2">
+              <FormField
+                control={form.control}
+                name="isCurrent"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked);
+                          if (checked) {
+                            form.setValue("endDate", undefined);
+                          }
+                        }}
+                        className="h-6 w-6 rounded-none border-[3px] border-black data-[state=checked]:bg-orange-500 data-[state=checked]:text-black"
+                      />
+                    </FormControl>
+                    <FormLabel className="text-xs font-black uppercase text-black tracking-widest select-none cursor-pointer">
+                      Currently Studying Here
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 mt-4">
+            <FormField
+              control={form.control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem className="space-y-2 flex flex-col">
+                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    Start Date
+                  </FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className={clsx(
+                            "h-[50px] w-full justify-start text-left font-bold rounded-none border-[3px] border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+                            !field.value && "text-zinc-400"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4 shrink-0 text-black" />
+                          {field.value ? (
+                            format(field.value, "MMM yyyy")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                      <MonthYearPicker
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {!form.watch("isCurrent") && (
+              <FormField
+                control={form.control}
+                name="endDate"
+                render={({ field }) => (
+                  <FormItem className="space-y-2 flex flex-col">
+                    <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                      End Date
+                    </FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={clsx(
+                              "h-[50px] w-full justify-start text-left font-bold rounded-none border-[3px] border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+                              !field.value && "text-zinc-400"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4 shrink-0 text-black" />
+                            {field.value ? (
+                              format(field.value, "MMM yyyy")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        <MonthYearPicker
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </div>
+
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem className="space-y-2 mt-4">
+                <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                  Description / Details
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    placeholder="Relevant coursework, achievements, or activities..."
+                    className="min-h-[100px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4 font-bold text-black"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="flex justify-end gap-4 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isLoading}
+              className="px-6 py-4 tracking-wider bg-white hover:bg-zinc-100 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isLoading}
+              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Confirm Education
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </Form>
+    </div>
+  );
+}
+
+const videoHelpers = {
+  getYoutubeId: (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  },
+  getLoomId: (url: string) => {
+    const regExp = /loom\.com\/(share|embed)\/([a-zA-Z0-9]+)/;
+    const match = url.match(regExp);
+    return match ? match[2] : null;
+  }
+};
+
+const introVideoSchema = z.object({
+  introVideo: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val) return true;
+        return !!videoHelpers.getYoutubeId(val) || !!videoHelpers.getLoomId(val);
+      },
+      { message: "Must be a valid YouTube or Loom video link" }
+    ),
+});
+
+function IntroVideoForm({ user, refetchProfile }: any) {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const form = useForm<z.infer<typeof introVideoSchema>>({
+    resolver: zodResolver(introVideoSchema),
+    defaultValues: {
+      introVideo: user.introVideo || "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof introVideoSchema>) => {
+    setIsSaving(true);
+    const result = await updateProfile(values);
+    setIsSaving(false);
+    if (result.success) {
+      refetchProfile();
+      toast.success("Intro video updated successfully!");
+    } else {
+      toast.error(result.error || "Failed to update intro video.");
+    }
+  };
+
+  const introVideoVal = form.watch("introVideo") || "";
+  const ytId = videoHelpers.getYoutubeId(introVideoVal);
+  const lId = videoHelpers.getLoomId(introVideoVal);
+  const embedUrl = ytId 
+    ? `https://www.youtube.com/embed/${ytId}` 
+    : lId 
+      ? `https://www.loom.com/embed/${lId}` 
+      : null;
+
+  return (
+    <Section title="Intro Video" icon={Video}>
+      <Form {...form}>
+        <div className="space-y-6">
+          <FormField
+            control={form.control}
+            name="introVideo"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                  Intro Video Link (YouTube or Loom)
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="https://www.youtube.com/watch?v=... or https://www.loom.com/share/..."
+                    className="h-[50px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none px-4 font-bold text-black"
+                  />
+                </FormControl>
+                <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                <p className="text-xs font-bold text-zinc-500 pt-1 uppercase tracking-widest">
+                  Provide a YouTube link or Loom link to introduce yourself.
+                </p>
+              </FormItem>
+            )}
+          />
+
+          {embedUrl ? (
+            <div className="mt-6">
+              <p className="text-[11px] font-black text-black uppercase tracking-widest mb-2 pl-1">Video Preview:</p>
+              <div className="aspect-video w-full max-w-2xl border-[3px] border-black bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+                <iframe
+                  src={embedUrl}
+                  className="absolute inset-0 w-full h-full"
+                  allowFullScreen
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                />
+              </div>
+            </div>
+          ) : (
+            introVideoVal && (
+              <div className="mt-6 border-[3px] border-dashed border-red-400 bg-red-50 p-4 text-center">
+                <p className="text-xs font-bold text-red-500 uppercase tracking-wider">
+                  Please enter a valid YouTube (watch / youtu.be) or Loom (share) link.
+                </p>
+              </div>
+            )
+          )}
+
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSaving || !form.formState.isValid}
+              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Intro Video
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </Form>
     </Section>
   );
 }

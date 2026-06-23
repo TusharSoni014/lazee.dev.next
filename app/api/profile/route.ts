@@ -66,6 +66,11 @@ export async function GET(request: NextRequest) {
             createdAt: "desc",
           },
         },
+        educations: {
+          orderBy: {
+            startDate: "desc",
+          },
+        },
       },
     });
 
@@ -101,6 +106,10 @@ export async function GET(request: NextRequest) {
         countryCode: user.countryCode,
         phoneNumber: user.phoneNumber,
         country: user.country,
+        city: user.city,
+        collegeName: user.collegeName,
+        educations: user.educations,
+        introVideo: user.introVideo,
         noticePeriod: user.noticePeriod,
         linkedin: user.linkedin,
         twitter: user.twitter,

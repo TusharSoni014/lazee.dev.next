@@ -58,6 +58,9 @@ model User {
   countryCode String?
   phoneNumber String?
   country     String?
+  city        String?
+  collegeName String?
+  introVideo  String?
 
   noticePeriod Int? // In days
   jobType      String?
@@ -87,6 +90,7 @@ model User {
   resumes     Resume[]
   experiences Experience[]
   projects    Project[]
+  educations  Education[]
 }
 
 model Project {
@@ -155,3 +159,19 @@ model Experience {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }
+
+model Education {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  schoolName   String
+  degree       String?
+  fieldOfStudy String?
+  startDate    DateTime?
+  endDate      DateTime?
+  isCurrent    Boolean   @default(false)
+  description  String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+

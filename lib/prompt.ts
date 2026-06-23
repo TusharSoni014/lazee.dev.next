@@ -48,6 +48,28 @@ CORE BACKGROUND:\n`;
     prompt += `- Experience: I am focusing on building my foundational skills, working on hands-on projects, and eager to bring my enthusiastic learning approach to a professional role.\n`;
   }
 
+  if (user.collegeName) {
+    prompt += `- Primary College: ${user.collegeName}\n`;
+  }
+  if (user.educations && user.educations.length > 0) {
+    prompt += `- Education History:\n`;
+    user.educations.forEach((edu: any) => {
+      prompt += `  - Institution: ${edu.schoolName}\n`;
+      if (edu.degree) prompt += `    Degree: ${edu.degree}\n`;
+      if (edu.fieldOfStudy) prompt += `    Field of Study: ${edu.fieldOfStudy}\n`;
+      const start = edu.startDate
+        ? new Date(edu.startDate).toLocaleDateString()
+        : "NA";
+      const end = edu.isCurrent
+        ? "Present"
+        : edu.endDate
+          ? new Date(edu.endDate).toLocaleDateString()
+          : "NA";
+      prompt += `    Date: ${start} - ${end}\n`;
+      if (edu.description) prompt += `    Description: ${edu.description}\n`;
+    });
+  }
+
   prompt += `\nSPECIFIC QUESTION GUIDANCE:\n`;
 
   if (user.projects && user.projects.length > 0) {
@@ -127,6 +149,15 @@ BACKGROUND ABOUT YOU (${fullName}):
     prompt += `- Projects you've built: \n`;
     user.projects.slice(0, 3).forEach((proj: any) => {
       prompt += `  - ${proj.name}: ${proj.description || ''}\n`;
+    });
+  }
+  if (user.collegeName) {
+    prompt += `- College: ${user.collegeName}\n`;
+  }
+  if (user.educations && user.educations.length > 0) {
+    prompt += `- Education:\n`;
+    user.educations.slice(0, 2).forEach((edu: any) => {
+      prompt += `  - ${edu.degree || 'Degree'} in ${edu.fieldOfStudy || 'Field'} from ${edu.schoolName}\n`;
     });
   }
   if (user.portfolio) prompt += `- Portfolio/Website: ${user.portfolio}\n`;

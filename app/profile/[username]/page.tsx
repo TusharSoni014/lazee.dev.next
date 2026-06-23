@@ -17,7 +17,9 @@ import {
   Phone,
   FileText,
   Folder,
-  Sparkles
+  Sparkles,
+  GraduationCap,
+  Video
 } from "lucide-react";
 import { ElementType } from "react";
 import { format } from "date-fns";
@@ -48,6 +50,18 @@ function getFlagAndDialCode(dialCode: string) {
   }
   return cleanDialCode;
 }
+
+const getYoutubeId = (url: string) => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
+const getLoomId = (url: string) => {
+  const regExp = /loom\.com\/(share|embed)\/([a-zA-Z0-9]+)/;
+  const match = url.match(regExp);
+  return match ? match[2] : null;
+};
 
 interface PublicProfilePageProps {
   params: Promise<{
@@ -145,6 +159,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
       experiences: { orderBy: { startDate: "desc" } },
       projects: { orderBy: [{ isTopProject: "desc" }, { createdAt: "desc" }] },
       resumes: { orderBy: { version: "desc" } },
+      educations: { orderBy: { startDate: "desc" } },
     },
   });
 
@@ -254,10 +269,10 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                       {user.jobType}
                     </div>
                   )}
-                  {user.country && (
+                  {(user.city || user.country) && (
                     <div className="inline-flex items-center gap-1.5 border-[2px] border-black px-2.5 py-1 bg-orange-200 text-black font-bold uppercase text-[10px] tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                       <Globe className="w-3.5 h-3.5 text-black" />
-                      {user.country}
+                      {[user.city, user.country].filter(Boolean).join(", ")}
                     </div>
                   )}
                   {user.noticePeriod !== null && (
@@ -343,10 +358,16 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                       </span>
                     </div>
                   )}
-                  {user.country && (
+                  {(user.city || user.country) && (
                     <div className="flex items-center gap-2.5 text-xs font-bold text-zinc-700">
                       <MapPin className="w-4 h-4 text-black shrink-0" />
-                      <span>Based in {user.country}</span>
+                      <span>Based in {[user.city, user.country].filter(Boolean).join(", ")}</span>
+                    </div>
+                  )}
+                  {user.collegeName && (
+                    <div className="flex items-center gap-2.5 text-xs font-bold text-zinc-700">
+                      <GraduationCap className="w-4 h-4 text-black shrink-0" />
+                      <span>{user.collegeName}</span>
                     </div>
                   )}
                 </div>
@@ -413,6 +434,37 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
               </div>
             </div>
             
+            {/* Intro Video Embed */}
+            {user.introVideo && (
+              (() => {
+                const ytId = getYoutubeId(user.introVideo);
+                const lId = getLoomId(user.introVideo);
+                const embedUrl = ytId 
+                  ? `https://www.youtube.com/embed/${ytId}` 
+                  : lId 
+                    ? `https://www.loom.com/embed/${lId}` 
+                    : null;
+                
+                if (!embedUrl) return null;
+
+                return (
+                  <div className="border-[4px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-black border-b-[3px] border-black pb-3 mb-6 italic flex items-center gap-2.5">
+                      <Video className="w-6 h-6 text-black shrink-0" /> Intro Video
+                    </h2>
+                    <div className="aspect-video w-full border-[3px] border-black bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+                      <iframe
+                        src={embedUrl}
+                        className="absolute inset-0 w-full h-full"
+                        allowFullScreen
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      />
+                    </div>
+                  </div>
+                );
+              })()
+            )}
+
             {/* Experience Timeline Section */}
             <div className="border-[4px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-black border-b-[3px] border-black pb-3 mb-6 italic flex items-center justify-between gap-2.5">
@@ -479,6 +531,48 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                 )}
               </div>
             </div>
+
+            {/* Education Timeline Section */}
+            {user.educations && user.educations.length > 0 && (
+              <div className="border-[4px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-black border-b-[3px] border-black pb-3 mb-6 italic flex items-center gap-2.5">
+                  <GraduationCap className="w-6 h-6 text-black shrink-0" /> Education
+                </h2>
+                <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[3px] before:bg-black">
+                  {user.educations.map((edu) => (
+                    <div key={edu.id} className="relative pl-8 group">
+                      <div className="absolute left-[3px] top-1.5 h-[19px] w-[19px] border-[3px] border-black bg-[#ffeb3b] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] group-hover:bg-[#ff6b00] transition-colors duration-200" />
+                      
+                      <div className="space-y-1.5">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                          <h3 className="text-base md:text-lg font-black uppercase text-black leading-tight">
+                            {edu.degree || edu.fieldOfStudy || "Education"}{edu.schoolName ? ` at ${edu.schoolName}` : ""}
+                          </h3>
+                          <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5 shrink-0 text-black" />
+                            <span>
+                              {edu.startDate ? format(new Date(edu.startDate), "MMM yyyy") : "N/A"} - {edu.isCurrent ? "Present" : edu.endDate ? format(new Date(edu.endDate), "MMM yyyy") : "N/A"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {(edu.degree || edu.fieldOfStudy) && (
+                          <div className="text-xs font-bold text-zinc-600 uppercase tracking-wide">
+                            {edu.degree}{edu.fieldOfStudy ? ` in ${edu.fieldOfStudy}` : ""}
+                          </div>
+                        )}
+
+                        {edu.description && (
+                          <p className="text-sm text-zinc-700 font-medium leading-relaxed pt-1 whitespace-pre-line text-justify">
+                            {edu.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Featured Projects Section */}
             <div className="border-[4px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">

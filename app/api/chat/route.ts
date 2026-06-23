@@ -59,6 +59,9 @@ export async function POST(request: NextRequest) {
         projects: {
           orderBy: { createdAt: "desc" },
         },
+        educations: {
+          orderBy: { startDate: "desc" },
+        },
       },
     });
 

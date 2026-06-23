@@ -34,6 +34,10 @@ export async function updateProfile(data: any) {
   if (data.specificQuestionGuidance !== undefined) updateData.specificQuestionGuidance = data.specificQuestionGuidance;
   if (data.coverLetter !== undefined) updateData.coverLetter = data.coverLetter;
 
+  if (data.city !== undefined) updateData.city = data.city;
+  if (data.collegeName !== undefined) updateData.collegeName = data.collegeName;
+  if (data.introVideo !== undefined) updateData.introVideo = data.introVideo;
+
   if (data.noticePeriod !== undefined) {
     updateData.noticePeriod = data.noticePeriod ? parseInt(data.noticePeriod) : null;
   }
@@ -48,12 +52,16 @@ export async function updateProfile(data: any) {
   }
 
   try {
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
       data: updateData,
+      select: { username: true }
     });
 
     revalidatePath("/profile");
+    if (updatedUser.username) {
+      revalidatePath(`/profile/${updatedUser.username}`);
+    }
     return { success: true };
   } catch (error: any) {
     console.error("Failed to update profile:", error);
@@ -429,6 +437,43 @@ export async function deleteProjectFile(url: string) {
     return { error: "Failed to delete file from server" };
   }
 }
+
+export async function updateEducation(educations: any[]) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Not authenticated" };
+  }
+
+  try {
+    const user = await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        educations: {
+          deleteMany: {},
+          create: educations.map((edu: any) => ({
+            schoolName: edu.schoolName,
+            degree: edu.degree || null,
+            fieldOfStudy: edu.fieldOfStudy || null,
+            startDate: edu.startDate ? new Date(edu.startDate) : null,
+            endDate: edu.endDate ? new Date(edu.endDate) : null,
+            isCurrent: Boolean(edu.isCurrent),
+            description: edu.description || null,
+          })),
+        },
+      },
+      select: { username: true }
+    });
+    revalidatePath("/profile");
+    if (user.username) {
+      revalidatePath(`/profile/${user.username}`);
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update education:", error);
+    return { error: "Failed to update education" };
+  }
+}
+
 
 
 
