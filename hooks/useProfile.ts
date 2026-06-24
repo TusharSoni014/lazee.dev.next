@@ -36,7 +36,7 @@ export function useProfileStatus(
     },
     initialData,
     staleTime: 0, // Fetch status directly on mount/refresh
-    refetchInterval: 30 * 1000, // Refetch every 30 seconds
+    refetchInterval: 120 * 1000, // Refetch every 120 seconds (2 minutes)
     refetchIntervalInBackground: false, // Only refetch when active
     enabled: options?.enabled ?? true,
   });

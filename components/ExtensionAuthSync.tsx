@@ -24,6 +24,14 @@ export function ExtensionAuthSync() {
   const lastSyncedRef = useRef<string | null>(null);
 
   useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      localStorage.setItem("lazee_logged_in", "true");
+    } else if (status === "unauthenticated") {
+      localStorage.setItem("lazee_logged_in", "false");
+    }
+  }, [session, status]);
+
+  useEffect(() => {
     if (status !== "authenticated" || !session?.user) {
       return;
     }

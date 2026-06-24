@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
   uploadResumeDirect,
@@ -61,6 +61,12 @@ export function ResumeManager({
 
   const maxResumes = membership === "PRO" ? 10 : 1;
   const canUpload = resumes.length < maxResumes;
+
+  useEffect(() => {
+    if (resumeData) {
+      window.postMessage({ type: "LAZEE_SYNC_AUTH" }, window.location.origin);
+    }
+  }, [resumeData]);
 
   // Upload mutation
   const uploadMutation = useMutation({

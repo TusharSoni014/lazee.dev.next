@@ -813,6 +813,12 @@ export default function ProfileForm({
     }
   }, [user]);
 
+  useEffect(() => {
+    if (user) {
+      window.postMessage({ type: "LAZEE_SYNC_AUTH" }, window.location.origin);
+    }
+  }, [user]);
+
   // Poll for Pro membership after a successful payment redirect
   useEffect(() => {
     if (!paymentSuccess) return;
