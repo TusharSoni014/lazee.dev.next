@@ -7,7 +7,7 @@ import Image from "next/image";
 
 const LOGO_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL
   ? `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/assets/logo.png`
-  : "/logo.png";
+  : "https://pub-889628534b094cf89bcd7cd93528323d.r2.dev/assets/logo.png";
 
 export function SiteHeader() {
   return (
