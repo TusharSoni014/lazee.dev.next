@@ -1063,6 +1063,7 @@ export default function ProfileForm({
       />
 
       <div
+        className="space-y-10"
         onChange={(e) => e.stopPropagation()}
         onInput={(e) => e.stopPropagation()}
       >
