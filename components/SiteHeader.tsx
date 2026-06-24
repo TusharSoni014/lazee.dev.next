@@ -3,6 +3,11 @@
 import Link from "next/link";
 import AuthButton from "./AuthButton";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
+
+const LOGO_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL
+  ? `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/assets/logo.png`
+  : "/logo.png";
 
 export function SiteHeader() {
   return (
@@ -11,9 +16,19 @@ export function SiteHeader() {
         <div className="flex items-center gap-8">
           <Link
             href="/"
-            className="text-xl sm:text-2xl font-black tracking-tighter text-black font-heading italic uppercase mr-2 sm:mr-4"
+            className="flex items-center gap-2 text-xl sm:text-2xl font-black tracking-tighter text-black font-heading italic uppercase mr-2 sm:mr-4"
           >
-            LAZEE.DEV
+            <div className="relative w-8 h-8 flex-shrink-0">
+              <Image
+                src={LOGO_URL}
+                alt="Lazee.dev Logo"
+                fill
+                className="object-contain"
+                sizes="32px"
+                priority
+              />
+            </div>
+            <span>LAZEE.DEV</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">

@@ -4,6 +4,11 @@ import Link from "next/link";
 import { Zap, Heart, Coffee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
+
+const LOGO_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL
+  ? `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/assets/logo.png`
+  : "/logo.png";
 
 export function Footer() {
   const pathname = usePathname();
@@ -16,8 +21,14 @@ export function Footer() {
           {/* Column 1: Brand & Mission */}
           <div className="lg:col-span-4 flex flex-col gap-5">
             <div className="flex items-center gap-2">
-              <div className="size-6 bg-black flex items-center justify-center">
-                <Zap className="text-white w-4 h-4 fill-white" />
+              <div className="relative size-8 flex-shrink-0">
+                <Image
+                  src={LOGO_URL}
+                  alt="Lazee.dev Logo"
+                  fill
+                  className="object-contain"
+                  sizes="32px"
+                />
               </div>
               <h2 className="text-2xl font-black uppercase tracking-tight text-black dark:text-white">
                 Lazee.dev

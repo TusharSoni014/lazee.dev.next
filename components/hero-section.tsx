@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useBrowser } from "@/hooks/use-browser";
 import { FirefoxIcon } from "./firefox-icon";
 
+
 export function HeroSection() {
   const browser = useBrowser();
   const isFirefox = browser === "firefox";
@@ -43,6 +44,7 @@ export function HeroSection() {
         transition={{ duration: 0.5 }}
         className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left gap-6 md:gap-7"
       >
+
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-orange-100 border-2 border-orange-200 px-3.5 py-1.5 rounded-full shadow-[2px_2px_0px_0px_rgba(249,115,22,0.1)]">
           <Sparkles size={14} className="text-orange-500 fill-orange-500/20" />
