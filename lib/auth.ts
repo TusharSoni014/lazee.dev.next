@@ -108,4 +108,47 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
   },
+  events: {
+    async signIn({ user, account, isNewUser }) {
+      if (isNewUser) {
+        if (account?.provider === "nodemailer" || account?.provider === "email") {
+          const email = user.email?.toLowerCase() || "";
+          const isGmail = email.endsWith("@gmail.com");
+          if (!isGmail) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { credits: 0 },
+            });
+          }
+        }
+      } else {
+        if (account?.provider === "google") {
+          const currentUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { credits: true },
+          });
+          if (currentUser && currentUser.credits === 0) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { credits: 200 },
+            });
+          }
+        }
+      }
+    },
+    async linkAccount({ user, account }) {
+      if (account?.provider === "google") {
+        const currentUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { credits: true },
+        });
+        if (currentUser && currentUser.credits === 0) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { credits: 200 },
+          });
+        }
+      }
+    },
+  },
 });

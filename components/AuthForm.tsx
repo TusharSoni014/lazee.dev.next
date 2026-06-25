@@ -150,6 +150,11 @@ export default function AuthForm() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full h-14 px-4 bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white border-[3px] border-black dark:border-white focus:outline-none focus:border-[#f26c0d] dark:focus:border-[#f26c0d] placeholder:text-slate-400 text-lg font-medium transition-all rounded-none shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff] focus:shadow-[6px_6px_0px_0px_#f26c0d] dark:focus:shadow-[6px_6px_0px_0px_#f26c0d]"
                 />
+                {email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && !email.toLowerCase().endsWith("@gmail.com") && (
+                  <p className="text-red-500 dark:text-red-400 text-xs font-black uppercase tracking-wide mt-1 flex items-center gap-1">
+                    ⚠️ Only @gmail.com accounts are eligible for free credits.
+                  </p>
+                )}
               </div>
 
               <button

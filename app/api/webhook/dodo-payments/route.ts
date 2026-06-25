@@ -40,6 +40,13 @@ async function revokePro(email: string) {
         mode: "insensitive",
       },
     },
+    include: {
+      accounts: {
+        select: {
+          provider: true,
+        },
+      },
+    },
   });
 
   if (!user) {
@@ -47,11 +54,19 @@ async function revokePro(email: string) {
     throw new Error(`User not found for email: ${email}`);
   }
 
+  const isGmail = email.toLowerCase().endsWith("@gmail.com");
+  const hasGoogleAccount = user.accounts.some((acc) => acc.provider === "google");
+  const defaultFreeCredits = (isGmail || hasGoogleAccount) ? 200 : 0;
+
   await prisma.user.update({
     where: { id: user.id },
     // Reset to free tier and restart the monthly free-credit cycle from now
     // (lib/credits.ts uses lastCreditReset for the 30-day FREE refresh).
-    data: { membership: "FREE", credits: 200, lastCreditReset: new Date() },
+    data: { 
+      membership: "FREE", 
+      credits: defaultFreeCredits, 
+      lastCreditReset: new Date() 
+    },
   });
 }
 

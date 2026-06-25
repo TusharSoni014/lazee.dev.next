@@ -15,10 +15,22 @@ export async function checkAndRefreshCredits(userEmail: string) {
       membership: true,
       credits: true,
       lastCreditReset: true,
+      accounts: {
+        select: {
+          provider: true,
+        },
+      },
     },
   });
 
   if (!user || user.membership !== "FREE") {
+    return null;
+  }
+
+  const isGmail = userEmail.toLowerCase().endsWith("@gmail.com");
+  const hasGoogleAccount = user.accounts.some((acc) => acc.provider === "google");
+
+  if (!isGmail && !hasGoogleAccount) {
     return null;
   }
 
