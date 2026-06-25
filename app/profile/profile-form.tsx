@@ -155,6 +155,7 @@ const personalSchema = z.object({
   city: z.string().optional(),
   collegeName: z.string().optional(),
   contactEmail: z.string().email("Invalid email address").min(1, "Contact Email is required"),
+  postalCode: z.string().optional().nullable(),
   genderSelect: z.string().optional().nullable(),
   genderCustom: z.string().optional().nullable(),
   veteranStatusSelect: z.string().optional().nullable(),
@@ -301,6 +302,7 @@ function PersonalInformationForm({
       city: user.city || "",
       collegeName: user.collegeName || "",
       contactEmail: user.contactEmail || user.email || "",
+      postalCode: user.postalCode || "",
       genderSelect: initialGenderSelect,
       genderCustom: initialGenderCustom,
       veteranStatusSelect: initialVeteranSelect,
@@ -322,6 +324,7 @@ function PersonalInformationForm({
       city: values.city,
       collegeName: values.collegeName,
       contactEmail: values.contactEmail,
+      postalCode: values.postalCode || null,
       gender: values.genderSelect === "Other" ? values.genderCustom : values.genderSelect || null,
       veteranStatus: values.veteranStatusSelect === "Other" ? values.veteranStatusCustom : values.veteranStatusSelect || null,
       disabilityStatus: values.disabilityStatusSelect === "Other" ? values.disabilityStatusCustom : values.disabilityStatusSelect || null,
@@ -413,13 +416,20 @@ function PersonalInformationForm({
               name="contactEmail"
               label="Contact Email"
               placeholder="your-contact-email@example.com"
-              className="md:col-span-2"
+              className="md:col-span-1"
             />
             <FormInput
               control={form.control}
               name="collegeName"
               label="College / University"
               placeholder="Stanford University"
+              className="md:col-span-1"
+            />
+            <FormInput
+              control={form.control}
+              name="postalCode"
+              label="Postal Code / ZIP"
+              placeholder="94103"
               className="md:col-span-1"
             />
           </div>

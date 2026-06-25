@@ -130,6 +130,7 @@ export async function GET(request: NextRequest) {
         gender: user.gender,
         veteranStatus: user.veteranStatus,
         disabilityStatus: user.disabilityStatus,
+        postalCode: user.postalCode,
       },
       {
         headers: {

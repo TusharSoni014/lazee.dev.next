@@ -50,6 +50,7 @@ model User {
   gender           String?
   veteranStatus    String?
   disabilityStatus String?
+  postalCode       String?
 
   membership      Membership @default(FREE)
   credits         Int        @default(200)

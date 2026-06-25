@@ -41,6 +41,7 @@ export async function updateProfile(data: any) {
   if (data.gender !== undefined) updateData.gender = data.gender;
   if (data.veteranStatus !== undefined) updateData.veteranStatus = data.veteranStatus;
   if (data.disabilityStatus !== undefined) updateData.disabilityStatus = data.disabilityStatus;
+  if (data.postalCode !== undefined) updateData.postalCode = data.postalCode;
 
   if (data.noticePeriod !== undefined) {
     updateData.noticePeriod = data.noticePeriod ? parseInt(data.noticePeriod) : null;
@@ -64,7 +65,7 @@ export async function updateProfile(data: any) {
 
     revalidatePath("/profile");
     if (updatedUser.username) {
-      revalidatePath(`/profile/${updatedUser.username}`);
+      revalidatePath(`/u/${updatedUser.username}`);
     }
     return { success: true };
   } catch (error: any) {
@@ -279,7 +280,7 @@ export async function savePublicProfileSettings(data: {
     ]);
 
     revalidatePath("/profile");
-    revalidatePath(`/profile/${normalizedUsername}`);
+    revalidatePath(`/u/${normalizedUsername}`);
     return { success: true };
   } catch (error: any) {
     console.error("Failed to save public profile settings:", error);
@@ -306,7 +307,7 @@ export async function disablePublicSharing() {
 
     revalidatePath("/profile");
     if (user?.username) {
-      revalidatePath(`/profile/${user.username}`);
+      revalidatePath(`/u/${user.username}`);
     }
     return { success: true };
   } catch (error: any) {
@@ -469,7 +470,7 @@ export async function updateEducation(educations: any[]) {
     });
     revalidatePath("/profile");
     if (user.username) {
-      revalidatePath(`/profile/${user.username}`);
+      revalidatePath(`/u/${user.username}`);
     }
     return { success: true };
   } catch (error) {

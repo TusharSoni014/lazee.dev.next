@@ -44,7 +44,7 @@ const faqs = [
   {
     question: "What is the Public Profile feature?",
     answer:
-      "You can set a custom username to get a shareable public profile link (e.g., lazee.dev/profile/yourusername). This lets you share your professional details publicly, making it easy to apply for jobs or share your profile with recruiters.",
+      "You can set a custom username to get a shareable public profile link (e.g., lazee.dev/u/yourusername). This lets you share your professional details publicly, making it easy to apply for jobs or share your profile with recruiters.",
   },
 ];
 

@@ -19,7 +19,9 @@ import {
   Folder,
   Sparkles,
   GraduationCap,
-  Video
+  Video,
+  Fingerprint,
+  Coins
 } from "lucide-react";
 import { ElementType } from "react";
 import { format } from "date-fns";
@@ -30,26 +32,6 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getS3Client } from "@/lib/s3";
 import { ProjectCarousel } from "@/components/ProjectCarousel";
 import { getPublicImageUrl } from "@/lib/utils";
-import phoneList from "@/lib/phone_list.json";
-
-function getFlagEmoji(countryCode: string) {
-  if (!countryCode || countryCode.length !== 2) return "";
-  const codePoints = countryCode
-    .toUpperCase()
-    .split("")
-    .map((char) => 127397 + char.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
-}
-
-function getFlagAndDialCode(dialCode: string) {
-  if (!dialCode) return "";
-  const cleanDialCode = dialCode.trim();
-  const match = phoneList.find((c) => c.dial_code === cleanDialCode);
-  if (match) {
-    return `${getFlagEmoji(match.code)} ${cleanDialCode}`;
-  }
-  return cleanDialCode;
-}
 
 const getYoutubeId = (url: string) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -92,7 +74,7 @@ export async function generateMetadata({ params }: PublicProfilePageProps): Prom
     };
   }
 
-  const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.name || user.username;
+  const fullName = [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ").trim() || user.name || user.username;
   
   return {
     title: `${fullName} | Lazee.dev Profile`,
@@ -167,7 +149,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     notFound();
   }
 
-  const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.name || "Anonymous User";
+  const fullName = [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ").trim() || user.name || "Anonymous User";
   const totalExperienceString = calculateTotalExperience(user.experiences);
 
   // Generate primary resume presigned URL
@@ -281,6 +263,12 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                       {user.noticePeriod === 0 ? "Immediate" : `${user.noticePeriod}d Notice`}
                     </div>
                   )}
+                  {user.currentCtc !== null && (
+                    <div className="inline-flex items-center gap-1.5 border-[2px] border-black px-2.5 py-1 bg-purple-200 text-black font-bold uppercase text-[10px] tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                      <Coins className="w-3.5 h-3.5 text-black" />
+                      {user.currency || "USD"} {Number(user.currentCtc).toLocaleString()}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -349,15 +337,6 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                       <span>{user.contactEmail || user.email}</span>
                     </div>
                   )}
-                  {user.phoneNumber && (
-                    <div className="flex items-center gap-2.5 text-xs font-bold text-zinc-700">
-                      <Phone className="w-4 h-4 text-black shrink-0" />
-                      <span>
-                        {user.countryCode ? `${getFlagAndDialCode(user.countryCode)} ` : ""}
-                        {user.phoneNumber}
-                      </span>
-                    </div>
-                  )}
                   {(user.city || user.country) && (
                     <div className="flex items-center gap-2.5 text-xs font-bold text-zinc-700">
                       <MapPin className="w-4 h-4 text-black shrink-0" />
@@ -400,6 +379,41 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                 )}
               </div>
             </div>
+
+            {/* Demographics / EEOC Card */}
+            {(user.gender || user.veteranStatus || user.disabilityStatus) && (
+              <div className="border-[4px] border-black bg-white p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                <h2 className="text-lg font-black uppercase tracking-tighter text-black border-b-[2px] border-black pb-2 mb-4 italic flex items-center gap-2">
+                  <Fingerprint className="w-5 h-5" /> Demographics & EEOC
+                </h2>
+                <div className="space-y-3">
+                  {user.gender && (
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">Gender</span>
+                      <div className="border-[2px] border-black px-2.5 py-1.5 bg-orange-50 text-black font-bold text-xs uppercase tracking-wide shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        {user.gender}
+                      </div>
+                    </div>
+                  )}
+                  {user.veteranStatus && (
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">Veteran Status</span>
+                      <div className="border-[2px] border-black px-2.5 py-1.5 bg-yellow-50 text-black font-bold text-xs uppercase tracking-wide shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        {user.veteranStatus}
+                      </div>
+                    </div>
+                  )}
+                  {user.disabilityStatus && (
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">Disability Status</span>
+                      <div className="border-[2px] border-black px-2.5 py-1.5 bg-cyan-50 text-black font-bold text-xs uppercase tracking-wide shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        {user.disabilityStatus}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
           </div>
 

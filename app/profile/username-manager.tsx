@@ -185,7 +185,7 @@ export function UsernameManager({
 
   const copyLink = () => {
     if (!currentUsername) return;
-    const url = `${window.location.origin}/profile/${currentUsername}`;
+    const url = `${window.location.origin}/u/${currentUsername}`;
     navigator.clipboard.writeText(url);
     toast.success("Link copied to clipboard!");
   };
@@ -222,10 +222,10 @@ export function UsernameManager({
           {currentUsername ? (
             <div className="flex items-center gap-2 mt-1">
               <span className="text-sm font-bold text-zinc-600 bg-zinc-100 px-2 py-0.5 border-[2px] border-black uppercase tracking-widest flex items-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                /profile/{currentUsername}
+                /u/{currentUsername}
               </span>
               <a 
-                href={`/profile/${currentUsername}`} 
+                href={`/u/${currentUsername}`} 
                 target="_blank" 
                 rel="noreferrer"
                 className="text-orange-500 hover:text-orange-600 p-1"
@@ -422,7 +422,7 @@ export function UsernameManager({
               <div>
                 <p className="text-[10px] font-black uppercase text-black italic leading-none">Your Link:</p>
                 <p className="text-xs font-bold text-zinc-700 mt-1 truncate max-w-[240px]">
-                  lazee.dev/profile/{username.toLowerCase().trim() || "..."}
+                  lazee.dev/u/{username.toLowerCase().trim() || "..."}
                 </p>
               </div>
             </div>
@@ -476,7 +476,7 @@ export function UsernameManager({
               Disable Sharing?
             </DialogTitle>
             <DialogDescription className="font-bold text-zinc-700 mt-2">
-              Are you sure you want to disable public profile sharing? This will delete your public handle and make your profile page link (/profile/{currentUsername}) inactive.
+              Are you sure you want to disable public profile sharing? This will delete your public handle and make your profile page link (/u/{currentUsername}) inactive.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-3 sm:justify-end mt-6">

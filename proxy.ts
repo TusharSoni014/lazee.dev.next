@@ -16,27 +16,7 @@ export function proxy(request: NextRequest) {
   );
   response.headers.set("X-DNS-Prefetch-Control", "on");
 
-  // Protected routes: redirect to login if no session token
-  const protectedRoutes = ["/profile"];
-  const isProtectedRoute = protectedRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
-  );
 
-  // Exclude public profile pages (/profile/[username]) from protection
-  const isPublicProfile =
-    pathname.startsWith("/profile/") && pathname !== "/profile/";
-
-  if (isProtectedRoute && !isPublicProfile) {
-    const token =
-      request.cookies.get("authjs.session-token") ||
-      request.cookies.get("__Secure-authjs.session-token");
-
-    if (!token) {
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
 
   return response;
 }

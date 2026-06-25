@@ -191,7 +191,7 @@ export function DashboardPreviewSection() {
                   <div className="flex flex-col gap-1">
                     <span className="text-[8px] font-black uppercase text-zinc-500">Public Profile</span>
                     <div className="w-full bg-white border border-zinc-300 rounded px-2 py-1 text-[9px] sm:text-[10px] font-bold text-black flex items-center justify-between">
-                      <span className="truncate text-zinc-400">lazee.dev/profile/tushar</span>
+                      <span className="truncate text-zinc-400">lazee.dev/u/tushar</span>
                       <span className="text-[7px] font-black uppercase bg-zinc-100 border border-black px-1.5 py-0.5 rounded cursor-pointer hover:bg-zinc-200">Copy</span>
                     </div>
                   </div>
