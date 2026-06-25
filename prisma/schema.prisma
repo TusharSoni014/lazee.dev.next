@@ -47,6 +47,10 @@ model User {
   middleName String?
   lastName   String?
 
+  gender           String?
+  veteranStatus    String?
+  disabilityStatus String?
+
   membership      Membership @default(FREE)
   credits         Int        @default(200)
   lastCreditReset DateTime   @default(now())

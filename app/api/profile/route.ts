@@ -127,6 +127,9 @@ export async function GET(request: NextRequest) {
         other: user.other,
         image: user.image,
         contactEmail: user.contactEmail,
+        gender: user.gender,
+        veteranStatus: user.veteranStatus,
+        disabilityStatus: user.disabilityStatus,
       },
       {
         headers: {

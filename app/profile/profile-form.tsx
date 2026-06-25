@@ -155,6 +155,12 @@ const personalSchema = z.object({
   city: z.string().optional(),
   collegeName: z.string().optional(),
   contactEmail: z.string().email("Invalid email address").min(1, "Contact Email is required"),
+  genderSelect: z.string().optional().nullable(),
+  genderCustom: z.string().optional().nullable(),
+  veteranStatusSelect: z.string().optional().nullable(),
+  veteranStatusCustom: z.string().optional().nullable(),
+  disabilityStatusSelect: z.string().optional().nullable(),
+  disabilityStatusCustom: z.string().optional().nullable(),
 });
 
 const professionalSchema = z.object({
@@ -260,6 +266,29 @@ function PersonalInformationForm({
     return exactMatch ? exactMatch.name : initial;
   })();
 
+  const standardGenders = ["Male", "Female"];
+  const dbGender = user?.gender || "";
+  const initialGenderSelect = standardGenders.includes(dbGender) ? dbGender : (dbGender ? "Other" : "");
+  const initialGenderCustom = initialGenderSelect === "Other" ? dbGender : "";
+
+  const standardVeterans = [
+    "I am not a protected veteran",
+    "I identify as one or more of the classifications of a protected veteran",
+    "I don't wish to answer"
+  ];
+  const dbVeteran = user?.veteranStatus || "";
+  const initialVeteranSelect = standardVeterans.includes(dbVeteran) ? dbVeteran : (dbVeteran ? "Other" : "");
+  const initialVeteranCustom = initialVeteranSelect === "Other" ? dbVeteran : "";
+
+  const standardDisabilities = [
+    "Yes, I have a disability, or have had one in the past",
+    "No, I do not have a disability and have not had one in the past",
+    "I do not want to answer"
+  ];
+  const dbDisability = user?.disabilityStatus || "";
+  const initialDisabilitySelect = standardDisabilities.includes(dbDisability) ? dbDisability : (dbDisability ? "Other" : "");
+  const initialDisabilityCustom = initialDisabilitySelect === "Other" ? dbDisability : "";
+
   const form = useForm<z.infer<typeof personalSchema>>({
     resolver: zodResolver(personalSchema),
     defaultValues: {
@@ -272,12 +301,32 @@ function PersonalInformationForm({
       city: user.city || "",
       collegeName: user.collegeName || "",
       contactEmail: user.contactEmail || user.email || "",
+      genderSelect: initialGenderSelect,
+      genderCustom: initialGenderCustom,
+      veteranStatusSelect: initialVeteranSelect,
+      veteranStatusCustom: initialVeteranCustom,
+      disabilityStatusSelect: initialDisabilitySelect,
+      disabilityStatusCustom: initialDisabilityCustom,
     },
   });
 
   const onSubmit = async (values: z.infer<typeof personalSchema>) => {
     setIsSaving(true);
-    const result = await updateProfile(values);
+    const payload = {
+      firstName: values.firstName,
+      middleName: values.middleName,
+      lastName: values.lastName,
+      countryCode: values.countryCode,
+      phoneNumber: values.phoneNumber,
+      country: values.country,
+      city: values.city,
+      collegeName: values.collegeName,
+      contactEmail: values.contactEmail,
+      gender: values.genderSelect === "Other" ? values.genderCustom : values.genderSelect || null,
+      veteranStatus: values.veteranStatusSelect === "Other" ? values.veteranStatusCustom : values.veteranStatusSelect || null,
+      disabilityStatus: values.disabilityStatusSelect === "Other" ? values.disabilityStatusCustom : values.disabilityStatusSelect || null,
+    };
+    const result = await updateProfile(payload);
     setIsSaving(false);
     if (result.success) {
       refetchProfile();
@@ -373,6 +422,142 @@ function PersonalInformationForm({
               placeholder="Stanford University"
               className="md:col-span-1"
             />
+          </div>
+
+          <div className="border-t-[3px] border-dashed border-black pt-6 mt-6">
+            <h4 className="text-xs font-black uppercase text-zinc-500 tracking-widest mb-4">
+              Demographics / EEOC (Optional)
+            </h4>
+            <div className="space-y-6">
+              {/* Gender */}
+              <div className="grid gap-6 md:grid-cols-3 items-end">
+                <FormField
+                  control={form.control}
+                  name="genderSelect"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2 md:col-span-1">
+                      <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                        Gender
+                      </FormLabel>
+                      <FormControl>
+                        <Select onValueChange={field.onChange} value={field.value || undefined}>
+                          <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
+                            <SelectValue placeholder="Select Gender" />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <SelectItem value="Male" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">Male</SelectItem>
+                            <SelectItem value="Female" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">Female</SelectItem>
+                            <SelectItem value="Other" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">Other (Specify)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                    </FormItem>
+                  )}
+                />
+                {form.watch("genderSelect") === "Other" && (
+                  <FormInput
+                    control={form.control}
+                    name="genderCustom"
+                    label="Specify Gender"
+                    placeholder="Non-binary / Custom gender"
+                    className="md:col-span-2"
+                  />
+                )}
+              </div>
+
+              {/* Veteran Status */}
+              <div className="grid gap-6 md:grid-cols-3 items-end">
+                <FormField
+                  control={form.control}
+                  name="veteranStatusSelect"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2 md:col-span-2">
+                      <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                        Veteran Status
+                      </FormLabel>
+                      <FormControl>
+                        <Select onValueChange={field.onChange} value={field.value || undefined}>
+                          <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
+                            <SelectValue placeholder="Select Veteran Status" />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] max-w-[90vw] md:max-w-[600px]">
+                            <SelectItem value="I am not a protected veteran" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                              I am not a protected veteran
+                            </SelectItem>
+                            <SelectItem value="I identify as one or more of the classifications of a protected veteran" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                              I identify as one or more of the classifications of a protected veteran
+                            </SelectItem>
+                            <SelectItem value="I don't wish to answer" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                              I don&apos;t wish to answer
+                            </SelectItem>
+                            <SelectItem value="Other" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                              Other (Specify)
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                    </FormItem>
+                  )}
+                />
+                {form.watch("veteranStatusSelect") === "Other" && (
+                  <FormInput
+                    control={form.control}
+                    name="veteranStatusCustom"
+                    label="Specify Veteran Status"
+                    placeholder="Enter custom veteran status"
+                    className="md:col-span-1"
+                  />
+                )}
+              </div>
+
+              {/* Disability Status */}
+              <div className="grid gap-6 md:grid-cols-3 items-end">
+                <FormField
+                  control={form.control}
+                  name="disabilityStatusSelect"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2 md:col-span-2">
+                      <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                        Disability Status
+                      </FormLabel>
+                      <FormControl>
+                        <Select onValueChange={field.onChange} value={field.value || undefined}>
+                          <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
+                            <SelectValue placeholder="Select Disability Status" />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] max-w-[90vw] md:max-w-[600px]">
+                            <SelectItem value="Yes, I have a disability, or have had one in the past" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                              Yes, I have a disability, or have had one in the past
+                            </SelectItem>
+                            <SelectItem value="No, I do not have a disability and have not had one in the past" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                              No, I do not have a disability and have not had one in the past
+                            </SelectItem>
+                            <SelectItem value="I do not want to answer" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                              I do not want to answer
+                            </SelectItem>
+                            <SelectItem value="Other" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                              Other (Specify)
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                    </FormItem>
+                  )}
+                />
+                {form.watch("disabilityStatusSelect") === "Other" && (
+                  <FormInput
+                    control={form.control}
+                    name="disabilityStatusCustom"
+                    label="Specify Disability Status"
+                    placeholder="Enter custom disability status"
+                    className="md:col-span-1"
+                  />
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="flex justify-end pt-2">

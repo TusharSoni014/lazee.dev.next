@@ -38,6 +38,10 @@ export async function updateProfile(data: any) {
   if (data.collegeName !== undefined) updateData.collegeName = data.collegeName;
   if (data.introVideo !== undefined) updateData.introVideo = data.introVideo;
 
+  if (data.gender !== undefined) updateData.gender = data.gender;
+  if (data.veteranStatus !== undefined) updateData.veteranStatus = data.veteranStatus;
+  if (data.disabilityStatus !== undefined) updateData.disabilityStatus = data.disabilityStatus;
+
   if (data.noticePeriod !== undefined) {
     updateData.noticePeriod = data.noticePeriod ? parseInt(data.noticePeriod) : null;
   }
