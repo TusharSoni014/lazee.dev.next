@@ -35,7 +35,7 @@ export function DashboardPreviewSection() {
       transition={{ duration: 0.5 }}
       className="w-full mb-24"
     >
-      <div className="w-full bg-[#0d0d12] border-[3px] border-black rounded-3xl p-6 sm:p-10 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white flex flex-col lg:flex-row items-center gap-12 overflow-hidden relative">
+      <div className="w-full bg-[#0d0d12] border-[3px] border-black rounded-3xl p-4 sm:p-10 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white flex flex-col lg:flex-row items-center gap-12 overflow-hidden relative">
         {/* Glow effect */}
         <div className="absolute top-0 right-0 w-80 h-80 bg-orange-600/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -123,16 +123,16 @@ export function DashboardPreviewSection() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[8px] font-black uppercase text-zinc-500">Notice Period</span>
-                      <div className="w-full bg-white border border-zinc-300 rounded px-2 py-1 text-[9px] sm:text-[10px] font-bold text-black">
+                      <div className="w-full bg-white border border-zinc-300 rounded px-2 py-1 text-[9px] sm:text-[10px] font-bold text-black truncate">
                         Immediate
                       </div>
                     </div>
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[8px] font-black uppercase text-zinc-500">Job Type</span>
-                      <div className="w-full bg-white border border-zinc-300 rounded px-2 py-1 text-[9px] sm:text-[10px] font-bold text-black">
+                      <div className="w-full bg-white border border-zinc-300 rounded px-2 py-1 text-[9px] sm:text-[10px] font-bold text-black truncate">
                         Full-time Remote
                       </div>
                     </div>

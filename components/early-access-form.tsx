@@ -56,7 +56,7 @@ export function EarlyAccessForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="relative w-full border-[4px] border-black bg-white p-8 sm:p-10 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-6"
+        className="relative w-full border-[4px] border-black bg-white p-5 sm:p-10 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-6"
       >
         {/* Badge */}
         <div className="absolute -top-5 -right-2 sm:-top-6 sm:-right-6 bg-[#ff6b00] text-white px-5 py-2 text-sm sm:text-base font-black tracking-widest border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-3 uppercase">

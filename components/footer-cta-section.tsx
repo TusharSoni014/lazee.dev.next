@@ -19,7 +19,7 @@ export function FooterCtaSection() {
       transition={{ duration: 0.5 }}
       className="w-full mb-12"
     >
-      <div className="w-full bg-[#1c0f08] bg-gradient-to-br from-[#170a04] via-[#2c1305] to-[#0e0501] border-[3px] border-black rounded-3xl p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+      <div className="w-full bg-[#1c0f08] bg-gradient-to-br from-[#170a04] via-[#2c1305] to-[#0e0501] border-[3px] border-black rounded-3xl p-6 sm:p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
         {/* Glow decoration */}
         <div className="absolute top-0 left-0 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl pointer-events-none" />
 

@@ -36,13 +36,13 @@ export function HeroSection() {
   ];
 
   return (
-    <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16 mb-24">
+    <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-8 sm:gap-12 lg:gap-16 mb-16 sm:mb-24">
       {/* Left Column (Content) */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left gap-6 md:gap-7"
+        className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left gap-5 sm:gap-6 md:gap-7"
       >
 
         {/* Badge */}

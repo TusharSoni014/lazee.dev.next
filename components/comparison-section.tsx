@@ -29,7 +29,7 @@ export function ComparisonSection() {
       transition={{ duration: 0.5 }}
       className="w-full mb-24"
     >
-      <div className="w-full bg-[#0d0d12] border-[3px] border-black rounded-3xl p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden">
+      <div className="w-full bg-[#0d0d12] border-[3px] border-black rounded-3xl p-4 sm:p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden">
         {/* Decorative background glow */}
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
@@ -40,7 +40,7 @@ export function ComparisonSection() {
 
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-4 relative z-10">
           {/* Without Lazee Card */}
-          <div className="flex-1 w-full bg-white text-black border-[3px] border-black rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
+          <div className="flex-1 w-full bg-white text-black border-[3px] border-black rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
             <div className="w-32 h-32 relative shrink-0">
               <Image
                 src="/sad-dev.png"
@@ -84,7 +84,7 @@ export function ComparisonSection() {
           </div>
 
           {/* With Lazee Card */}
-          <div className="flex-1 w-full bg-white text-black border-[3px] border-black rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
+          <div className="flex-1 w-full bg-white text-black border-[3px] border-black rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
             {/* Sparkles visual decoration */}
             <div className="w-32 h-32 relative shrink-0">
               <Image

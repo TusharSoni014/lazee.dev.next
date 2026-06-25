@@ -62,60 +62,60 @@ export function HeroDemo() {
   ];
 
   return (
-    <div className="relative w-full max-w-lg mx-auto aspect-[1.15] bg-white border-[3px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-2xl overflow-hidden flex flex-col z-10">
+    <div className="relative w-full max-w-lg mx-auto h-[370px] xs:h-[410px] sm:h-auto sm:aspect-[1.15] bg-white border-[3px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-2xl overflow-hidden flex flex-col z-10">
       {/* Browser Bar */}
-      <div className="h-10 border-b-[3px] border-black bg-zinc-100 flex items-center px-4 gap-2 shrink-0">
-        <div className="flex gap-1.5">
-          <div className="w-3 h-3 bg-red-400 rounded-full border border-red-500" />
-          <div className="w-3 h-3 bg-yellow-400 rounded-full border border-yellow-500" />
-          <div className="w-3 h-3 bg-green-400 rounded-full border border-green-500" />
+      <div className="h-8 sm:h-10 border-b-[3px] border-black bg-zinc-100 flex items-center px-2 sm:px-4 gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex gap-1 sm:gap-1.5">
+          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-400 rounded-full border border-red-500" />
+          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-yellow-400 rounded-full border border-yellow-500" />
+          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full border border-green-500" />
         </div>
-        <div className="ml-4 bg-white border-[2px] border-black rounded-md h-6 flex-1 px-3 flex items-center">
-          <span className="text-[10px] font-black text-zinc-500">
+        <div className="ml-2 sm:ml-4 bg-white border-[2px] border-black rounded-md h-5 sm:h-6 flex-1 px-1.5 sm:px-3 flex items-center">
+          <span className="text-[8px] sm:text-[10px] font-black text-zinc-500 truncate">
             workday.com/careers/apply
           </span>
         </div>
       </div>
 
       <div className="flex-1 flex flex-row overflow-hidden relative bg-[#fafafa]">
-        <div className="w-[52%] border-r-[3px] border-black p-4 flex flex-col gap-3 overflow-hidden bg-white">
-          <div className="flex flex-col gap-1 border-b border-zinc-100 pb-2">
-            <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider leading-none">
+        <div className="w-[52%] border-r-[3px] border-black p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 overflow-hidden bg-white">
+          <div className="flex flex-col gap-0.5 sm:gap-1 border-b border-zinc-100 pb-1.5 sm:pb-2">
+            <span className="text-[7.5px] sm:text-[9px] font-black text-zinc-400 uppercase tracking-wider leading-none">
               Job Application
             </span>
-            <h4 className="text-xs font-black text-black leading-tight">
+            <h4 className="text-[9px] sm:text-xs font-black text-black leading-tight truncate">
               Senior Frontend Developer
             </h4>
-            <div className="flex items-center gap-2 mt-1">
-              <div className="flex-1 h-1.5 bg-zinc-100 border border-black/10 rounded-full overflow-hidden">
+            <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 sm:mt-1">
+              <div className="flex-1 h-1 sm:h-1.5 bg-zinc-100 border border-black/10 rounded-full overflow-hidden">
                 <motion.div
                   animate={step >= 3 ? { width: "80%" } : { width: "40%" }}
                   className="h-full bg-orange-500"
                 />
               </div>
-              <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest shrink-0 leading-none">
+              <span className="text-[6.5px] sm:text-[8px] font-black text-zinc-400 uppercase tracking-widest shrink-0 leading-none">
                 Step 2 of 3
               </span>
             </div>
           </div>
 
           {/* Form Fields Stack */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5 sm:gap-2">
             {formFields.map((field, idx) => {
               const isFilled = step >= 3;
               return (
-                <div key={idx} className="flex flex-col gap-1 relative">
-                  <span className="text-[8px] font-black uppercase text-zinc-500 leading-none">
+                <div key={idx} className="flex flex-col gap-0.5 sm:gap-1 relative">
+                  <span className="text-[7px] sm:text-[8px] font-black uppercase text-zinc-500 leading-none truncate">
                     {field.label}
                   </span>
-                  <div className="h-7 border-2 border-black rounded-lg bg-zinc-50 flex items-center justify-between px-2.5 relative overflow-hidden">
+                  <div className="h-[22px] sm:h-7 border-2 border-black rounded-md sm:rounded-lg bg-zinc-50 flex items-center justify-between px-1.5 sm:px-2.5 relative overflow-hidden">
                     <AnimatePresence>
                       {isFilled && (
                         <motion.span
                           initial={{ opacity: 0, x: -5 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.15, duration: 0.2 }}
-                          className="font-bold text-[9px] text-zinc-950 truncate max-w-[85%]"
+                          className="font-bold text-[8px] sm:text-[9px] text-zinc-950 truncate max-w-[75%] sm:max-w-[85%]"
                         >
                           {field.value}
                         </motion.span>
@@ -133,10 +133,10 @@ export function HeroDemo() {
                             type: "spring",
                             stiffness: 300,
                           }}
-                          className="w-3.5 h-3.5 bg-green-500 rounded-full border border-black flex items-center justify-center shrink-0"
+                          className="w-3 h-3 sm:w-3.5 sm:h-3.5 bg-green-500 rounded-full border border-black flex items-center justify-center shrink-0"
                         >
                           <Check
-                            className="w-2.5 h-2.5 text-white"
+                            className="w-2 sm:w-2.5 h-2 sm:h-2.5 text-white"
                             strokeWidth={4}
                           />
                         </motion.div>
@@ -166,38 +166,39 @@ export function HeroDemo() {
         </div>
 
         {/* Right Side: AI Assistant Side Panel */}
-        <div className="flex-1 p-3.5 bg-orange-50/50 flex flex-col justify-between overflow-hidden relative">
+        <div className="flex-1 p-2 sm:p-3.5 bg-orange-50/50 flex flex-col justify-between overflow-hidden relative">
           {/* AI Panel Header */}
-          <div className="bg-white border-2 border-black rounded-xl p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2 shrink-0">
-            <div className="size-6 bg-orange-500 border border-black flex items-center justify-center text-white rounded-lg">
-              <Sparkles size={12} className="fill-white" />
+          <div className="bg-white border-2 border-black rounded-lg sm:rounded-xl p-1.5 sm:p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-orange-500 border border-black flex items-center justify-center text-white rounded-md sm:rounded-lg shrink-0">
+              <Sparkles size={10} className="fill-white sm:hidden" />
+              <Sparkles size={12} className="fill-white hidden sm:block" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-[9px] font-black text-black leading-none">
+            <div className="flex flex-col min-w-0">
+              <span className="text-[7.5px] sm:text-[9px] font-black text-black leading-none truncate">
                 AI Assistant
               </span>
-              <span className="text-[8px] font-bold text-orange-500 mt-0.5 leading-none">
+              <span className="text-[6.5px] sm:text-[8px] font-bold text-orange-500 mt-0.5 sm:mt-1 leading-none truncate">
                 Writing answer...
               </span>
             </div>
           </div>
 
           {/* AI Answer Editor Card */}
-          <div className="flex-1 my-3 bg-white border-2 border-black rounded-xl p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-1.5 overflow-hidden">
-            <span className="text-[8px] font-black uppercase text-zinc-400 leading-none">
+          <div className="flex-1 my-2 sm:my-3 bg-white border-2 border-black rounded-lg sm:rounded-xl p-1.5 sm:p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-1 sm:gap-1.5 overflow-hidden">
+            <span className="text-[7px] sm:text-[8px] font-black uppercase text-zinc-400 leading-none truncate">
               Why do you want this role?
             </span>
-            <div className="flex-1 bg-zinc-50 border border-zinc-200 rounded p-2 text-[8px] font-bold text-zinc-600 leading-relaxed overflow-y-auto font-sans relative">
+            <div className="flex-1 bg-zinc-50 border border-zinc-200 rounded p-1 sm:p-2 text-[7px] sm:text-[8px] font-bold text-zinc-650 leading-normal sm:leading-relaxed overflow-y-auto font-sans relative">
               {typedText}
               <motion.span
                 animate={{ opacity: [1, 0] }}
                 transition={{ repeat: Infinity, duration: 0.6 }}
-                className="inline-block w-1 h-3 bg-orange-500 ml-0.5"
+                className="inline-block w-0.5 sm:w-1 h-2 sm:h-3 bg-orange-500 ml-0.5"
               />
             </div>
 
             {/* Live Progress loading bar */}
-            <div className="shrink-0 flex items-center justify-between text-[8px] font-bold text-zinc-400 mt-1">
+            <div className="shrink-0 flex items-center justify-between text-[6.5px] sm:text-[8px] font-bold text-zinc-400 mt-0.5 sm:mt-1">
               <span>
                 {step === 2
                   ? "Generating suggestion..."
@@ -206,7 +207,7 @@ export function HeroDemo() {
                     : "Ready"}
               </span>
               {step === 2 && (
-                <div className="w-16 h-1 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200/50">
+                <div className="w-10 sm:w-16 h-0.5 sm:h-1 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200/50">
                   <motion.div
                     animate={{ width: ["0%", "100%"] }}
                     transition={{ duration: 2, ease: "easeInOut" }}
@@ -220,13 +221,14 @@ export function HeroDemo() {
           {/* Fill with AI Button */}
           <div className="shrink-0 w-full">
             <button
-              className={`w-full py-2.5 border-2 border-black text-white text-[10px] font-black uppercase tracking-wider shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              className={`w-full py-1.5 sm:py-2.5 border-2 border-black text-white text-[8px] sm:text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] sm:shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer ${
                 step >= 2
-                  ? "bg-orange-600 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] translate-x-[1.5px] translate-y-[1.5px]"
-                  : "bg-orange-500 hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-[3.5px_3.5px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2.5px] active:translate-y-[2.5px] active:shadow-none"
+                  ? "bg-orange-600 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] translate-x-[1px] translate-y-[1px]"
+                  : "bg-orange-500 hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-[3.5px_3.5px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
               }`}
             >
-              <Sparkles size={11} className="fill-white" />
+              <Sparkles size={9} className="fill-white sm:hidden" />
+              <Sparkles size={11} className="fill-white hidden sm:block" />
               <span>Fill with AI</span>
             </button>
           </div>
@@ -236,12 +238,12 @@ export function HeroDemo() {
         <motion.div
           animate={
             step === 0
-              ? { x: 230, y: 220, opacity: 0, scale: 0.9 }
+              ? { x: "85%", y: "90%", opacity: 0, scale: 0.9 }
               : step === 1
-                ? { x: 175, y: 195, opacity: 1, scale: 1 } // Moving over "Fill with AI"
+                ? { x: "75%", y: "88%", opacity: 1, scale: 1 } // Moving over "Fill with AI"
                 : step === 2
-                  ? { x: 175, y: 198, opacity: 1, scale: 0.92 } // Click press down
-                  : { x: 230, y: 220, opacity: 0, scale: 0.9 } // Return home offscreen
+                  ? { x: "75%", y: "89%", opacity: 1, scale: 0.92 } // Click press down
+                  : { x: "85%", y: "90%", opacity: 0, scale: 0.9 } // Return home offscreen
           }
           transition={{
             type: "spring",
