@@ -9,22 +9,22 @@ const faqs = [
   {
     question: "How does the AI autofill work?",
     answer:
-      "Lazee.dev is a browser extension that automatically detects job application form fields and fills them using the profile data you've saved on lazee.dev. For AI-powered answers (like open-ended questions), it uses 2 credits per fill. Standard fields like name, email, phone, and socials are filled instantly for free — no credits needed.",
+      "Lazee.dev is a browser extension that automatically detects job application fields and autofills them using your saved profile details. Basic autofill (names, contact info, experience, skills, social profiles) is completely free and unlimited forever without ever needing a subscription. AI-assisted answers (for custom, open-ended questions) draw from your profile context and use 2 credits per field.",
   },
   {
     question: "What job boards and ATS platforms are supported?",
     answer:
-      "We currently support a select few major hiring platforms and job boards (including Greenhouse, Lever, and Workday) and are actively working on expanding to support more ATS platforms and career pages in the future. Works across Chrome, Firefox, and Edge.",
+      "We are compatible with 100+ job boards. We officially support major hiring platforms like Greenhouse, Lever, SmartRecruiters, Y Combinator (Work at a Startup), Glassdoor, Wellfound, Notion, Airtable, Google Forms, Tally, and Gmail compose, with new ones added daily. Works across Chrome, Firefox, and Edge.",
   },
   {
     question: "What is the credits system?",
     answer:
-      "Credits power the AI-assisted fills. Every free account gets 200 credits per month, automatically refreshed. Each AI fill costs 2 credits. Pro users get 10,000 credits per month. Non-AI autofill (name, email, phone, social links, etc.) is completely free and unlimited on all plans.",
+      "Credits power the AI-assisted fills. Every free account gets 200 credits per month refreshed automatically. Each AI fill costs 2 credits. Pro users get 10,000 credits per month. Non-AI autofill (your profile data, resumes, links) is completely free and unlimited for all users without any subscription.",
   },
   {
     question: "What's included in the Free vs Pro plan?",
     answer:
-      "The Free plan includes 200 AI credits per month, unlimited basic profile data autofill, and basic AI suggestions. The Pro plan ($9/mo) gives you 10,000 credits per month, access to beta features, and priority support — perfect for serious job hunters applying at scale.",
+      "All core autofill features are 100% free! The Free plan gives you unlimited profile data autofill, 200 AI credits per month, and works on 100+ platforms. The Pro plan ($9/mo) gives you 10,000 AI credits per month, access to the Bulk AI Fill feature (autofill entire applications with one click), and priority support.",
   },
   {
     question: "What profile data can I store and autofill?",
@@ -37,9 +37,9 @@ const faqs = [
       "Yes! Lazee.dev supports managing multiple resume versions from your profile. You can upload different resumes (e.g., tailored for different roles) and switch between them directly from the extension when applying.",
   },
   {
-    question: "When will the browser extension be available?",
+    question: "How can I install the browser extension?",
     answer:
-      "The extension is currently in development and releasing soon. You can sign up now to fill out your profile and be ready to hit the ground running the moment it goes live. Follow @TusharSoni014 on X (Twitter) for real-time dev logs and launch updates.",
+      "The browser extension is live and available! You can install it directly from the Chrome Web Store (for Chrome, Edge, and other Chromium browsers) or the Firefox Add-ons store (for Firefox). Simply click any of the download buttons on this page to install it instantly.",
   },
   {
     question: "What is the Public Profile feature?",
@@ -61,7 +61,7 @@ export function FaqSection() {
       className="w-full max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8 mb-12"
     >
       <div className="flex flex-col items-center mb-16 text-center">
-        <div className="inline-block border-2 border-black bg-white px-3.5 py-1.5 text-xs font-black uppercase tracking-widest shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)] mb-4">
+        <div className="inline-block border-2 border-black bg-white px-3.5 py-1.5 text-xs font-black uppercase tracking-widest shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)] mb-4 rounded-none">
           FAQ
         </div>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-black leading-tight mb-4 uppercase text-black">
@@ -76,7 +76,7 @@ export function FaqSection() {
           return (
             <div
               key={index}
-              className={`bg-white border-[3px] border-black rounded-2xl overflow-hidden transition-all duration-200 ${
+              className={`bg-white border-[3px] border-black rounded-none overflow-hidden transition-all duration-200 ${
                 isOpen
                   ? "shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] -translate-y-0.5"
                   : "hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5"
@@ -107,7 +107,7 @@ export function FaqSection() {
                   isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
                 }`}
               >
-                <div className="p-5 sm:p-6 pt-0 border-t-2 border-zinc-100 text-sm sm:text-base font-bold text-zinc-600 bg-zinc-50/50 leading-relaxed">
+                <div className="p-5 sm:p-6 pt-0 border-t-2 border-zinc-100 text-sm sm:text-base font-bold text-zinc-600 bg-zinc-50/50 leading-relaxed rounded-none">
                   {faq.answer}
                 </div>
               </div>

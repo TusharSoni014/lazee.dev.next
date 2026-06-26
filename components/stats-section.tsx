@@ -18,7 +18,7 @@ export function StatsSection() {
       transition={{ duration: 0.4 }}
       className="w-full mb-24"
     >
-      <div className="w-full bg-[#0d0d12] border-[3px] border-black rounded-2xl p-4 sm:p-10 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden">
+      <div className="w-full bg-[#0d0d12] border-[3px] border-black rounded-none p-4 sm:p-10 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden">
         {/* Glow decoration */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
 

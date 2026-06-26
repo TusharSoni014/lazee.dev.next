@@ -83,7 +83,7 @@ export function PricingSection() {
         {/* Pricing Cards Container */}
         <div className="grid gap-8 md:grid-cols-2 md:items-stretch max-w-3xl mx-auto">
           {/* Free Plan */}
-          <div className="group relative flex h-full flex-col rounded-2xl border-[3px] border-black bg-white p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+          <div className="group relative flex h-full flex-col rounded-none border-[3px] border-black bg-white p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
             <div className="mb-6">
               <h3 className="mb-1.5 text-xs font-black uppercase tracking-widest text-zinc-400">
                 Free
@@ -98,35 +98,59 @@ export function PricingSection() {
             
             <ul className="mb-8 flex flex-col gap-4 flex-1">
               <li className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-green-50 border border-green-200">
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
+                </div>
+                <span className="font-bold text-sm text-zinc-700">
+                  Unlimited profile data autofill
+                </span>
+              </li>
+              <li className="flex items-center gap-3">
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
+                </div>
+                <span className="font-bold text-sm text-zinc-700">
+                  Works on 100+ job boards
+                </span>
+              </li>
+              <li className="flex items-center gap-3">
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
+                </div>
+                <span className="font-bold text-sm text-zinc-700">
+                  AI Cold DM Generator (Gmail)
+                </span>
+              </li>
+              <li className="flex items-center gap-3">
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border border-green-200">
                   <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
                 </div>
                 <span className="font-bold text-sm text-zinc-700">
                   200 AI credits / month
                 </span>
               </li>
-              <li className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-green-50 border border-green-200">
-                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
+              <li className="flex items-center gap-3 opacity-60">
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-red-50 border border-red-200">
+                  <X className="w-3.5 h-3.5 text-red-500" strokeWidth={3} />
                 </div>
-                <span className="font-bold text-sm text-zinc-700">
-                  Unlimited basic auto-fill
+                <span className="font-bold text-sm text-zinc-500 line-through">
+                  Bulk AI Fill (One-click)
                 </span>
               </li>
-              <li className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-green-50 border border-green-200">
-                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
+              <li className="flex items-center gap-3 opacity-60">
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-red-50 border border-red-200">
+                  <X className="w-3.5 h-3.5 text-red-500" strokeWidth={3} />
                 </div>
-                <span className="font-bold text-sm text-zinc-700">
-                  Basic AI answers
+                <span className="font-bold text-sm text-zinc-500 line-through">
+                  Advanced AI reasoning
                 </span>
               </li>
-              <li className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-green-50 border border-green-200">
-                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
+              <li className="flex items-center gap-3 opacity-60">
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-red-50 border border-red-200">
+                  <X className="w-3.5 h-3.5 text-red-500" strokeWidth={3} />
                 </div>
-                <span className="font-bold text-sm text-zinc-700">
-                  Works on popular sites
+                <span className="font-bold text-sm text-zinc-500 line-through">
+                  Priority support & updates
                 </span>
               </li>
             </ul>
@@ -141,7 +165,7 @@ export function PricingSection() {
           </div>
 
           {/* Pro Plan */}
-          <div className="relative flex h-full flex-col rounded-2xl border-[3px] border-orange-500 bg-white p-8 shadow-[6px_6px_0px_0px_rgba(249,115,22,1)]">
+          <div className="relative flex h-full flex-col rounded-none border-[3px] border-orange-500 bg-white p-8 shadow-[6px_6px_0px_0px_rgba(249,115,22,1)]">
             {/* Badge */}
             <div className="absolute -right-2 -top-5 rotate-3 border-2 border-black bg-[#ff6b00] text-white px-3.5 py-1 text-xs font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest">
               Most Popular
@@ -161,36 +185,59 @@ export function PricingSection() {
 
             <ul className="mb-8 flex flex-col gap-4 flex-1">
               <li className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-orange-50 border border-orange-200">
-                  <Check className="w-3.5 h-3.5 text-orange-500" strokeWidth={3} />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
+                </div>
+                <span className="font-bold text-sm text-zinc-700">
+                  Unlimited profile data autofill
+                </span>
+              </li>
+              <li className="flex items-center gap-3">
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
+                </div>
+                <span className="font-bold text-sm text-zinc-700">
+                  Works on 100+ job boards
+                </span>
+              </li>
+              <li className="flex items-center gap-3">
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
+                </div>
+                <span className="font-bold text-sm text-zinc-700">
+                  AI Cold DM Generator (Gmail)
+                </span>
+              </li>
+              <li className="flex items-center gap-3">
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
                 </div>
                 <span className="font-bold text-sm text-zinc-700">
                   10,000 AI credits / month
                 </span>
               </li>
-
               <li className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-orange-50 border border-orange-200">
-                  <Check className="w-3.5 h-3.5 text-orange-500" strokeWidth={3} />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
                 </div>
                 <span className="font-bold text-sm text-zinc-700">
-                  Advanced AI answers
+                  Bulk AI Fill (One-click)
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-orange-50 border border-orange-200">
-                  <Check className="w-3.5 h-3.5 text-orange-500" strokeWidth={3} />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
                 </div>
                 <span className="font-bold text-sm text-zinc-700">
-                  Priority support
+                  Advanced AI reasoning
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-orange-50 border border-orange-200">
-                  <Check className="w-3.5 h-3.5 text-orange-500" strokeWidth={3} />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border border-green-200">
+                  <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
                 </div>
                 <span className="font-bold text-sm text-zinc-700">
-                  Early access to new features
+                  Priority support & updates
                 </span>
               </li>
             </ul>

@@ -118,7 +118,7 @@ export function HeroSection() {
               whileHover={{ y: -2, scale: 1.03 }}
               className="flex items-center gap-2 justify-center lg:justify-start"
             >
-              <div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-orange-50 border border-orange-200">
+              <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-orange-50 border border-orange-200">
                 {feature.icon}
               </div>
               <span className="font-bold text-xs sm:text-sm text-zinc-600">

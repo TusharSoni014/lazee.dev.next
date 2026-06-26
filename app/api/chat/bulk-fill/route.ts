@@ -95,72 +95,71 @@ export async function POST(request: NextRequest) {
       systemContent += `\n\nCURRENT USER CONTEXT:\nName: ${userProfile.name || "Unknown"}\nEmail: ${userProfile.email || "Unknown"}\n`;
     }
 
-    const prompt = `Based on my background, please provide concise, professional answers for the following form fields. 
-Return the result as a strictly valid JSON object where keys are the EXACT IDs provided and values are the generated answers.
+    const generateFieldResponse = async (field: any) => {
+      const context = `Answering a form field labeled "${field.label}"`;
+      let prompt = `Question to answer: "${field.label}"`;
+      if (field.placeholder) {
+        prompt += `\nContext/Placeholder: "${field.placeholder}"`;
+      }
 
-Fields to fill:
-${fields.map((f: any) => `- ID: ${f.id} | Label: ${f.label}`).join("\n")}
+      const requestBody = {
+        model: process.env.AI_MODEL || "nvidia/nemotron-3-nano-30b-a3b:free",
+        messages: [
+          { role: "system", content: systemContent },
+          {
+            role: "user",
+            content: `Context: ${context}\n\nQuestion/Prompt: ${prompt}`,
+          },
+        ],
+        temperature: 1,
+        top_p: 0.5,
+        top_k: 15,
+        stream: false,
+      };
 
-Format:
-{
-  "responses": {
-    "field_id": "Generated response for this field..."
-  }
-}`;
+      const response = await fetch(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          method: "POST",
+          body: JSON.stringify(requestBody),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            "HTTP-Referer": "https://lazee.dev",
+            "X-Title": "Lazee Dev",
+          },
+        },
+      );
 
-    const requestBody = {
-      model: process.env.AI_MODEL || "nvidia/nemotron-3-nano-30b-a3b:free",
-      messages: [
-        { role: "system", content: systemContent },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.7,
-      response_format: { type: "json_object" },
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error?.message || `Error generating AI response for field ${field.label}`
+        );
+      }
+
+      const data = await response.json();
+      if (!data.choices || data.choices.length === 0) {
+        throw new Error(`No response from AI model for field ${field.label}`);
+      }
+
+      return data.choices[0].message.content.trim();
     };
 
-    const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "HTTP-Referer": "https://lazee.dev",
-          "X-Title": "Lazee Dev",
-        },
-      },
-    );
+    const responses: Record<string, string> = {};
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      return NextResponse.json(
-        { error: errorData.error?.message || "Error generating AI response" },
-        { status: response.status, headers: corsHeaders },
-      );
-    }
+    // Generate responses in parallel
+    const generationPromises = fields.map(async (field: any) => {
+      try {
+        const answer = await generateFieldResponse(field);
+        responses[field.id] = answer;
+      } catch (err) {
+        console.error(`Error generating bulk fill for field ${field.id}:`, err);
+        responses[field.id] = "NA";
+      }
+    });
 
-    const data = await response.json();
-    const content = data.choices[0].message.content;
-
-    // Parse the JSON response from AI
-    let parsedResponses;
-    try {
-      // Find JSON block if AI wrapped it in markdown
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      parsedResponses = JSON.parse(jsonMatch ? jsonMatch[0] : content);
-    } catch (e) {
-      console.error("Failed to parse AI response as JSON");
-      return NextResponse.json(
-        { error: "AI failed to generate a valid JSON response" },
-        { status: 500, headers: corsHeaders },
-      );
-    }
-
-    let finalResponses = parsedResponses.responses || parsedResponses;
-    if (typeof finalResponses !== "object" || finalResponses === null) {
-      finalResponses = {};
-    }
+    await Promise.all(generationPromises);
 
     // Deduct credits
     await prisma.user.update({
@@ -173,7 +172,7 @@ Format:
     });
 
     return NextResponse.json(
-      { responses: finalResponses },
+      { responses },
       { headers: corsHeaders },
     );
   } catch (error) {

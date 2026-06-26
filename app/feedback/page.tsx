@@ -21,6 +21,7 @@ import { motion } from "motion/react";
 const FEEDBACK_TYPES = [
   { value: "feature", label: "Feature Request" },
   { value: "bug", label: "Bug Report" },
+  { value: "add_ats", label: "Add ATS Support" },
   { value: "appreciation", label: "Appreciation" },
   { value: "other", label: "Other" },
 ];

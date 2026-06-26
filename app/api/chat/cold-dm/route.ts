@@ -78,6 +78,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (user.membership !== "PRO") {
+      return NextResponse.json(
+        {
+          error: "Cold DM generation is only available for PRO users.",
+        },
+        { status: 403, headers: corsHeaders },
+      );
+    }
+
     const systemContent = buildColdDmPrompt(
       user,
       recipientInfo,

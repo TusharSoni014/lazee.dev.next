@@ -62,15 +62,15 @@ export function HeroDemo() {
   ];
 
   return (
-    <div className="relative w-full max-w-lg mx-auto h-[370px] xs:h-[410px] sm:h-auto sm:aspect-[1.15] bg-white border-[3px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-2xl overflow-hidden flex flex-col z-10">
+    <div className="relative w-full max-w-lg mx-auto h-[370px] xs:h-[410px] sm:h-auto sm:aspect-[1.15] bg-white border-[3px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-none overflow-hidden flex flex-col z-10">
       {/* Browser Bar */}
       <div className="h-8 sm:h-10 border-b-[3px] border-black bg-zinc-100 flex items-center px-2 sm:px-4 gap-1.5 sm:gap-2 shrink-0">
         <div className="flex gap-1 sm:gap-1.5">
-          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-400 rounded-full border border-red-500" />
-          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-yellow-400 rounded-full border border-yellow-500" />
-          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full border border-green-500" />
+          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-400 rounded-none border border-red-500" />
+          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-yellow-400 rounded-none border border-yellow-500" />
+          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-none border border-green-500" />
         </div>
-        <div className="ml-2 sm:ml-4 bg-white border-[2px] border-black rounded-md h-5 sm:h-6 flex-1 px-1.5 sm:px-3 flex items-center">
+        <div className="ml-2 sm:ml-4 bg-white border-[2px] border-black rounded-none h-5 sm:h-6 flex-1 px-1.5 sm:px-3 flex items-center">
           <span className="text-[8px] sm:text-[10px] font-black text-zinc-500 truncate">
             workday.com/careers/apply
           </span>
@@ -87,7 +87,7 @@ export function HeroDemo() {
               Senior Frontend Developer
             </h4>
             <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 sm:mt-1">
-              <div className="flex-1 h-1 sm:h-1.5 bg-zinc-100 border border-black/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-1 sm:h-1.5 bg-zinc-100 border border-black/10 rounded-none overflow-hidden">
                 <motion.div
                   animate={step >= 3 ? { width: "80%" } : { width: "40%" }}
                   className="h-full bg-orange-500"
@@ -108,7 +108,7 @@ export function HeroDemo() {
                   <span className="text-[7px] sm:text-[8px] font-black uppercase text-zinc-500 leading-none truncate">
                     {field.label}
                   </span>
-                  <div className="h-[22px] sm:h-7 border-2 border-black rounded-md sm:rounded-lg bg-zinc-50 flex items-center justify-between px-1.5 sm:px-2.5 relative overflow-hidden">
+                  <div className="h-[22px] sm:h-7 border-2 border-black rounded-none bg-zinc-50 flex items-center justify-between px-1.5 sm:px-2.5 relative overflow-hidden">
                     <AnimatePresence>
                       {isFilled && (
                         <motion.span
@@ -133,7 +133,7 @@ export function HeroDemo() {
                             type: "spring",
                             stiffness: 300,
                           }}
-                          className="w-3 h-3 sm:w-3.5 sm:h-3.5 bg-green-500 rounded-full border border-black flex items-center justify-center shrink-0"
+                          className="w-3 h-3 sm:w-3.5 sm:h-3.5 bg-green-500 rounded-none border border-black flex items-center justify-center shrink-0"
                         >
                           <Check
                             className="w-2 sm:w-2.5 h-2 sm:h-2.5 text-white"
@@ -168,8 +168,8 @@ export function HeroDemo() {
         {/* Right Side: AI Assistant Side Panel */}
         <div className="flex-1 p-2 sm:p-3.5 bg-orange-50/50 flex flex-col justify-between overflow-hidden relative">
           {/* AI Panel Header */}
-          <div className="bg-white border-2 border-black rounded-lg sm:rounded-xl p-1.5 sm:p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-orange-500 border border-black flex items-center justify-center text-white rounded-md sm:rounded-lg shrink-0">
+          <div className="bg-white border-2 border-black rounded-none p-1.5 sm:p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-orange-500 border border-black flex items-center justify-center text-white rounded-none shrink-0">
               <Sparkles size={10} className="fill-white sm:hidden" />
               <Sparkles size={12} className="fill-white hidden sm:block" />
             </div>
@@ -184,11 +184,11 @@ export function HeroDemo() {
           </div>
 
           {/* AI Answer Editor Card */}
-          <div className="flex-1 my-2 sm:my-3 bg-white border-2 border-black rounded-lg sm:rounded-xl p-1.5 sm:p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-1 sm:gap-1.5 overflow-hidden">
+          <div className="flex-1 my-2 sm:my-3 bg-white border-2 border-black rounded-none p-1.5 sm:p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-1 sm:gap-1.5 overflow-hidden">
             <span className="text-[7px] sm:text-[8px] font-black uppercase text-zinc-400 leading-none truncate">
               Why do you want this role?
             </span>
-            <div className="flex-1 bg-zinc-50 border border-zinc-200 rounded p-1 sm:p-2 text-[7px] sm:text-[8px] font-bold text-zinc-650 leading-normal sm:leading-relaxed overflow-y-auto font-sans relative">
+            <div className="flex-1 bg-zinc-50 border border-zinc-200 rounded-none p-1 sm:p-2 text-[7px] sm:text-[8px] font-bold text-zinc-650 leading-normal sm:leading-relaxed overflow-y-auto font-sans relative">
               {typedText}
               <motion.span
                 animate={{ opacity: [1, 0] }}
@@ -207,7 +207,7 @@ export function HeroDemo() {
                     : "Ready"}
               </span>
               {step === 2 && (
-                <div className="w-10 sm:w-16 h-0.5 sm:h-1 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200/50">
+                <div className="w-10 sm:w-16 h-0.5 sm:h-1 bg-zinc-100 rounded-none overflow-hidden border border-zinc-200/50">
                   <motion.div
                     animate={{ width: ["0%", "100%"] }}
                     transition={{ duration: 2, ease: "easeInOut" }}
