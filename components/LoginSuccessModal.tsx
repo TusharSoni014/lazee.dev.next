@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, Download, Laptop } from "lucide-react";
 import { useBrowser, type BrowserType } from "@/hooks/use-browser";
 import { toast } from "@/components/ui/toast";
+import { CHROME_EXTENSION_URL, FIREFOX_EXTENSION_URL } from "@/lib/constants";
 
 const DOWNLOAD_LINKS: Record<BrowserType, string> = {
-  chrome: "https://chromewebstore.google.com/",
+  chrome: CHROME_EXTENSION_URL,
   edge: "https://microsoftedge.microsoft.com/addons/",
-  firefox: "https://addons.mozilla.org/",
+  firefox: FIREFOX_EXTENSION_URL,
   safari: "https://apps.apple.com/",
-  other: "https://chromewebstore.google.com/",
+  other: CHROME_EXTENSION_URL,
 };
 
 export function LoginSuccessModal() {

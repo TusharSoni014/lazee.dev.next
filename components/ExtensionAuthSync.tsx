@@ -17,7 +17,7 @@ declare global {
   }
 }
 
-const EXTENSION_IDS: string[] = [];
+const EXTENSION_IDS: string[] = ["hkompooiicoamiambpjhbbmimjefgiii"];
 
 export function ExtensionAuthSync() {
   const { data: session, status } = useSession();

@@ -2,10 +2,9 @@
 
 import { motion } from "motion/react";
 import Image from "next/image";
-import { Chrome } from "lucide-react";
 import { InstallModal } from "./install-modal";
 import { useBrowser } from "@/hooks/use-browser";
-import { FirefoxIcon } from "./firefox-icon";
+import { FaChrome, FaFirefox } from "react-icons/fa";
 
 export function FooterCtaSection() {
   const browser = useBrowser();
@@ -36,9 +35,9 @@ export function FooterCtaSection() {
             <InstallModal>
               <button className="flex h-14 w-full max-w-[320px] items-center justify-center border-2 border-black bg-[#ff6b00] hover:bg-[#ff8533] px-6 text-sm sm:text-base font-black uppercase text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer gap-2">
                 {isFirefox ? (
-                  <FirefoxIcon size={18} className="text-white fill-current shrink-0" />
+                  <FaFirefox size={18} className="text-white shrink-0" />
                 ) : (
-                  <Chrome size={18} className="fill-white text-[#ff6b00] shrink-0" />
+                  <FaChrome size={18} className="text-white shrink-0" />
                 )}
                 <span>Add to {isFirefox ? "Firefox" : "Chrome"} — It's Free</span>
               </button>

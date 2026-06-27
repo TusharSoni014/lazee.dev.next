@@ -2,11 +2,11 @@
 
 import { motion } from "motion/react";
 import { HeroDemo } from "@/components/hero-demo";
-import { Chrome, Sparkles, Zap, Globe } from "lucide-react";
+import { Sparkles, Zap, Globe } from "lucide-react";
 import { InstallModal } from "./install-modal";
 import Image from "next/image";
 import { useBrowser } from "@/hooks/use-browser";
-import { FirefoxIcon } from "./firefox-icon";
+import { FaChrome, FaFirefox } from "react-icons/fa";
 
 
 export function HeroSection() {
@@ -78,12 +78,12 @@ export function HeroSection() {
               className="flex h-14 w-full sm:w-auto min-w-[240px] items-center justify-center border-2 border-black bg-black text-white hover:bg-zinc-900 px-6 text-base font-black uppercase tracking-tight shadow-[4px_4px_0px_0px_rgba(249,115,22,1)] hover:shadow-[5px_5px_0px_0px_rgba(249,115,22,1)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer gap-2"
             >
               {isFirefox ? (
-                <FirefoxIcon
+                <FaFirefox
                   size={18}
-                  className="text-white fill-current shrink-0"
+                  className="text-white shrink-0"
                 />
               ) : (
-                <Chrome size={18} className="fill-white text-black shrink-0" />
+                <FaChrome size={18} className="text-white shrink-0" />
               )}
               <span>Add to {isFirefox ? "Firefox" : "Chrome"}</span>
             </button>

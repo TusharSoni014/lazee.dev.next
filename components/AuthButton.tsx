@@ -14,13 +14,14 @@ import { useBrowser, type BrowserType } from "@/hooks/use-browser";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useProfileStatus } from "@/hooks/useProfile";
+import { CHROME_EXTENSION_URL, FIREFOX_EXTENSION_URL } from "@/lib/constants";
 
 const DOWNLOAD_LINKS: Record<BrowserType, string> = {
-  chrome: "https://chromewebstore.google.com/",
+  chrome: CHROME_EXTENSION_URL,
   edge: "https://microsoftedge.microsoft.com/addons/",
-  firefox: "https://addons.mozilla.org/",
+  firefox: FIREFOX_EXTENSION_URL,
   safari: "https://apps.apple.com/",
-  other: "https://chromewebstore.google.com/",
+  other: CHROME_EXTENSION_URL,
 };
 
 export default function AuthButton() {
