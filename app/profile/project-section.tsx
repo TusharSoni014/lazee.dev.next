@@ -252,88 +252,94 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
                   <span className="text-xs font-black uppercase tracking-wider text-black">Deleting Project...</span>
                 </div>
               )}
-              <div className="absolute right-4 top-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                <Button
-                  type="button"
-                  disabled={!!deletingId || isSaving}
-                  onClick={() => editProject(proj)}
-                  className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50 disabled:pointer-events-none"
-                  title="Edit Project"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-                <Button
-                  type="button"
-                  disabled={!!deletingId || isSaving}
-                  onClick={() => removeProject(proj.id)}
-                  className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50 disabled:pointer-events-none"
-                  title="Remove Project"
-                >
-                  {deletingId === proj.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="w-4 h-4" />
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                <div className="flex items-start gap-4 flex-1 md:pr-24 min-w-0">
+                  {proj.logoUrl && (
+                    <div className="w-16 h-16 shrink-0 border-[3px] border-black overflow-hidden bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                      <img
+                        src={getPublicImageUrl(proj.logoUrl)}
+                        alt={proj.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   )}
-                </Button>
-              </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xl font-black text-black uppercase flex flex-wrap items-center gap-2">
+                      <span className="truncate max-w-[200px] sm:max-w-none">{proj.name || "Untitled Project"}</span>
+                      {proj.isTopProject && (
+                        <span className="text-[10px] bg-orange-500 text-black px-2 py-0.5 border-2 border-black font-black uppercase tracking-widest shrink-0">
+                          🏆 Top Pick
+                        </span>
+                      )}
+                    </h3>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2">
+                      {proj.role && (
+                        <span className="text-xs font-bold text-black uppercase tracking-widest bg-zinc-100 px-2 py-0.5 border border-black italic">
+                          Role: {proj.role}
+                        </span>
+                      )}
+                      {proj.duration && (
+                        <span className="text-xs font-bold text-zinc-600 uppercase tracking-widest bg-zinc-100 px-2 py-0.5 border border-black">
+                          {proj.duration}
+                        </span>
+                      )}
+                      {proj.activeLink && (
+                        <a
+                          href={proj.activeLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-xs font-bold text-blue-600 uppercase tracking-widest hover:underline"
+                        >
+                          <ExternalLink className="w-3 h-3" /> Live Demo
+                        </a>
+                      )}
+                      {proj.githubLink && (
+                        <a
+                          href={proj.githubLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-xs font-bold text-zinc-700 uppercase tracking-widest hover:underline"
+                        >
+                          <Github className="w-3 h-3" /> Codebase
+                        </a>
+                      )}
+                    </div>
+                    {proj.contribution && (
+                      <p className="text-xs font-bold text-zinc-500 mt-2 uppercase tracking-wide">
+                        <span className="text-black">Contribution:</span>{" "}
+                        {proj.contribution}
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-              <div className="flex items-start gap-4">
-                {proj.logoUrl && (
-                  <div className="w-16 h-16 shrink-0 border-[3px] border-black overflow-hidden bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                    <img
-                      src={getPublicImageUrl(proj.logoUrl)}
-                      alt={proj.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <div className="flex-1 pr-24">
-                  <h3 className="text-xl font-black text-black uppercase flex items-center gap-2">
-                    {proj.name || "Untitled Project"}
-                    {proj.isTopProject && (
-                      <span className="text-[10px] bg-orange-500 text-black px-2 py-0.5 border-2 border-black font-black uppercase tracking-widest shrink-0">
-                        🏆 Top Pick
-                      </span>
+                <div className={clsx(
+                  "flex gap-2 shrink-0 self-end md:self-start transition-opacity z-10",
+                  "md:absolute md:right-4 md:top-4",
+                  deletingId === proj.id ? "opacity-100" : "md:opacity-0 md:group-hover:opacity-100"
+                )}>
+                  <Button
+                    type="button"
+                    disabled={!!deletingId || isSaving}
+                    onClick={() => editProject(proj)}
+                    className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50 disabled:pointer-events-none"
+                    title="Edit Project"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    disabled={!!deletingId || isSaving}
+                    onClick={() => removeProject(proj.id)}
+                    className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50 disabled:pointer-events-none"
+                    title="Remove Project"
+                  >
+                    {deletingId === proj.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
                     )}
-                  </h3>
-                  <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2">
-                    {proj.role && (
-                      <span className="text-xs font-bold text-black uppercase tracking-widest bg-zinc-100 px-2 py-0.5 border border-black italic">
-                        Role: {proj.role}
-                      </span>
-                    )}
-                    {proj.duration && (
-                      <span className="text-xs font-bold text-zinc-600 uppercase tracking-widest bg-zinc-100 px-2 py-0.5 border border-black">
-                        {proj.duration}
-                      </span>
-                    )}
-                    {proj.activeLink && (
-                      <a
-                        href={proj.activeLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 text-xs font-bold text-blue-600 uppercase tracking-widest hover:underline"
-                      >
-                        <ExternalLink className="w-3 h-3" /> Live Demo
-                      </a>
-                    )}
-                    {proj.githubLink && (
-                      <a
-                        href={proj.githubLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 text-xs font-bold text-zinc-700 uppercase tracking-widest hover:underline"
-                      >
-                        <Github className="w-3 h-3" /> Codebase
-                      </a>
-                    )}
-                  </div>
-                  {proj.contribution && (
-                    <p className="text-xs font-bold text-zinc-500 mt-2 uppercase tracking-wide">
-                      <span className="text-black">Contribution:</span>{" "}
-                      {proj.contribution}
-                    </p>
-                  )}
+                  </Button>
                 </div>
               </div>
 

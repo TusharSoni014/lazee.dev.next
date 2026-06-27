@@ -1494,57 +1494,63 @@ function ExperienceSection({ experiences, setExperiences, refetchProfile }: any)
               key={exp.id || index}
               className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-2"
             >
-              <div className={clsx(
-                "absolute right-4 top-4 flex gap-2 transition-opacity",
-                deletingId === exp.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-              )}>
-                <Button
-                  type="button"
-                  onClick={() => editExperience(exp)}
-                  disabled={deletingId === exp.id}
-                  className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
-                  title="Edit Experience"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => removeExperience(exp.id)}
-                  disabled={!!deletingId}
-                  className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
-                  title="Remove Experience"
-                >
-                  {deletingId === exp.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="w-4 h-4" />
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                <div className="space-y-1 md:pr-24">
+                  <h3 className="text-xl font-black text-black uppercase">
+                    {exp.companyName || "Untitled Company"}
+                  </h3>
+                  {exp.companyWebsite && (
+                    <a
+                      href={exp.companyWebsite}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm text-blue-600 underline font-bold uppercase tracking-widest block w-fit"
+                    >
+                      {exp.companyWebsite}
+                    </a>
                   )}
-                </Button>
+                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                    {exp.startDate
+                      ? format(new Date(exp.startDate), "MMM yyyy")
+                      : "N/A"}{" "}
+                    -{" "}
+                    {exp.isCurrent
+                      ? "Present"
+                      : exp.endDate
+                        ? format(new Date(exp.endDate), "MMM yyyy")
+                        : "N/A"}
+                  </p>
+                </div>
+
+                <div className={clsx(
+                  "flex gap-2 shrink-0 self-end md:self-start transition-opacity z-10",
+                  "md:absolute md:right-4 md:top-4",
+                  deletingId === exp.id ? "opacity-100" : "md:opacity-0 md:group-hover:opacity-100"
+                )}>
+                  <Button
+                    type="button"
+                    onClick={() => editExperience(exp)}
+                    disabled={deletingId === exp.id}
+                    className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
+                    title="Edit Experience"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => removeExperience(exp.id)}
+                    disabled={!!deletingId}
+                    className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
+                    title="Remove Experience"
+                  >
+                    {deletingId === exp.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
-              <h3 className="text-xl font-black text-black uppercase pr-24">
-                {exp.companyName || "Untitled Company"}
-              </h3>
-              {exp.companyWebsite && (
-                <a
-                  href={exp.companyWebsite}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm text-blue-600 underline font-bold uppercase tracking-widest block w-fit"
-                >
-                  {exp.companyWebsite}
-                </a>
-              )}
-              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">
-                {exp.startDate
-                  ? format(new Date(exp.startDate), "MMM yyyy")
-                  : "N/A"}{" "}
-                -{" "}
-                {exp.isCurrent
-                  ? "Present"
-                  : exp.endDate
-                    ? format(new Date(exp.endDate), "MMM yyyy")
-                    : "N/A"}
-              </p>
               {exp.description && (
                 <p className="text-sm text-zinc-700 mt-4 whitespace-pre-wrap font-medium">
                   {exp.description}
@@ -1718,52 +1724,58 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
               key={edu.id || index}
               className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-2"
             >
-              <div className={clsx(
-                "absolute right-4 top-4 flex gap-2 transition-opacity",
-                deletingId === edu.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-              )}>
-                <Button
-                  type="button"
-                  onClick={() => editEducation(edu)}
-                  disabled={deletingId === edu.id}
-                  className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
-                  title="Edit Education"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => removeEducation(edu.id)}
-                  disabled={!!deletingId}
-                  className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
-                  title="Remove Education"
-                >
-                  {deletingId === edu.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="w-4 h-4" />
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                <div className="space-y-1 md:pr-24">
+                  <h3 className="text-xl font-black text-black uppercase">
+                    {edu.schoolName || "Untitled Institution"}
+                  </h3>
+                  {edu.degree && (
+                    <p className="text-sm font-bold text-black uppercase tracking-wider">
+                      {edu.degree}{edu.fieldOfStudy ? ` in ${edu.fieldOfStudy}` : ""}
+                    </p>
                   )}
-                </Button>
+                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                    {edu.startDate
+                      ? format(new Date(edu.startDate), "MMM yyyy")
+                      : "N/A"}{" "}
+                    -{" "}
+                    {edu.isCurrent
+                      ? "Present"
+                      : edu.endDate
+                        ? format(new Date(edu.endDate), "MMM yyyy")
+                        : "N/A"}
+                  </p>
+                </div>
+
+                <div className={clsx(
+                  "flex gap-2 shrink-0 self-end md:self-start transition-opacity z-10",
+                  "md:absolute md:right-4 md:top-4",
+                  deletingId === edu.id ? "opacity-100" : "md:opacity-0 md:group-hover:opacity-100"
+                )}>
+                  <Button
+                    type="button"
+                    onClick={() => editEducation(edu)}
+                    disabled={deletingId === edu.id}
+                    className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
+                    title="Edit Education"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => removeEducation(edu.id)}
+                    disabled={!!deletingId}
+                    className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
+                    title="Remove Education"
+                  >
+                    {deletingId === edu.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
-              <h3 className="text-xl font-black text-black uppercase pr-24">
-                {edu.schoolName || "Untitled Institution"}
-              </h3>
-              {edu.degree && (
-                <p className="text-sm font-bold text-black uppercase tracking-wider">
-                  {edu.degree}{edu.fieldOfStudy ? ` in ${edu.fieldOfStudy}` : ""}
-                </p>
-              )}
-              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">
-                {edu.startDate
-                  ? format(new Date(edu.startDate), "MMM yyyy")
-                  : "N/A"}{" "}
-                -{" "}
-                {edu.isCurrent
-                  ? "Present"
-                  : edu.endDate
-                    ? format(new Date(edu.endDate), "MMM yyyy")
-                    : "N/A"}
-              </p>
               {edu.description && (
                 <p className="text-sm text-zinc-700 mt-4 whitespace-pre-wrap font-medium">
                   {edu.description}

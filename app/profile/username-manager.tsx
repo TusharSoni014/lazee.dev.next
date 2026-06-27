@@ -210,25 +210,25 @@ export function UsernameManager({
   const canSaveUsername = isUsernameUnchanged || availability?.available;
 
   return (
-    <div className="border-[3px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row items-center justify-between gap-6">
+    <div className="border-[3px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6">
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-none border-[3px] border-black bg-orange-100 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+        <div className="flex h-12 w-12 items-center justify-center rounded-none border-[3px] border-black bg-orange-100 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] shrink-0">
           <Globe className="w-6 h-6 text-black" />
         </div>
-        <div>
+        <div className="min-w-0">
           <h3 className="text-xl font-black uppercase tracking-tighter text-black font-heading italic">
             Public Profile Page
           </h3>
           {currentUsername ? (
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm font-bold text-zinc-600 bg-zinc-100 px-2 py-0.5 border-[2px] border-black uppercase tracking-widest flex items-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              <span className="text-sm font-bold text-zinc-600 bg-zinc-100 px-2 py-0.5 border-[2px] border-black uppercase tracking-widest flex items-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] max-w-[200px] xs:max-w-[260px] sm:max-w-none truncate" title={`/u/${currentUsername}`}>
                 /u/{currentUsername}
               </span>
               <a 
                 href={`/u/${currentUsername}`} 
                 target="_blank" 
                 rel="noreferrer"
-                className="text-orange-500 hover:text-orange-600 p-1"
+                className="text-orange-500 hover:text-orange-600 p-1 shrink-0"
                 title="View Public Profile"
               >
                 <ExternalLink className="w-4 h-4" />
@@ -242,14 +242,14 @@ export function UsernameManager({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
         {currentUsername ? (
           <>
             <Button
               type="button"
               onClick={copyLink}
               variant="outline"
-              className="rounded-none border-[3px] border-black bg-white text-black font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-2 h-12 px-6"
+              className="rounded-none border-[3px] border-black bg-white text-black font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2 h-12 px-6 w-full sm:w-auto"
             >
               <Copy className="w-4 h-4" />
               Copy Link
@@ -257,7 +257,7 @@ export function UsernameManager({
             <Button
               type="button"
               onClick={handleOpen}
-              className="rounded-none border-[3px] border-black bg-black text-white font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-2 h-12 px-6"
+              className="rounded-none border-[3px] border-black bg-black text-white font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2 h-12 px-6 w-full sm:w-auto"
             >
               <Settings className="w-4 h-4" />
               Edit sharing settings
@@ -267,7 +267,7 @@ export function UsernameManager({
           <Button
             type="button"
             onClick={handleOpen}
-            className="rounded-none border-[3px] border-black bg-orange-500 text-black font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-2 h-12 px-8 text-lg"
+            className="rounded-none border-[3px] border-black bg-orange-500 text-black font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2 h-12 px-8 text-lg w-full sm:w-auto"
           >
             <ShieldCheck className="w-5 h-5" />
             Enable Public Sharing
