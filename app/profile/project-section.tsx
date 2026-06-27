@@ -43,6 +43,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import clsx from "clsx";
 import { getPublicImageUrl } from "@/lib/utils";
+import { useWindowWidth } from "@/hooks/useWindowWidth";
 
 
 const projectSchema = z.object({
@@ -93,6 +94,8 @@ function Section({
 }
 
 export function ProjectSection({ projects, setProjects, membership }: any) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempProj, setTempProj] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -460,6 +463,8 @@ function ProjectForm({
   isLoading,
   membership,
 }: any) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const [localLogo, setLocalLogo] = useState<LocalLogo | null>(() => {
     if (proj.logoUrl) {
       return { type: "existing", url: proj.logoUrl, previewUrl: proj.logoUrl };
@@ -1234,22 +1239,22 @@ function ProjectForm({
             )}
           />
 
-          <div className="flex gap-4 mt-8 pt-6 border-t-[3px] border-black border-dashed">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 mt-8 pt-6 border-t-[3px] border-black border-dashed w-full">
             <Button
               type="button"
               onClick={form.handleSubmit(handleSaveProject)}
               disabled={isPendingSave || isLoading}
-              className="flex-1 h-12 text-lg disabled:opacity-50 bg-black text-white hover:bg-zinc-800 border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-black uppercase tracking-widest flex items-center justify-center gap-2"
+              className="w-full sm:flex-1 h-12 text-lg disabled:opacity-50 bg-black text-white hover:bg-zinc-800 border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-black uppercase tracking-widest flex items-center justify-center gap-2"
             >
               <Check className="w-5 h-5 mr-2" />
-              Save Project
+              {isMobile ? "Save" : "Save Project"}
             </Button>
             <Button
               type="button"
               disabled={isPendingSave || isLoading}
               onClick={onCancel}
               variant="outline"
-              className="flex-1 h-12 text-lg"
+              className="w-full sm:flex-1 h-12 text-lg"
             >
               <X className="w-5 h-5" />
               Cancel
@@ -1266,7 +1271,7 @@ function ProjectForm({
       }}>
         <DialogContent 
           showCloseButton={saveProgress.status === "error" || saveProgress.status === "success"}
-          className="sm:max-w-md border-4 border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white text-black p-6"
+          className="sm:max-w-md border-4 border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white text-black p-5 sm:p-6"
         >
           <DialogHeader>
             <DialogTitle className="text-xl font-black uppercase tracking-wider text-black font-heading">

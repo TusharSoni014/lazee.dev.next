@@ -26,6 +26,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { useWindowWidth } from "@/hooks/useWindowWidth";
 import { motion, AnimatePresence } from "motion/react";
 
 export function ResumeManager({
@@ -36,6 +45,16 @@ export function ResumeManager({
   membership: string;
 }) {
   const queryClient = useQueryClient();
+  const width = useWindowWidth();
+  const isMobile = width < 768;
+
+  const Modal = isMobile ? Sheet : Dialog;
+  const ModalContent = isMobile ? SheetContent : DialogContent;
+  const ModalHeader = isMobile ? SheetHeader : DialogHeader;
+  const ModalTitle = isMobile ? SheetTitle : DialogTitle;
+  const ModalDescription = isMobile ? SheetDescription : DialogDescription;
+  const ModalFooter = isMobile ? SheetFooter : DialogFooter;
+
   const [deleteDialogId, setDeleteDialogId] = useState<string | null>(null);
 
   // Fetch resumes query
@@ -305,22 +324,22 @@ export function ResumeManager({
         )}
       </div>
 
-      <Dialog
+      <Modal
         open={!!deleteDialogId}
         onOpenChange={(open) => !open && setDeleteDialogId(null)}
       >
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-2xl font-black uppercase tracking-tighter text-black font-heading">
+        <ModalContent className={isMobile ? "" : "sm:max-w-[425px]"}>
+          <ModalHeader>
+            <ModalTitle className="flex items-center gap-2 text-2xl font-black uppercase tracking-tighter text-black font-heading">
               <FileWarning className="w-6 h-6 text-red-500" />
               Delete Resume
-            </DialogTitle>
-            <DialogDescription className="font-bold text-zinc-700 mt-2">
+            </ModalTitle>
+            <ModalDescription className="font-bold text-zinc-700 mt-2">
               Are you sure you want to delete this resume? This action cannot be
               undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="mt-6 flex gap-4 sm:space-x-0">
+            </ModalDescription>
+          </ModalHeader>
+          <ModalFooter className="mt-6 flex gap-4 sm:space-x-0">
             <Button
               type="button"
               variant="outline"
@@ -346,9 +365,9 @@ export function ResumeManager({
                 "Delete"
               )}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

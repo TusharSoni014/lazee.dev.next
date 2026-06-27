@@ -25,6 +25,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { useWindowWidth } from "@/hooks/useWindowWidth";
 import { toast } from "@/components/ui/toast";
 import { checkUsernameAvailability, savePublicProfileSettings, disablePublicSharing } from "./actions";
 import { uploadResumeDirect } from "./resume-actions";
@@ -45,6 +54,16 @@ export function UsernameManager({
   currentEmail 
 }: UsernameManagerProps) {
   const queryClient = useQueryClient();
+  const width = useWindowWidth();
+  const isMobile = width < 768;
+
+  const Modal = isMobile ? Sheet : Dialog;
+  const ModalContent = isMobile ? SheetContent : DialogContent;
+  const ModalHeader = isMobile ? SheetHeader : DialogHeader;
+  const ModalTitle = isMobile ? SheetTitle : DialogTitle;
+  const ModalDescription = isMobile ? SheetDescription : DialogDescription;
+  const ModalFooter = isMobile ? SheetFooter : DialogFooter;
+
   const [isOpen, setIsOpen] = useState(false);
   const [username, setUsername] = useState(currentUsername || "");
   const [email, setEmail] = useState(contactEmail || currentEmail || "");
@@ -275,18 +294,18 @@ export function UsernameManager({
         )}
       </div>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-md p-0 max-h-[80dvh] flex flex-col">
-          <div className="bg-orange-500 border-b-4 border-black p-6 shrink-0">
-            <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-black italic">
+      <Modal open={isOpen} onOpenChange={setIsOpen}>
+        <ModalContent className={isMobile ? "p-0 flex flex-col max-h-[90dvh]" : "max-w-md p-0 max-h-[80dvh] flex flex-col"}>
+          <div className="bg-orange-500 border-b-4 border-black p-6 pr-16 shrink-0 relative">
+            <ModalTitle className="text-2xl font-black uppercase tracking-tighter text-black italic">
               {currentUsername ? "Public Sharing Settings" : "Claim Your Username"}
-            </DialogTitle>
-            <DialogDescription className="text-black font-bold uppercase text-[10px] tracking-widest mt-1 opacity-80">
+            </ModalTitle>
+            <ModalDescription className="text-black font-bold uppercase text-[10px] tracking-widest mt-1 opacity-80">
               Configure your public profile handle and credentials.
-            </DialogDescription>
+            </ModalDescription>
           </div>
 
-          <div className="p-8 space-y-6 flex-1 overflow-y-auto">
+          <div className="p-5 sm:p-8 space-y-4 sm:space-y-6 flex-1 overflow-y-auto">
             {/* Username input */}
             <div className="space-y-3">
               <label className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
@@ -428,7 +447,7 @@ export function UsernameManager({
             </div>
           </div>
 
-          <DialogFooter className="bg-zinc-50 border-t-4 border-black p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0">
+          <ModalFooter className="bg-zinc-50 border-t-4 border-black p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0">
             {currentUsername ? (
               <Button
                 type="button"
@@ -461,25 +480,25 @@ export function UsernameManager({
                     Saving...
                   </>
                 ) : (
-                  "Save Sharing"
+                  isMobile ? "Save" : "Save Sharing"
                 )}
               </Button>
             </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
-      <Dialog open={isDisableConfirmOpen} onOpenChange={setIsDisableConfirmOpen}>
-        <DialogContent className="max-w-md p-8">
-          <DialogHeader className="mb-4">
-            <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-black font-heading italic">
+      <Modal open={isDisableConfirmOpen} onOpenChange={setIsDisableConfirmOpen}>
+        <ModalContent className={isMobile ? "" : "max-w-md p-6 sm:p-8"}>
+          <ModalHeader className="mb-4">
+            <ModalTitle className="text-2xl font-black uppercase tracking-tighter text-black font-heading italic">
               Disable Sharing?
-            </DialogTitle>
-            <DialogDescription className="font-bold text-zinc-700 mt-2">
+            </ModalTitle>
+            <ModalDescription className="font-bold text-zinc-700 mt-2">
               Are you sure you want to disable public profile sharing? This will delete your public handle and make your profile page link (/u/{currentUsername}) inactive.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex gap-3 sm:justify-end mt-6">
+            </ModalDescription>
+          </ModalHeader>
+          <ModalFooter className="flex gap-3 sm:justify-end mt-6">
             <Button
               type="button"
               variant="outline"
@@ -504,9 +523,9 @@ export function UsernameManager({
                 "Disable Sharing"
               )}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

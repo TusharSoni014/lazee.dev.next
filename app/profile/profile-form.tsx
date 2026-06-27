@@ -7,6 +7,7 @@ import { ResumeManager } from "./resume-manager";
 import { updateProfile, updateExperiences, updateEducation } from "./actions";
 import { ProjectSection } from "./project-section";
 import { UsernameManager } from "./username-manager";
+import { useWindowWidth } from "@/hooks/useWindowWidth";
 import { toast } from "@/components/ui/toast";
 import {
   Loader2,
@@ -248,6 +249,8 @@ function PersonalInformationForm({
   phoneOptions,
   countryOptions,
 }: any) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const [isSaving, setIsSaving] = useState(false);
 
   const initialCountryCode = (() => {
@@ -570,12 +573,12 @@ function PersonalInformationForm({
             </div>
           </div>
 
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end pt-2 w-full">
             <Button
               type="button"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isSaving}
-              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
             >
               {isSaving ? (
                 <>
@@ -585,7 +588,7 @@ function PersonalInformationForm({
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Personal Info
+                  {isMobile ? "Save" : "Save Personal Info"}
                 </>
               )}
             </Button>
@@ -597,6 +600,8 @@ function PersonalInformationForm({
 }
 
 function ProfessionalDetailsForm({ user, refetchProfile }: any) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof professionalSchema>>({
@@ -719,12 +724,12 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
             />
           </div>
 
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end pt-2 w-full">
             <Button
               type="button"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isSaving}
-              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
             >
               {isSaving ? (
                 <>
@@ -734,7 +739,7 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Professional Details
+                  {isMobile ? "Save" : "Save Professional Details"}
                 </>
               )}
             </Button>
@@ -746,6 +751,8 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
 }
 
 function SocialLinksForm({ user, refetchProfile }: any) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof socialsSchema>>({
@@ -785,12 +792,12 @@ function SocialLinksForm({ user, refetchProfile }: any) {
             <FormInput control={form.control} name="other" label="Other Link" placeholder="https://..." icon={LinkIcon} />
           </div>
 
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end pt-2 w-full">
             <Button
               type="button"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isSaving}
-              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
             >
               {isSaving ? (
                 <>
@@ -800,7 +807,7 @@ function SocialLinksForm({ user, refetchProfile }: any) {
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Social Links
+                  {isMobile ? "Save" : "Save Social Links"}
                 </>
               )}
             </Button>
@@ -812,6 +819,8 @@ function SocialLinksForm({ user, refetchProfile }: any) {
 }
 
 function AiSettingsForm({ user, refetchProfile }: any) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof aiSettingsSchema>>({
@@ -860,12 +869,12 @@ function AiSettingsForm({ user, refetchProfile }: any) {
             )}
           />
 
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end pt-2 w-full">
             <Button
               type="button"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isSaving}
-              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
             >
               {isSaving ? (
                 <>
@@ -875,7 +884,7 @@ function AiSettingsForm({ user, refetchProfile }: any) {
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save AI Settings
+                  {isMobile ? "Save" : "Save AI Settings"}
                 </>
               )}
             </Button>
@@ -887,6 +896,8 @@ function AiSettingsForm({ user, refetchProfile }: any) {
 }
 
 function CoverLetterForm({ user, refetchProfile }: any) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof coverLetterSchema>>({
@@ -932,12 +943,12 @@ function CoverLetterForm({ user, refetchProfile }: any) {
             )}
           />
 
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end pt-2 w-full">
             <Button
               type="button"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isSaving}
-              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
             >
               {isSaving ? (
                 <>
@@ -947,7 +958,7 @@ function CoverLetterForm({ user, refetchProfile }: any) {
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Cover Letter
+                  {isMobile ? "Save" : "Save Cover Letter"}
                 </>
               )}
             </Button>
@@ -965,6 +976,8 @@ export default function ProfileForm({
   user: any;
   paymentSuccess?: boolean;
 }) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const { data: user, isLoading: isLoadingProfile, refetch: refetchProfile } = useProfile(initialUser);
   const { data: status, refetch: refetchStatus } = useProfileStatus({
     membership: initialUser.membership,
@@ -1812,6 +1825,8 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
 }
 
 function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const form = useForm<z.infer<typeof educationSchema>>({
     resolver: zodResolver(educationSchema),
     defaultValues: {
@@ -2029,13 +2044,13 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
             )}
           />
 
-          <div className="flex justify-end gap-4 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 pt-2 w-full">
             <Button
               type="button"
               variant="outline"
               onClick={onCancel}
               disabled={isLoading}
-              className="px-6 py-4 tracking-wider bg-white hover:bg-zinc-100 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-white hover:bg-zinc-100 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
             >
               Cancel
             </Button>
@@ -2043,7 +2058,7 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
               type="button"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isLoading}
-              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
             >
               {isLoading ? (
                 <>
@@ -2053,7 +2068,7 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
               ) : (
                 <>
                   <Check className="h-4 w-4 mr-2" />
-                  Confirm Education
+                  {isMobile ? "Save" : "Confirm Education"}
                 </>
               )}
             </Button>
@@ -2091,6 +2106,8 @@ const introVideoSchema = z.object({
 });
 
 function IntroVideoForm({ user, refetchProfile }: any) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof introVideoSchema>>({
@@ -2170,12 +2187,12 @@ function IntroVideoForm({ user, refetchProfile }: any) {
             )
           )}
 
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end pt-2 w-full">
             <Button
               type="button"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isSaving || !form.formState.isValid}
-              className="px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
             >
               {isSaving ? (
                 <>
@@ -2185,7 +2202,7 @@ function IntroVideoForm({ user, refetchProfile }: any) {
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Intro Video
+                  {isMobile ? "Save" : "Save Intro Video"}
                 </>
               )}
             </Button>
@@ -2213,6 +2230,8 @@ const experienceSchema = z.object({
 });
 
 function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const form = useForm<z.infer<typeof experienceSchema>>({
     resolver: zodResolver(experienceSchema),
     defaultValues: {
@@ -2459,25 +2478,25 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
             )}
           />
 
-          <div className="flex gap-4 mt-8 pt-6 border-t-[3px] border-black border-dashed">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 mt-8 pt-6 border-t-[3px] border-black border-dashed w-full">
             <Button
               type="button"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isLoading}
-              className="flex-1 h-12 text-lg disabled:opacity-50"
+              className="w-full sm:flex-1 h-12 text-lg disabled:opacity-50"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
               ) : (
                 <Check className="w-5 h-5 mr-2" />
               )}
-              {isLoading ? "Saving..." : "Confirm"}
+              {isLoading ? "Saving..." : isMobile ? "Save" : "Confirm"}
             </Button>
             <Button
               type="button"
               onClick={onCancel}
               variant="outline"
-              className="flex-1 h-12 text-lg"
+              className="w-full sm:flex-1 h-12 text-lg"
             >
               <X className="w-5 h-5" />
               Cancel
@@ -2555,6 +2574,8 @@ function SkillsSection({
   skills: string[];
   refetchProfile: () => Promise<any>;
 }) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
   const [selected, setSelected] = useState<Set<string>>(new Set(initialSkills));
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -2686,7 +2707,7 @@ function SkillsSection({
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="h-[50px] px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+            className="w-full sm:w-auto h-[50px] px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
           >
             {isSaving ? (
               <>
@@ -2696,7 +2717,7 @@ function SkillsSection({
             ) : (
               <>
                 <Save className="h-4 w-4 mr-2" />
-                Save Skills
+                {isMobile ? "Save" : "Save Skills"}
               </>
             )}
           </Button>
