@@ -1079,7 +1079,12 @@ export default function ProfileForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           product_cart: [
-            { product_id: "pdt_0NayYkMQdxcLwDxT4hxDk", quantity: 1 },
+            {
+              product_id:
+                process.env.NEXT_PUBLIC_DODO_PAYMENTS_PRODUCT_ID ||
+                "pdt_0NayYkMQdxcLwDxT4hxDk",
+              quantity: 1,
+            },
           ],
           customer: {
             email: user.email,
