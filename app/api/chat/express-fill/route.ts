@@ -25,8 +25,8 @@ export async function POST(request: NextRequest) {
 
     // Rate limiting
     const rateLimit = checkRateLimit(
-      `bulk-fill:${session.user.email}`,
-      RATE_LIMITS.bulkFill,
+      `express-fill:${session.user.email}`,
+      RATE_LIMITS.expressFill,
     );
     if (!rateLimit.success) {
       return NextResponse.json(
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     if (user.membership !== "PRO") {
       return NextResponse.json(
         {
-          error: "Bulk fill is only available for PRO users.",
+          error: "Express Fill is only available for PRO users.",
         },
         { status: 403, headers: corsHeaders },
       );
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
         const answer = await generateFieldResponse(field);
         responses[field.id] = answer;
       } catch (err) {
-        console.error(`Error generating bulk fill for field ${field.id}:`, err);
+        console.error(`Error generating express fill for field ${field.id}:`, err);
         responses[field.id] = "NA";
       }
     });
@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
       { headers: corsHeaders },
     );
   } catch (error) {
-    console.error("Bulk Fill Route Error:", error);
+    console.error("Express Fill Route Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500, headers: corsHeaders },

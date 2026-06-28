@@ -24,7 +24,7 @@ const faqs = [
   {
     question: "What's included in the Free vs Pro plan?",
     answer:
-      "All core autofill features are 100% free! The Free plan gives you unlimited profile data autofill, 200 AI credits per month, and works on 100+ platforms. The Pro plan ($9/mo) gives you 10,000 AI credits per month, access to the Bulk AI Fill feature (autofill entire applications with one click), and priority support.",
+      "All core autofill features are 100% free! The Free plan gives you unlimited profile data autofill, 200 AI credits per month, and works on 100+ platforms. The Pro plan ($9/mo) gives you 10,000 AI credits per month, access to the Express AI Fill feature (autofill entire applications with one click), and priority support.",
   },
   {
     question: "What profile data can I store and autofill?",

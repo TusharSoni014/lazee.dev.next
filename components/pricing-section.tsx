@@ -134,7 +134,7 @@ export function PricingSection() {
                   <X className="w-3.5 h-3.5 text-red-500" strokeWidth={3} />
                 </div>
                 <span className="font-bold text-sm text-zinc-500 line-through">
-                  Bulk AI Fill (One-click)
+                  Express AI Fill (One-click)
                 </span>
               </li>
               <li className="flex items-center gap-3 opacity-60">
@@ -221,7 +221,7 @@ export function PricingSection() {
                   <Check className="w-3.5 h-3.5 text-green-600" strokeWidth={3} />
                 </div>
                 <span className="font-bold text-sm text-zinc-700">
-                  Bulk AI Fill (One-click)
+                  Express AI Fill (One-click)
                 </span>
               </li>
               <li className="flex items-center gap-3">

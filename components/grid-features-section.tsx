@@ -210,7 +210,7 @@ export function GridFeaturesSection() {
           </div>
         </motion.div>
 
-        {/* Card 6: Bulk AI Fill */}
+        {/* Card 6: Express AI Fill */}
         <motion.div
           variants={cardVariants}
           className="flex w-full"
@@ -224,7 +224,7 @@ export function GridFeaturesSection() {
                 <Layers size={18} className="text-purple-500" />
               </div>
               <h4 className="text-lg sm:text-xl font-heading font-black text-black uppercase leading-tight">
-                Autofill entire forms with Bulk AI Fill.
+                Autofill entire forms with Express AI Fill.
               </h4>
               <p className="text-xs font-bold text-zinc-500 mt-2 leading-relaxed">
                 Review all open-ended questions detected on a career page and generate high-quality AI responses for all of them simultaneously.
