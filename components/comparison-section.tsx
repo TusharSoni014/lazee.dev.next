@@ -65,14 +65,26 @@ export function ComparisonSection() {
               </div>
               <ul className="flex flex-col gap-2.5">
                 {painPoints.map((point, i) => (
-                  <li key={i} className="flex items-center gap-3">
+                  <motion.li
+                    key={i}
+                    animate={{
+                      opacity: [0, 0, 1, 1, 0, 0],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      times: [0, i * 0.12, i * 0.12 + 0.08, 0.8, 0.9, 1],
+                    }}
+                    className="flex items-center gap-3"
+                  >
                     <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-red-50 border-2 border-red-200">
                       <X className="w-3.5 h-3.5 text-red-500" strokeWidth={3} />
                     </div>
                     <span className="font-bold text-sm text-zinc-600">
                       {point}
                     </span>
-                  </li>
+                  </motion.li>
                 ))}
               </ul>
             </div>
@@ -110,7 +122,19 @@ export function ComparisonSection() {
               </div>
               <ul className="flex flex-col gap-2.5">
                 {benefits.map((benefit, i) => (
-                  <li key={i} className="flex items-center gap-3">
+                  <motion.li
+                    key={i}
+                    animate={{
+                      opacity: [0, 0, 1, 1, 0, 0],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      times: [0, i * 0.12, i * 0.12 + 0.08, 0.8, 0.9, 1],
+                    }}
+                    className="flex items-center gap-3"
+                  >
                     <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border-2 border-green-200">
                       <Check
                         className="w-3.5 h-3.5 text-green-600"
@@ -120,7 +144,7 @@ export function ComparisonSection() {
                     <span className="font-bold text-sm text-zinc-700">
                       {benefit}
                     </span>
-                  </li>
+                  </motion.li>
                 ))}
               </ul>
             </div>

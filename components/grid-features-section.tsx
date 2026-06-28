@@ -1,8 +1,149 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Sparkles, FileText, Globe, ArrowRight, Mail, Layers, Laptop } from "lucide-react";
 import Link from "next/link";
+
+function TypewriterText() {
+  const fullText = "Over my 4 years of experience as a Frontend Engineer, I have successfully designed, built, and optimized complex React applications...";
+  const [text, setText] = useState("");
+  
+  useEffect(() => {
+    let active = true;
+    const run = async () => {
+      while (active) {
+        setText("");
+        await new Promise((r) => setTimeout(r, 1000));
+        if (!active) break;
+        
+        for (let i = 0; i <= fullText.length; i += 2) {
+          if (!active) break;
+          setText(fullText.substring(0, i));
+          await new Promise((r) => setTimeout(r, 30));
+        }
+        await new Promise((r) => setTimeout(r, 4000));
+      }
+    };
+    run();
+    return () => { active = false; };
+  }, []);
+  
+  return (
+    <span>
+      "{text}"
+      <motion.span
+        animate={{ opacity: [1, 0] }}
+        transition={{ repeat: Infinity, duration: 0.6 }}
+        className="inline-block w-0.5 h-2.5 bg-orange-500 ml-0.5 align-middle"
+      />
+    </span>
+  );
+}
+
+function ResumeSwitcher() {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev === 0 ? 1 : 0));
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const resumes = [
+    "Resume_Frontend_2026.pdf",
+    "Resume_Fullstack_2026.pdf"
+  ];
+
+  return (
+    <div className="mt-4 flex flex-col gap-2 relative select-none">
+      {resumes.map((name, idx) => {
+        const isActive = activeIndex === idx;
+        return (
+          <motion.div
+            key={idx}
+            animate={{
+              borderColor: isActive ? "#10b981" : "#e4e4e7",
+              scale: isActive ? 1 : 0.96,
+              y: isActive ? 0 : 2,
+              opacity: isActive ? 1 : 0.6,
+            }}
+            transition={{ duration: 0.3 }}
+            className="bg-white border-2 border-black rounded-none p-2 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] flex justify-between items-center"
+          >
+            <div className="flex items-center gap-2 overflow-hidden">
+              <FileText size={12} className="text-emerald-600 shrink-0" />
+              <span className="text-[9px] font-black uppercase truncate max-w-[120px]">{name}</span>
+            </div>
+            {isActive ? (
+              <motion.span
+                layoutId="activeBadge"
+                className="text-[8px] font-black uppercase bg-emerald-500 text-white px-1.5 py-0.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] rounded-none shrink-0"
+              >
+                Active
+              </motion.span>
+            ) : (
+              <span className="text-[8px] font-black uppercase text-zinc-400 px-1.5 py-0.5 border border-transparent rounded-none shrink-0">
+                Inactive
+              </span>
+            )}
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ExpressFillSimulator() {
+  const [checkedItems, setCheckedItems] = useState([false, false]);
+
+  useEffect(() => {
+    let active = true;
+    const run = async () => {
+      while (active) {
+        setCheckedItems([false, false]);
+        await new Promise((r) => setTimeout(r, 1000));
+        if (!active) break;
+
+        setCheckedItems([true, false]);
+        await new Promise((r) => setTimeout(r, 1000));
+        if (!active) break;
+
+        setCheckedItems([true, true]);
+        await new Promise((r) => setTimeout(r, 2000));
+        if (!active) break;
+      }
+    };
+    run();
+    return () => { active = false; };
+  }, []);
+
+  const items = [
+    "Why do you want to join?",
+    "Describe a challenging project..."
+  ];
+
+  return (
+    <div className="mt-6 bg-zinc-50 border-2 border-black rounded-none p-3 flex flex-col gap-1.5 relative overflow-hidden">
+      {items.map((text, idx) => (
+        <div key={idx} className="flex items-center gap-2">
+          <motion.input
+            type="checkbox"
+            checked={checkedItems[idx]}
+            readOnly
+            animate={{
+              scale: checkedItems[idx] ? [1, 1.25, 1] : 1,
+            }}
+            transition={{ duration: 0.2 }}
+            className="accent-purple-650 accent-purple-600 size-2.5 border border-black cursor-default"
+          />
+          <span className="text-[8px] font-black text-zinc-700 truncate">{text}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 const containerVariants = {
   hidden: {},
@@ -56,13 +197,13 @@ export function GridFeaturesSection() {
               </p>
             </div>
             
-            <div className="mt-6 bg-zinc-50 border-2 border-black rounded-none p-4 flex flex-col gap-2 relative overflow-hidden">
-              <div className="flex items-center gap-1 text-orange-600 font-black text-[10px]">
+            <div className="mt-6 bg-zinc-50 border-2 border-black rounded-none p-4 flex flex-col gap-2 relative overflow-hidden h-[88px] justify-center">
+              <div className="flex items-center gap-1 text-orange-600 font-black text-[10px] shrink-0">
                 <Sparkles size={12} className="fill-orange-600" />
                 <span>AI SUGGESTION:</span>
               </div>
-              <p className="text-[9px] font-bold text-zinc-700 leading-normal border-l-2 border-orange-400 pl-2">
-                "Over my 4 years of experience as a Frontend Engineer, I have successfully designed, built, and optimized complex React applications..."
+              <p className="text-[9px] font-bold text-zinc-700 leading-normal border-l-2 border-orange-400 pl-2 min-h-[36px]">
+                <TypewriterText />
               </p>
             </div>
           </div>
@@ -127,17 +268,7 @@ export function GridFeaturesSection() {
               </p>
             </div>
 
-            <div className="mt-6 flex flex-col gap-2 relative h-16 justify-center select-none">
-              <div className="bg-white border-2 border-black rounded-none p-2 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] flex justify-between items-center z-10">
-                <div className="flex items-center gap-2">
-                  <FileText size={12} className="text-emerald-600 shrink-0" />
-                  <span className="text-[9px] font-black uppercase truncate max-w-[120px]">Resume_Frontend_2026.pdf</span>
-                </div>
-                <span className="text-[8px] font-black uppercase bg-emerald-500 text-white px-1.5 py-0.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] scale-90 rounded-none">
-                  Active
-                </span>
-              </div>
-            </div>
+            <ResumeSwitcher />
           </div>
         </motion.div>
 
@@ -169,10 +300,29 @@ export function GridFeaturesSection() {
             </div>
 
             <div className="mt-6 bg-zinc-50 border-2 border-black rounded-none p-2.5 flex items-center justify-center gap-1.5 relative overflow-hidden flex-wrap">
-              <span className="text-[8px] font-black border border-black bg-white px-1.5 py-0.5 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] rotate-2 rounded-none">Greenhouse</span>
-              <span className="text-[8px] font-black border border-black bg-white px-1.5 py-0.5 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] -rotate-3 rounded-none">Lever</span>
-              <span className="text-[8px] font-black border border-black bg-white px-1.5 py-0.5 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] rotate-3 rounded-none">Y Combinator</span>
-              <span className="text-[8px] font-black border border-black bg-white px-1.5 py-0.5 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] -rotate-1 rounded-none">Workday</span>
+              {[
+                { name: "Greenhouse", rotate: 2, y: [-2, 2] },
+                { name: "Lever", rotate: -3, y: [2, -2] },
+                { name: "Y Combinator", rotate: 3, y: [-1.5, 1.5] },
+                { name: "Workday", rotate: -1, y: [1.5, -1.5] }
+              ].map((tag, idx) => (
+                <motion.span
+                  key={idx}
+                  animate={{
+                    y: tag.y,
+                  }}
+                  transition={{
+                    repeat: Infinity,
+                    repeatType: "mirror",
+                    duration: 2 + idx * 0.4,
+                    ease: "easeInOut"
+                  }}
+                  style={{ rotate: `${tag.rotate}deg` }}
+                  className="text-[8px] font-black border border-black bg-white px-1.5 py-0.5 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] rounded-none"
+                >
+                  {tag.name}
+                </motion.span>
+              ))}
             </div>
           </div>
         </motion.div>
@@ -231,16 +381,7 @@ export function GridFeaturesSection() {
               </p>
             </div>
 
-            <div className="mt-6 bg-zinc-50 border-2 border-black rounded-none p-3 flex flex-col gap-1 relative overflow-hidden">
-              <div className="flex items-center gap-1.5">
-                <input type="checkbox" checked readOnly className="accent-purple-600 size-2.5 border border-black cursor-default" />
-                <span className="text-[8px] font-black text-zinc-700 truncate">Why do you want to join?</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <input type="checkbox" checked readOnly className="accent-purple-600 size-2.5 border border-black cursor-default" />
-                <span className="text-[8px] font-black text-zinc-700 truncate">Describe a challenging project...</span>
-              </div>
-            </div>
+            <ExpressFillSimulator />
           </div>
         </motion.div>
       </motion.div>

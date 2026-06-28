@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
@@ -10,6 +10,29 @@ export function DashboardPreviewSection() {
   const { data: session } = useSession();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"profile" | "resumes" | "ai-notes" | "settings">("profile");
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    const tabs: ("profile" | "resumes" | "ai-notes" | "settings")[] = [
+      "profile",
+      "resumes",
+      "ai-notes",
+      "settings"
+    ];
+    const interval = setInterval(() => {
+      setActiveTab((prev) => {
+        const nextIdx = (tabs.indexOf(prev) + 1) % tabs.length;
+        return tabs[nextIdx];
+      });
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isAutoPlaying]);
+
+  const selectTab = (tab: "profile" | "resumes" | "ai-notes" | "settings") => {
+    setActiveTab(tab);
+    setIsAutoPlaying(false);
+  };
 
   const bulletPoints = [
     "Store multiple resume versions",
@@ -48,7 +71,7 @@ export function DashboardPreviewSection() {
             </span>
             <div className="flex flex-col gap-1 sm:gap-2">
               <button
-                onClick={() => setActiveTab("profile")}
+                onClick={() => selectTab("profile")}
                 className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 rounded-none text-[9px] sm:text-xs font-bold transition-colors w-full cursor-pointer ${
                   activeTab === "profile"
                     ? "bg-orange-600/20 text-orange-500 border border-orange-600/30"
@@ -59,7 +82,7 @@ export function DashboardPreviewSection() {
                 <span className="hidden sm:inline">Profile</span>
               </button>
               <button
-                onClick={() => setActiveTab("resumes")}
+                onClick={() => selectTab("resumes")}
                 className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 rounded-none text-[9px] sm:text-xs font-bold transition-colors w-full cursor-pointer ${
                   activeTab === "resumes"
                     ? "bg-orange-600/20 text-orange-500 border border-orange-600/30"
@@ -70,7 +93,7 @@ export function DashboardPreviewSection() {
                 <span className="hidden sm:inline">Resumes</span>
               </button>
               <button
-                onClick={() => setActiveTab("ai-notes")}
+                onClick={() => selectTab("ai-notes")}
                 className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 rounded-none text-[9px] sm:text-xs font-bold transition-colors w-full cursor-pointer ${
                   activeTab === "ai-notes"
                     ? "bg-orange-600/20 text-orange-500 border border-orange-600/30"
@@ -81,7 +104,7 @@ export function DashboardPreviewSection() {
                 <span className="hidden sm:inline">AI Notes</span>
               </button>
               <button
-                onClick={() => setActiveTab("settings")}
+                onClick={() => selectTab("settings")}
                 className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 rounded-none text-[9px] sm:text-xs font-bold transition-colors w-full cursor-pointer ${
                   activeTab === "settings"
                     ? "bg-orange-600/20 text-orange-500 border border-orange-600/30"
