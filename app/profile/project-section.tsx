@@ -245,7 +245,7 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
             <div
               key={proj.id || index}
               className={clsx(
-                "border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-4",
+                "border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-4 min-w-0",
                 deletingId === proj.id && "opacity-60 pointer-events-none"
               )}
             >
@@ -255,7 +255,7 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
                   <span className="text-xs font-black uppercase tracking-wider text-black">Deleting Project...</span>
                 </div>
               )}
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 min-w-0">
                 <div className="flex items-start gap-4 flex-1 md:pr-24 min-w-0">
                   {proj.logoUrl && (
                     <div className="w-16 h-16 shrink-0 border-[3px] border-black overflow-hidden bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
@@ -267,7 +267,7 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-xl font-black text-black uppercase flex flex-wrap items-center gap-2">
+                    <h3 className="text-lg sm:text-xl font-black text-black uppercase flex flex-wrap items-center gap-2 break-words">
                       <span className="truncate max-w-[200px] sm:max-w-none">{proj.name || "Untitled Project"}</span>
                       {proj.isTopProject && (
                         <span className="text-[10px] bg-orange-500 text-black px-2 py-0.5 border-2 border-black font-black uppercase tracking-widest shrink-0">
@@ -308,7 +308,7 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
                       )}
                     </div>
                     {proj.contribution && (
-                      <p className="text-xs font-bold text-zinc-500 mt-2 uppercase tracking-wide">
+                      <p className="text-xs font-bold text-zinc-500 mt-2 uppercase tracking-wide break-words">
                         <span className="text-black">Contribution:</span>{" "}
                         {proj.contribution}
                       </p>
@@ -360,7 +360,7 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
               )}
 
               {proj.description && (
-                <p className="text-sm text-zinc-700 whitespace-pre-wrap font-medium">
+                <p className="text-sm text-zinc-700 whitespace-pre-wrap font-medium break-words">
                   {proj.description}
                 </p>
               )}

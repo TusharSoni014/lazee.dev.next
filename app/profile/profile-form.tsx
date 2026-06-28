@@ -1159,12 +1159,12 @@ export default function ProfileForm({
             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
-          <div className="flex-1 text-center md:text-left space-y-4">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-black uppercase font-heading text-black tracking-tighter">
+          <div className="flex-1 text-center md:text-left space-y-4 min-w-0">
+            <div className="min-w-0">
+              <h2 className="text-3xl md:text-4xl font-black uppercase font-heading text-black tracking-tighter break-words">
                 {displayName}
               </h2>
-              <p className="text-sm font-bold text-zinc-600 uppercase tracking-widest mt-1">
+              <p className="text-sm font-bold text-zinc-600 uppercase tracking-widest mt-1 break-all">
                 {user.email || "No Email"}
               </p>
             </div>
@@ -1237,13 +1237,13 @@ export default function ProfileForm({
             <div className="w-4 bg-black h-[90%]"></div>
           </div>
 
-          <div className="flex-1 p-6 flex flex-col items-center justify-center text-center mt-2">
+          <div className="flex-1 p-6 flex flex-col items-center justify-center text-center mt-2 min-w-0">
             <h3 className="text-sm font-black uppercase tracking-widest text-black/80 mb-2">
               Credit Balance
             </h3>
-            <div className="text-7xl font-black font-heading tracking-tighter text-black flex items-center justify-center">
+            <div className="text-5xl sm:text-6xl md:text-7xl font-black font-heading tracking-tighter text-black flex items-center justify-center flex-wrap gap-1 break-all">
               {Intl.NumberFormat("en-US").format(status?.credits ?? 0)}
-              <span className="text-3xl ml-1 text-black">⚡</span>
+              <span className="text-2xl sm:text-3xl text-black">⚡</span>
             </div>
           </div>
 
@@ -1510,11 +1510,11 @@ function ExperienceSection({ experiences, setExperiences, refetchProfile }: any)
           return (
             <div
               key={exp.id || index}
-              className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-2"
+              className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-2 min-w-0"
             >
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div className="space-y-1 md:pr-24">
-                  <h3 className="text-xl font-black text-black uppercase">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 min-w-0">
+                <div className="space-y-1 md:pr-24 min-w-0 flex-1">
+                  <h3 className="text-lg sm:text-xl font-black text-black uppercase break-words">
                     {exp.companyName || "Untitled Company"}
                   </h3>
                   {exp.companyWebsite && (
@@ -1522,7 +1522,7 @@ function ExperienceSection({ experiences, setExperiences, refetchProfile }: any)
                       href={exp.companyWebsite}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-sm text-blue-600 underline font-bold uppercase tracking-widest block w-fit"
+                      className="text-xs sm:text-sm text-blue-600 underline font-bold uppercase tracking-widest block w-fit break-all"
                     >
                       {exp.companyWebsite}
                     </a>
@@ -1570,7 +1570,7 @@ function ExperienceSection({ experiences, setExperiences, refetchProfile }: any)
                 </div>
               </div>
               {exp.description && (
-                <p className="text-sm text-zinc-700 mt-4 whitespace-pre-wrap font-medium">
+                <p className="text-sm text-zinc-700 mt-4 whitespace-pre-wrap font-medium break-words">
                   {exp.description}
                 </p>
               )}
@@ -1740,15 +1740,15 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
           return (
             <div
               key={edu.id || index}
-              className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-2"
+              className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-2 min-w-0"
             >
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div className="space-y-1 md:pr-24">
-                  <h3 className="text-xl font-black text-black uppercase">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 min-w-0">
+                <div className="space-y-1 md:pr-24 min-w-0 flex-1">
+                  <h3 className="text-lg sm:text-xl font-black text-black uppercase break-words">
                     {edu.schoolName || "Untitled Institution"}
                   </h3>
                   {edu.degree && (
-                    <p className="text-sm font-bold text-black uppercase tracking-wider">
+                    <p className="text-xs sm:text-sm font-bold text-black uppercase tracking-wider break-words">
                       {edu.degree}{edu.fieldOfStudy ? ` in ${edu.fieldOfStudy}` : ""}
                     </p>
                   )}
@@ -1795,7 +1795,7 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
                 </div>
               </div>
               {edu.description && (
-                <p className="text-sm text-zinc-700 mt-4 whitespace-pre-wrap font-medium">
+                <p className="text-sm text-zinc-700 mt-4 whitespace-pre-wrap font-medium break-words">
                   {edu.description}
                 </p>
               )}

@@ -434,13 +434,13 @@ export function UsernameManager({
             </div>
 
             {/* Link Preview box */}
-            <div className="bg-zinc-100 border-[3px] border-black p-4 flex gap-4 items-start">
+            <div className="bg-zinc-100 border-[3px] border-black p-4 flex gap-4 items-start min-w-0">
               <div className="h-8 w-8 shrink-0 flex items-center justify-center bg-black rounded-none border-[2px] border-black">
                 <LinkIcon className="h-4 w-4 text-white" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase text-black italic leading-none">Your Link:</p>
-                <p className="text-xs font-bold text-zinc-700 mt-1 truncate max-w-[240px]">
+                <p className="text-xs font-bold text-zinc-700 mt-1 break-all">
                   lazee.dev/u/{username.toLowerCase().trim() || "..."}
                 </p>
               </div>
