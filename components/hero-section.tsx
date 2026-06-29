@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 import { HeroDemo } from "@/components/hero-demo";
-import { Sparkles, Zap, Globe } from "lucide-react";
+import { Sparkles, Zap, Globe, Undo2 } from "lucide-react";
 import { InstallModal } from "./install-modal";
 import Image from "next/image";
 import { useBrowser } from "@/hooks/use-browser";
@@ -90,22 +90,10 @@ export function HeroSection() {
           </InstallModal>
 
           {/* Handdrawn It's free visual pointer */}
-          <div className="flex items-center gap-1.5">
-            <svg
-              className="w-12 h-6 text-zinc-400 transform scale-x-[-1] rotate-12 hidden sm:block"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 10h10a4 4 0 014 4v1m0 0l-3-3m3 3l3-3"
-              />
-            </svg>
-            <span className="text-sm font-bold font-heading italic text-zinc-500 transform -rotate-3 select-none">
-              It's free
+          <div className="flex items-center gap-1 select-none">
+            <Undo2 className="w-5 h-5 text-zinc-400 hidden sm:block shrink-0 -rotate-45" strokeWidth={2.5} />
+            <span className="text-sm font-bold font-heading italic text-zinc-500 transform -rotate-3">
+              It&apos;s free
             </span>
           </div>
         </div>

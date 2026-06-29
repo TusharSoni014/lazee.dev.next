@@ -15,7 +15,7 @@ export function InstallModal({ children }: InstallModalProps) {
       href={link}
       target="_blank"
       rel="noopener noreferrer"
-      className="w-full block"
+      className="w-full sm:w-auto block"
     >
       {children}
     </a>
