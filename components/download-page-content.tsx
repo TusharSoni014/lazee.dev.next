@@ -109,28 +109,30 @@ export default function DownloadPageContent() {
         </div>
 
         {/* Tab Header for Instructions */}
-        <div className="border-b-[3px] border-black flex gap-2 mb-6">
+        <div className="border-b-[3px] border-black flex gap-2 mb-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab("chrome")}
-            className={`px-6 py-3 font-black uppercase text-sm md:text-base border-t-[3px] border-x-[3px] border-black translate-y-[3px] transition-all cursor-pointer flex items-center gap-2 ${
+            className={`flex-1 md:flex-none px-3 md:px-6 py-3 font-black uppercase text-sm md:text-base border-t-[3px] border-x-[3px] border-black translate-y-[3px] transition-all cursor-pointer flex items-center justify-center md:justify-start gap-2 whitespace-nowrap ${
               activeTab === "chrome"
                 ? "bg-white border-b-[3px] border-b-white"
                 : "bg-zinc-100 text-zinc-500 hover:bg-zinc-50 hover:text-black"
             }`}
           >
-            <FaChrome className="w-4 h-4" />
-            Chrome Instructions
+            <FaChrome className="w-4 h-4 flex-shrink-0" />
+            <span className="hidden md:inline">Chrome Instructions</span>
+            <span className="md:hidden">Chrome</span>
           </button>
           <button
             onClick={() => setActiveTab("firefox")}
-            className={`px-6 py-3 font-black uppercase text-sm md:text-base border-t-[3px] border-x-[3px] border-black translate-y-[3px] transition-all cursor-pointer flex items-center gap-2 ${
+            className={`flex-1 md:flex-none px-3 md:px-6 py-3 font-black uppercase text-sm md:text-base border-t-[3px] border-x-[3px] border-black translate-y-[3px] transition-all cursor-pointer flex items-center justify-center md:justify-start gap-2 whitespace-nowrap ${
               activeTab === "firefox"
                 ? "bg-white border-b-[3px] border-b-white"
                 : "bg-zinc-100 text-zinc-500 hover:bg-zinc-50 hover:text-black"
             }`}
           >
-            <FaFirefox className="w-4 h-4" />
-            Firefox Instructions
+            <FaFirefox className="w-4 h-4 flex-shrink-0" />
+            <span className="hidden md:inline">Firefox Instructions</span>
+            <span className="md:hidden">Firefox</span>
           </button>
         </div>
 
@@ -138,7 +140,7 @@ export default function DownloadPageContent() {
         <div className="bg-white border-[3px] border-black p-6 md:p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
           {activeTab === "chrome" ? (
             <div className="space-y-6">
-              <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-2 mb-4">
+              <h2 className="text-2xl font-black uppercase tracking-tight mb-4">
                 Manual Installation for <span className="text-[#f26c0d]">Chrome / Chromium</span>
               </h2>
 
@@ -226,7 +228,7 @@ export default function DownloadPageContent() {
             </div>
           ) : (
             <div className="space-y-6">
-              <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-2 mb-4">
+              <h2 className="text-2xl font-black uppercase tracking-tight mb-4">
                 Manual Installation for <span className="text-[#f26c0d]">Firefox</span>
               </h2>
 
