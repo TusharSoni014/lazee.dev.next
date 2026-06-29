@@ -3,16 +3,16 @@ import { ArrowLeft, CheckSquare } from "lucide-react";
 
 export default function TermsPage() {
   return (
-    <div className="flex-1 px-6 py-12 md:px-20 lg:px-60 xl:px-80">
+    <div className="flex-1 px-4 py-12 md:px-20 lg:px-48 xl:px-64">
       <div className="mb-12">
         <Link
-          className="inline-flex items-center gap-2 text-sm font-bold uppercase bg-white dark:bg-slate-900 border-2 border-black px-4 py-1 mb-6 hover:bg-[#f26c0d]/10 dark:hover:bg-[#f26c0d]/10"
+          className="inline-flex items-center gap-2 text-sm font-bold uppercase bg-white dark:bg-slate-900 border-2 border-black px-4 py-1.5 mb-6 hover:bg-[#f26c0d]/10 dark:hover:bg-[#f26c0d]/10 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 active:shadow-none"
           href="/"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </Link>
-        <h1 className="text-5xl md:text-7xl font-black uppercase leading-none mb-4 tracking-tighter italic">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-black uppercase leading-none mb-4 tracking-tighter italic break-words">
           Terms <span className="text-[#f26c0d]">&amp;</span> Conditions
         </h1>
         <div className="inline-block bg-black text-white px-3 py-1 font-bold text-sm uppercase">
@@ -20,16 +20,16 @@ export default function TermsPage() {
         </div>
       </div>
       <section className="space-y-6">
-        <div className="bg-white dark:bg-slate-900 p-6 md:p-8 border-[3px] border-black shadow-[4px_4px_0px_0px_#000000]">
+        <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 border-[3px] border-black shadow-[4px_4px_0px_0px_#000000]">
           <div className="flex items-center gap-3 mb-4">
             <span className="bg-[#f26c0d] text-white w-8 h-8 flex items-center justify-center font-black border-2 border-black">
               1
             </span>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
+            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
               Acceptance of Terms
             </h2>
           </div>
-          <div className="space-y-4 text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
+          <div className="space-y-4 text-sm sm:text-base md:text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
             <p>
               By accessing or using Lazee.dev, you agree to be bound by these
               Terms and Conditions and our Privacy Policy. If you do not agree
@@ -42,47 +42,46 @@ export default function TermsPage() {
             </p>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-6 md:p-8 border-[3px] border-black shadow-[4px_4px_0px_0px_#000000]">
+        <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 border-[3px] border-black shadow-[4px_4px_0px_0px_#000000]">
           <div className="flex items-center gap-3 mb-4">
             <span className="bg-[#f26c0d] text-white w-8 h-8 flex items-center justify-center font-black border-2 border-black">
               2
             </span>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
+            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
               User Accounts
             </h2>
           </div>
-          <div className="space-y-4 text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
+          <div className="space-y-4 text-sm sm:text-base md:text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
             <p>
               To access certain features of Lazee.dev, you may be required to
               register for an account. You are responsible for:
             </p>
             <ul className="list-none space-y-2">
               <li className="flex items-start gap-2">
-                <CheckSquare className="w-6 h-6 text-[#f26c0d] font-black" />
-                Maintaining the confidentiality of your account credentials.
+                <CheckSquare className="w-5 h-5 text-[#f26c0d] font-black shrink-0 mt-1" />
+                <span>Maintaining the confidentiality of your account credentials.</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckSquare className="w-6 h-6 text-[#f26c0d] font-black" />
-                All activities that occur under your account.
+                <CheckSquare className="w-5 h-5 text-[#f26c0d] font-black shrink-0 mt-1" />
+                <span>All activities that occur under your account.</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckSquare className="w-6 h-6 text-[#f26c0d] font-black" />
-                Notifying us immediately of any unauthorized use of your
-                account.
+                <CheckSquare className="w-5 h-5 text-[#f26c0d] font-black shrink-0 mt-1" />
+                <span>Notifying us immediately of any unauthorized use of your account.</span>
               </li>
             </ul>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-6 md:p-8 border-[3px] border-black shadow-[4px_4px_0px_0px_#000000]">
+        <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 border-[3px] border-black shadow-[4px_4px_0px_0px_#000000]">
           <div className="flex items-center gap-3 mb-4">
             <span className="bg-[#f26c0d] text-white w-8 h-8 flex items-center justify-center font-black border-2 border-black">
               3
             </span>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
+            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
               Platform Integration Usage
             </h2>
           </div>
-          <div className="space-y-4 text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
+          <div className="space-y-4 text-sm sm:text-base md:text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
             <p>
               Our platform integrations are designed to enhance your development
               workflow. Usage of our tools is subject to:
@@ -105,16 +104,16 @@ export default function TermsPage() {
             </div>
           </div>
         </div>
-        <div className="bg-[#f26c0d]/10 border-[#f26c0d] p-6 md:p-8 border-[3px] shadow-[4px_4px_0px_0px_#000000]">
+        <div className="bg-[#f26c0d]/10 border-[#f26c0d] p-5 sm:p-8 border-[3px] shadow-[4px_4px_0px_0px_#000000]">
           <div className="flex items-center gap-3 mb-4">
             <span className="bg-[#f26c0d] text-white w-8 h-8 flex items-center justify-center font-black border-2 border-black">
               4
             </span>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
+            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
               Pro Subscription &amp; Credits
             </h2>
           </div>
-          <div className="space-y-4 text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
+          <div className="space-y-4 text-sm sm:text-base md:text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
             <p>
               Certain advanced features require a Pro Subscription or individual
               Credits. Please note:
@@ -140,16 +139,16 @@ export default function TermsPage() {
             </ul>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-6 md:p-8 border-[3px] border-black shadow-[4px_4px_0px_0px_#000000]">
+        <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 border-[3px] border-black shadow-[4px_4px_0px_0px_#000000]">
           <div className="flex items-center gap-3 mb-4">
             <span className="bg-[#f26c0d] text-white w-8 h-8 flex items-center justify-center font-black border-2 border-black">
               5
             </span>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
+            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
               Termination
             </h2>
           </div>
-          <div className="space-y-4 text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
+          <div className="space-y-4 text-sm sm:text-base md:text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
             <p>
               We may terminate or suspend your account and access to our
               services immediately, without prior notice or liability, for any

@@ -168,7 +168,7 @@ const cardVariants = {
 
 export function GridFeaturesSection() {
   return (
-    <section className="w-full mb-24">
+    <section id="features" className="w-full mb-24">
       <motion.div
         variants={containerVariants}
         initial="hidden"

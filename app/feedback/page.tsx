@@ -79,7 +79,7 @@ export default function FeedbackPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
       <div className="mb-8">
         <Link
           href="/"
@@ -93,17 +93,17 @@ export default function FeedbackPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="border-[3px] border-black bg-white p-8 md:p-12 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]"
+        className="border-[3px] border-black bg-white p-5 sm:p-8 md:p-12 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] sm:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]"
       >
         <div className="flex items-center gap-4 mb-8">
-          <div className="flex h-14 w-14 items-center justify-center rounded-none border-[3px] border-black bg-yellow-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <MessageSquare className="w-8 h-8 text-black" />
+          <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-none border-[3px] border-black bg-yellow-400 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] shrink-0">
+            <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-black" />
           </div>
           <div>
-            <h1 className="text-4xl font-black uppercase tracking-tighter text-black font-heading leading-none">
+            <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tighter text-black font-heading leading-none">
               Feedback
             </h1>
-            <p className="text-zinc-600 font-bold uppercase tracking-widest text-xs mt-2">
+            <p className="text-zinc-600 font-bold uppercase tracking-widest text-[9px] sm:text-xs mt-2">
               Help us make Lazee.dev even better
             </p>
           </div>
@@ -159,10 +159,10 @@ export default function FeedbackPage() {
               value={formData.type}
               onValueChange={(val) => setFormData({ ...formData, type: val })}
             >
-              <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-white px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
+              <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-white px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
                 <SelectValue placeholder="Select Feedback Type" />
               </SelectTrigger>
-              <SelectContent className="rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <SelectContent className="rounded-none border-[3px] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 {FEEDBACK_TYPES.map((type) => (
                   <SelectItem
                     key={type.value}
@@ -191,7 +191,7 @@ export default function FeedbackPage() {
               onChange={(e) =>
                 setFormData({ ...formData, message: e.target.value })
               }
-              className="min-h-[200px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
+              className="min-h-[200px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
             />
           </div>
 
@@ -199,16 +199,16 @@ export default function FeedbackPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-16 bg-black text-white hover:bg-zinc-800 border-[3px] border-black font-black uppercase text-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
+              className="w-full h-14 sm:h-16 bg-black text-white hover:bg-zinc-800 border-[3px] border-black font-black uppercase text-lg sm:text-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] sm:hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all flex items-center justify-center gap-3 cursor-pointer"
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                   Sending...
                 </>
               ) : (
                 <>
-                  <Send className="h-6 w-6" />
+                  <Send className="h-5 w-5" />
                   Submit Feedback
                 </>
               )}
