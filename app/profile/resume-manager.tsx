@@ -40,9 +40,11 @@ import { motion, AnimatePresence } from "motion/react";
 export function ResumeManager({
   resumes: initialResumes,
   membership: initialMembership,
+  onUpgrade,
 }: {
   resumes: any[];
   membership: string;
+  onUpgrade?: () => void;
 }) {
   const queryClient = useQueryClient();
   const width = useWindowWidth();
@@ -245,6 +247,7 @@ export function ResumeManager({
             {membership === "FREE" && (
               <Button
                 type="button"
+                onClick={onUpgrade}
                 className="w-full sm:w-auto bg-white text-black hover:bg-zinc-100 tracking-widest uppercase font-black px-8 py-6 border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-[2px] transition-all relative overflow-hidden text-lg"
               >
                 <span className="relative z-10 flex items-center">

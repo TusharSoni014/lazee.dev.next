@@ -1301,6 +1301,7 @@ export default function ProfileForm({
         <ResumeManager
           resumes={user.resumes || []}
           membership={status?.membership || "FREE"}
+          onUpgrade={handleUpgrade}
         />
       </div>
 
