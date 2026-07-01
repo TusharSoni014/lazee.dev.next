@@ -3,7 +3,7 @@ import DownloadPageContent from "@/components/download-page-content";
 
 export const metadata: Metadata = {
   title: "Download & Install Extension",
-  description: "Download and manually install the Lazee.dev browser extension for Chrome and Firefox in under 30 seconds.",
+  description: "Install the Lazee.dev browser extension from the Chrome Web Store. Firefox add-on coming soon.",
 };
 
 export default function DownloadPage() {

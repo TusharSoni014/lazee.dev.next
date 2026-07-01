@@ -2,7 +2,7 @@
 // Update these URLs to point to your store pages once they are approved.
 // For now, they point to the custom local /download page.
 
-export const CHROME_EXTENSION_URL = "/download";
+export const CHROME_EXTENSION_URL = "https://chromewebstore.google.com/detail/lazeedev-ai-job-autofill/hkompooiicoamiambpjhbbmimjefgiii";
 export const FIREFOX_EXTENSION_URL = "/download";
 
 // Store URLs for reference
