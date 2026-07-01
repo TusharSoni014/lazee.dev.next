@@ -18,9 +18,9 @@ import { CHROME_EXTENSION_URL, FIREFOX_EXTENSION_URL } from "@/lib/constants";
 
 const DOWNLOAD_LINKS: Record<BrowserType, string> = {
   chrome: CHROME_EXTENSION_URL,
-  edge: "https://microsoftedge.microsoft.com/addons/",
+  edge: CHROME_EXTENSION_URL,
   firefox: FIREFOX_EXTENSION_URL,
-  safari: "https://apps.apple.com/",
+  safari: CHROME_EXTENSION_URL,
   other: CHROME_EXTENSION_URL,
 };
 
