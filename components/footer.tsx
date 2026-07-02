@@ -58,15 +58,6 @@ export function Footer() {
               <li>
                 <Link
                   className="group flex items-center gap-2 text-base font-bold text-slate-700 dark:text-slate-300 hover:text-primary transition-colors"
-                  href="/download"
-                >
-                  <span className="w-2 h-2 bg-black dark:bg-white group-hover:bg-primary transition-colors"></span>
-                  Browser Support
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="group flex items-center gap-2 text-base font-bold text-slate-700 dark:text-slate-300 hover:text-primary transition-colors"
                   href="/#pricing"
                 >
                   <span className="w-2 h-2 bg-black dark:bg-white group-hover:bg-primary transition-colors"></span>
