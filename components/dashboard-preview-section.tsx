@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
-import { CheckSquare, User, FileText, Sparkles, Settings } from "lucide-react";
+import { motion, useInView, AnimatePresence } from "motion/react";
+import { Check, User, FileText, Sparkles, Settings } from "lucide-react";
 
 export function DashboardPreviewSection() {
   const { data: session } = useSession();
@@ -41,6 +41,30 @@ export function DashboardPreviewSection() {
     "Basic details & work history",
     "Secure, simple, and clean",
   ];
+
+  // Looping checklist animation
+  const listRef = useRef<HTMLUListElement>(null);
+  const isListInView = useInView(listRef, { once: false, amount: 0.3 });
+  const [activeCheckIndex, setActiveCheckIndex] = useState(-1);
+
+  useEffect(() => {
+    if (!isListInView) {
+      setActiveCheckIndex(-1);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setActiveCheckIndex((prev) => {
+        // After showing all items + a pause cycle, reset
+        if (prev >= bulletPoints.length) {
+          return -1;
+        }
+        return prev + 1;
+      });
+    }, activeCheckIndex >= bulletPoints.length ? 1500 : activeCheckIndex === -1 ? 600 : 500);
+
+    return () => clearTimeout(timer);
+  }, [activeCheckIndex, isListInView, bulletPoints.length]);
 
   const handleAction = () => {
     if (session) {
@@ -249,15 +273,54 @@ export function DashboardPreviewSection() {
           <p className="text-zinc-400 text-base font-bold leading-relaxed max-w-md">
             No more messy spreadsheets or copying-pasting details. Store your resumes, personal details, social profiles, and custom AI notes in one secure place.
           </p>
-          <ul className="flex flex-col gap-3.5 w-full mt-2">
-            {bulletPoints.map((bullet, index) => (
-              <li key={index} className="flex items-center gap-3">
-                <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-orange-500/10 border border-orange-500/30">
-                  <CheckSquare className="w-3.5 h-3.5 text-orange-500" strokeWidth={3} />
-                </div>
-                <span className="font-bold text-base text-zinc-300">{bullet}</span>
-              </li>
-            ))}
+          <ul ref={listRef} className="flex flex-col gap-3.5 w-full mt-2">
+            {bulletPoints.map((bullet, index) => {
+              const isActive = index <= activeCheckIndex;
+              return (
+                <motion.li
+                  key={index}
+                  animate={{
+                    opacity: isActive ? 1 : 0.35,
+                    x: isActive ? 0 : -10,
+                  }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className="flex items-center gap-3"
+                >
+                  <div
+                    className={`flex size-5 shrink-0 items-center justify-center rounded-none border transition-colors duration-300 ${
+                      isActive
+                        ? "bg-orange-500 border-orange-600"
+                        : "bg-orange-500/10 border-orange-500/30"
+                    }`}
+                  >
+                    <AnimatePresence>
+                      {isActive && (
+                        <motion.div
+                          key={`check-${index}`}
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 15,
+                          }}
+                        >
+                          <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  <span
+                    className={`font-bold text-base transition-colors duration-300 ${
+                      isActive ? "text-white" : "text-zinc-500"
+                    }`}
+                  >
+                    {bullet}
+                  </span>
+                </motion.li>
+              );
+            })}
           </ul>
         </div>
       </div>
