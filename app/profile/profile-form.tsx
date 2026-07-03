@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useProfile, useProfileStatus } from "@/hooks/useProfile";
+import { useDebounceCallback } from "@/hooks/useDebounce";
 import { ResumeManager } from "./resume-manager";
 import { updateProfile, updateExperiences, updateEducation } from "./actions";
 import { ProjectSection } from "./project-section";
@@ -243,16 +244,7 @@ function FormInput({ control, name, label, placeholder, icon: Icon, className, t
   );
 }
 
-function PersonalInformationForm({
-  user,
-  refetchProfile,
-  phoneOptions,
-  countryOptions,
-}: any) {
-  const width = useWindowWidth();
-  const isMobile = width < 768;
-  const [isSaving, setIsSaving] = useState(false);
-
+function getPersonalFormValues(user: any) {
   const initialCountryCode = (() => {
     const initial = user?.countryCode || "+1";
     const clean = initial.startsWith("+") ? initial : `+${initial}`;
@@ -293,29 +285,43 @@ function PersonalInformationForm({
   const initialDisabilitySelect = standardDisabilities.includes(dbDisability) ? dbDisability : (dbDisability ? "Other" : "");
   const initialDisabilityCustom = initialDisabilitySelect === "Other" ? dbDisability : "";
 
+  return {
+    firstName: user?.firstName || "",
+    middleName: user?.middleName || "",
+    lastName: user?.lastName || "",
+    countryCode: initialCountryCode,
+    phoneNumber: user?.phoneNumber || "",
+    country: initialCountry,
+    city: user?.city || "",
+    collegeName: user?.collegeName || "",
+    contactEmail: user?.contactEmail || user?.email || "",
+    postalCode: user?.postalCode || "",
+    genderSelect: initialGenderSelect,
+    genderCustom: initialGenderCustom,
+    veteranStatusSelect: initialVeteranSelect,
+    veteranStatusCustom: initialVeteranCustom,
+    disabilityStatusSelect: initialDisabilitySelect,
+    disabilityStatusCustom: initialDisabilityCustom,
+  };
+}
+
+function PersonalInformationForm({
+  user,
+  refetchProfile,
+  phoneOptions,
+  countryOptions,
+}: any) {
+  const width = useWindowWidth();
+  const isMobile = width < 768;
+  const [isSaving, setIsSaving] = useState(false);
+
   const form = useForm<z.infer<typeof personalSchema>>({
     resolver: zodResolver(personalSchema),
-    defaultValues: {
-      firstName: user.firstName || "",
-      middleName: user.middleName || "",
-      lastName: user.lastName || "",
-      countryCode: initialCountryCode,
-      phoneNumber: user.phoneNumber || "",
-      country: initialCountry,
-      city: user.city || "",
-      collegeName: user.collegeName || "",
-      contactEmail: user.contactEmail || user.email || "",
-      postalCode: user.postalCode || "",
-      genderSelect: initialGenderSelect,
-      genderCustom: initialGenderCustom,
-      veteranStatusSelect: initialVeteranSelect,
-      veteranStatusCustom: initialVeteranCustom,
-      disabilityStatusSelect: initialDisabilitySelect,
-      disabilityStatusCustom: initialDisabilityCustom,
-    },
+    defaultValues: getPersonalFormValues(user),
   });
 
   const onSubmit = async (values: z.infer<typeof personalSchema>) => {
+    const snapshotBefore = JSON.stringify(form.getValues());
     setIsSaving(true);
     const payload = {
       firstName: values.firstName,
@@ -336,14 +342,40 @@ function PersonalInformationForm({
     setIsSaving(false);
     if (result.success) {
       refetchProfile();
-      toast.success("Personal information updated successfully!");
+      // Only reset if user hasn't typed new input during the save
+      if (JSON.stringify(form.getValues()) === snapshotBefore) {
+        form.reset(values);
+      }
     } else {
       toast.error(result.error || "Failed to update personal information.");
     }
   };
 
+  const debouncedSubmit = useDebounceCallback(() => {
+    form.handleSubmit(onSubmit)();
+  }, 1000);
+
+  const watchedValues = form.watch();
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+    if (form.formState.isDirty && !isSaving) {
+      debouncedSubmit();
+    }
+  }, [watchedValues, form.formState.isDirty, debouncedSubmit, isSaving]);
+
+  useEffect(() => {
+    if (user && !form.formState.isDirty) {
+      form.reset(getPersonalFormValues(user));
+    }
+  }, [user, form]);
+
   return (
-    <Section title="Personal Information" icon={IdCard}>
+    <Section title="Personal Information" icon={IdCard} hasAutoSave={true} isSaving={isSaving} isDirty={form.formState.isDirty}>
       <Form {...form}>
         <div className="space-y-6">
           <div className="grid gap-6 md:grid-cols-3">
@@ -366,7 +398,7 @@ function PersonalInformationForm({
                       <Combobox
                         options={phoneOptions}
                         value={form.watch("countryCode") || ""}
-                        onChange={(val) => form.setValue("countryCode", val)}
+                        onChange={(val) => form.setValue("countryCode", val, { shouldDirty: true })}
                         className="w-28 shrink-0"
                       />
                       <Input
@@ -394,7 +426,7 @@ function PersonalInformationForm({
                     <Combobox
                       options={countryOptions}
                       value={form.watch("country") || ""}
-                      onChange={(val) => form.setValue("country", val)}
+                      onChange={(val) => form.setValue("country", val, { shouldDirty: true })}
                       placeholder="Select Country"
                       searchPlaceholder="Search country..."
                     />
@@ -453,7 +485,7 @@ function PersonalInformationForm({
                         Gender
                       </FormLabel>
                       <FormControl>
-                        <Select onValueChange={field.onChange} value={field.value || undefined}>
+                        <Select onValueChange={(val) => field.onChange(val)} value={field.value || undefined}>
                           <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
                             <SelectValue placeholder="Select Gender" />
                           </SelectTrigger>
@@ -490,7 +522,7 @@ function PersonalInformationForm({
                         Veteran Status
                       </FormLabel>
                       <FormControl>
-                        <Select onValueChange={field.onChange} value={field.value || undefined}>
+                        <Select onValueChange={(val) => field.onChange(val)} value={field.value || undefined}>
                           <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
                             <SelectValue placeholder="Select Veteran Status" />
                           </SelectTrigger>
@@ -536,7 +568,7 @@ function PersonalInformationForm({
                         Disability Status
                       </FormLabel>
                       <FormControl>
-                        <Select onValueChange={field.onChange} value={field.value || undefined}>
+                        <Select onValueChange={(val) => field.onChange(val)} value={field.value || undefined}>
                           <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
                             <SelectValue placeholder="Select Disability Status" />
                           </SelectTrigger>
@@ -572,31 +604,19 @@ function PersonalInformationForm({
               </div>
             </div>
           </div>
-
-          <div className="flex justify-end pt-2 w-full">
-            <Button
-              type="button"
-              onClick={form.handleSubmit(onSubmit)}
-              disabled={isSaving}
-              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {isMobile ? "Save" : "Save Personal Info"}
-                </>
-              )}
-            </Button>
-          </div>
         </div>
       </Form>
     </Section>
   );
+}
+
+function getProfessionalFormValues(user: any) {
+  return {
+    jobType: user?.jobType || "",
+    currency: user?.currency || "USD",
+    currentCtc: (user?.currentCtc !== null && user?.currentCtc !== undefined ? String(user.currentCtc) : "") as any,
+    noticePeriod: (user?.noticePeriod !== null && user?.noticePeriod !== undefined ? String(user.noticePeriod) : "") as any,
+  };
 }
 
 function ProfessionalDetailsForm({ user, refetchProfile }: any) {
@@ -606,28 +626,56 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
 
   const form = useForm<z.infer<typeof professionalSchema>>({
     resolver: zodResolver(professionalSchema) as any,
-    defaultValues: {
-      jobType: user.jobType || "",
-      currency: user.currency || "USD",
-      currentCtc: (user.currentCtc !== null && user.currentCtc !== undefined ? String(user.currentCtc) : "") as any,
-      noticePeriod: (user.noticePeriod !== null && user.noticePeriod !== undefined ? String(user.noticePeriod) : "") as any,
-    },
+    defaultValues: getProfessionalFormValues(user),
   });
 
   const onSubmit = async (values: z.infer<typeof professionalSchema>) => {
+    const snapshotBefore = JSON.stringify(form.getValues());
     setIsSaving(true);
     const result = await updateProfile(values);
     setIsSaving(false);
     if (result.success) {
       refetchProfile();
-      toast.success("Professional details updated successfully!");
+      // Only reset if user hasn't typed new input during the save
+      if (JSON.stringify(form.getValues()) === snapshotBefore) {
+        // Reset with string values (form inputs expect strings, but Zod transforms to numbers)
+        form.reset({
+          jobType: values.jobType || "",
+          currency: values.currency || "USD",
+          currentCtc: (values.currentCtc !== null && values.currentCtc !== undefined ? String(values.currentCtc) : "") as any,
+          noticePeriod: (values.noticePeriod !== null && values.noticePeriod !== undefined ? String(values.noticePeriod) : "") as any,
+        });
+      }
     } else {
       toast.error(result.error || "Failed to update professional details.");
     }
   };
 
+  const debouncedSubmit = useDebounceCallback(() => {
+    form.handleSubmit(onSubmit)();
+  }, 1000);
+
+  const watchedValues = form.watch();
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+    if (form.formState.isDirty && !isSaving) {
+      debouncedSubmit();
+    }
+  }, [watchedValues, form.formState.isDirty, debouncedSubmit, isSaving]);
+
+  useEffect(() => {
+    if (user && !form.formState.isDirty) {
+      form.reset(getProfessionalFormValues(user));
+    }
+  }, [user, form]);
+
   return (
-    <Section title="Professional Details" icon={Briefcase}>
+    <Section title="Professional Details" icon={Briefcase} hasAutoSave={true} isSaving={isSaving} isDirty={form.formState.isDirty}>
       <Form {...form}>
         <div className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
@@ -640,7 +688,7 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
                     Looking For Role
                   </FormLabel>
                   <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value || undefined}>
+                    <Select onValueChange={(val) => field.onChange(val)} value={field.value || undefined}>
                       <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
                         <SelectValue placeholder="Select Role Type" />
                       </SelectTrigger>
@@ -675,7 +723,7 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
                       <div className="relative">
                         <select
                           value={form.watch("currency") || "USD"}
-                          onChange={(e) => form.setValue("currency", e.target.value)}
+                          onChange={(e) => form.setValue("currency", e.target.value, { shouldDirty: true })}
                           className="appearance-none h-[50px] w-24 rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                         >
                           {CURRENCIES.map((c) => (
@@ -723,27 +771,6 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
               placeholder="30"
             />
           </div>
-
-          <div className="flex justify-end pt-2 w-full">
-            <Button
-              type="button"
-              onClick={form.handleSubmit(onSubmit)}
-              disabled={isSaving}
-              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {isMobile ? "Save" : "Save Professional Details"}
-                </>
-              )}
-            </Button>
-          </div>
         </div>
       </Form>
     </Section>
@@ -768,19 +795,52 @@ function SocialLinksForm({ user, refetchProfile }: any) {
   });
 
   const onSubmit = async (values: z.infer<typeof socialsSchema>) => {
+    const snapshotBefore = JSON.stringify(form.getValues());
     setIsSaving(true);
     const result = await updateProfile(values);
     setIsSaving(false);
     if (result.success) {
       refetchProfile();
-      toast.success("Social links updated successfully!");
+      if (JSON.stringify(form.getValues()) === snapshotBefore) {
+        form.reset(values);
+      }
     } else {
       toast.error(result.error || "Failed to update social links.");
     }
   };
 
+  const debouncedSubmit = useDebounceCallback(() => {
+    form.handleSubmit(onSubmit)();
+  }, 1000);
+
+  const watchedValues = form.watch();
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+    if (form.formState.isDirty && !isSaving) {
+      debouncedSubmit();
+    }
+  }, [watchedValues, form.formState.isDirty, debouncedSubmit, isSaving]);
+
+  useEffect(() => {
+    if (user && !form.formState.isDirty) {
+      form.reset({
+        linkedin: user.linkedin || "",
+        github: user.github || "",
+        twitter: user.twitter || "",
+        portfolio: user.portfolio || "",
+        telegram: user.telegram || "",
+        other: user.other || "",
+      });
+    }
+  }, [user, form]);
+
   return (
-    <Section title="Social Links" icon={Globe}>
+    <Section title="Social Links" icon={Globe} hasAutoSave={true} isSaving={isSaving} isDirty={form.formState.isDirty}>
       <Form {...form}>
         <div className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
@@ -790,27 +850,6 @@ function SocialLinksForm({ user, refetchProfile }: any) {
             <FormInput control={form.control} name="portfolio" label="Portfolio" placeholder="https://..." icon={LinkIcon} />
             <FormInput control={form.control} name="telegram" label="Telegram" placeholder="https://t.me/..." icon={Send} />
             <FormInput control={form.control} name="other" label="Other Link" placeholder="https://..." icon={LinkIcon} />
-          </div>
-
-          <div className="flex justify-end pt-2 w-full">
-            <Button
-              type="button"
-              onClick={form.handleSubmit(onSubmit)}
-              disabled={isSaving}
-              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {isMobile ? "Save" : "Save Social Links"}
-                </>
-              )}
-            </Button>
           </div>
         </div>
       </Form>
@@ -831,19 +870,47 @@ function AiSettingsForm({ user, refetchProfile }: any) {
   });
 
   const onSubmit = async (values: z.infer<typeof aiSettingsSchema>) => {
+    const snapshotBefore = JSON.stringify(form.getValues());
     setIsSaving(true);
     const result = await updateProfile(values);
     setIsSaving(false);
     if (result.success) {
       refetchProfile();
-      toast.success("AI Settings updated successfully!");
+      if (JSON.stringify(form.getValues()) === snapshotBefore) {
+        form.reset(values);
+      }
     } else {
       toast.error(result.error || "Failed to update AI Settings.");
     }
   };
 
+  const debouncedSubmit = useDebounceCallback(() => {
+    form.handleSubmit(onSubmit)();
+  }, 1000);
+
+  const watchedValues = form.watch();
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+    if (form.formState.isDirty && !isSaving) {
+      debouncedSubmit();
+    }
+  }, [watchedValues, form.formState.isDirty, debouncedSubmit, isSaving]);
+
+  useEffect(() => {
+    if (user && !form.formState.isDirty) {
+      form.reset({
+        specificQuestionGuidance: user.specificQuestionGuidance || "",
+      });
+    }
+  }, [user, form]);
+
   return (
-    <Section title="AI Settings" icon={Settings}>
+    <Section title="AI Settings" icon={Settings} hasAutoSave={true} isSaving={isSaving} isDirty={form.formState.isDirty}>
       <Form {...form}>
         <div className="space-y-6">
           <FormField
@@ -868,27 +935,6 @@ function AiSettingsForm({ user, refetchProfile }: any) {
               </FormItem>
             )}
           />
-
-          <div className="flex justify-end pt-2 w-full">
-            <Button
-              type="button"
-              onClick={form.handleSubmit(onSubmit)}
-              disabled={isSaving}
-              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {isMobile ? "Save" : "Save AI Settings"}
-                </>
-              )}
-            </Button>
-          </div>
         </div>
       </Form>
     </Section>
@@ -1337,10 +1383,16 @@ function Section({
   title,
   icon: Icon,
   children,
+  isSaving,
+  isDirty,
+  hasAutoSave = false,
 }: {
   title: string;
   icon: any;
   children: React.ReactNode;
+  isSaving?: boolean;
+  isDirty?: boolean;
+  hasAutoSave?: boolean;
 }) {
   return (
     <div className="border-[3px] border-black bg-white p-6 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
@@ -1351,6 +1403,21 @@ function Section({
         <h2 className="text-2xl font-black uppercase tracking-tighter text-black font-heading">
           {title}
         </h2>
+        {hasAutoSave && (
+          <div className="ml-auto flex items-center gap-2">
+            {isSaving ? (
+              <span className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-zinc-500">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Saving...
+              </span>
+            ) : !isDirty ? (
+              <span className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-green-600">
+                <Check className="w-3.5 h-3.5" strokeWidth={3} />
+                Saved
+              </span>
+            ) : null}
+          </div>
+        )}
       </div>
       {children}
     </div>
@@ -2124,16 +2191,44 @@ function IntroVideoForm({ user, refetchProfile }: any) {
   });
 
   const onSubmit = async (values: z.infer<typeof introVideoSchema>) => {
+    const snapshotBefore = JSON.stringify(form.getValues());
     setIsSaving(true);
     const result = await updateProfile(values);
     setIsSaving(false);
     if (result.success) {
       refetchProfile();
-      toast.success("Intro video updated successfully!");
+      if (JSON.stringify(form.getValues()) === snapshotBefore) {
+        form.reset(values);
+      }
     } else {
       toast.error(result.error || "Failed to update intro video.");
     }
   };
+
+  const debouncedSubmit = useDebounceCallback(() => {
+    form.handleSubmit(onSubmit)();
+  }, 1000);
+
+  const watchedValues = form.watch();
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+    if (form.formState.isDirty && form.formState.isValid && !isSaving) {
+      debouncedSubmit();
+    }
+  }, [watchedValues, form.formState.isDirty, form.formState.isValid, debouncedSubmit, isSaving]);
+
+  useEffect(() => {
+    if (user && !form.formState.isDirty) {
+      form.reset({
+        introVideo: user.introVideo || "",
+      });
+    }
+  }, [user, form]);
 
   const introVideoVal = form.watch("introVideo") || "";
   const ytId = videoHelpers.getYoutubeId(introVideoVal);
@@ -2145,7 +2240,7 @@ function IntroVideoForm({ user, refetchProfile }: any) {
       : null;
 
   return (
-    <Section title="Intro Video" icon={Video}>
+    <Section title="Intro Video" icon={Video} hasAutoSave={true} isSaving={isSaving} isDirty={form.formState.isDirty}>
       <Form {...form}>
         <div className="space-y-6">
           <FormField
@@ -2192,27 +2287,6 @@ function IntroVideoForm({ user, refetchProfile }: any) {
               </div>
             )
           )}
-
-          <div className="flex justify-end pt-2 w-full">
-            <Button
-              type="button"
-              onClick={form.handleSubmit(onSubmit)}
-              disabled={isSaving || !form.formState.isValid}
-              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {isMobile ? "Save" : "Save Intro Video"}
-                </>
-              )}
-            </Button>
-          </div>
         </div>
       </Form>
     </Section>
@@ -2583,22 +2657,33 @@ function SkillsSection({
   const width = useWindowWidth();
   const isMobile = width < 768;
   const [selected, setSelected] = useState<Set<string>>(new Set(initialSkills));
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
+  const [skillInput, setSkillInput] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSelected(new Set(initialSkills));
   }, [initialSkills]);
 
-  const handleSave = async () => {
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const debouncedSave = useDebounceCallback(async (skillsToSave: string[]) => {
     setIsSaving(true);
     try {
-      const res = await updateProfile({ skills: Array.from(selected) });
+      const res = await updateProfile({ skills: skillsToSave });
       if (res.error) {
         toast.error(res.error);
       } else {
-        toast.success("Skills updated successfully!");
         await refetchProfile();
       }
     } catch (err) {
@@ -2606,16 +2691,58 @@ function SkillsSection({
     } finally {
       setIsSaving(false);
     }
+  }, 1000);
+
+  const hasMounted = useRef(false);
+
+  const isDirty = selected.size !== initialSkills.length || 
+    Array.from(selected).some(skill => !initialSkills.includes(skill));
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+    if (isDirty && !isSaving) {
+      debouncedSave(Array.from(selected));
+    }
+  }, [selected, initialSkills, debouncedSave, isDirty, isSaving]);
+
+  const addSkill = (skill: string) => {
+    const trimmed = skill.trim();
+    if (!trimmed) return;
+    if (!selected.has(trimmed)) {
+      const next = new Set(selected);
+      next.add(trimmed);
+      setSelected(next);
+    }
+    setSkillInput("");
+    setIsDropdownOpen(false);
   };
 
-  const filteredSkills = AVAILABLE_SKILLS.filter((skill) =>
-    skill.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredSuggestions = AVAILABLE_SKILLS.filter((skill) => {
+    const matchesSearch = skill.toLowerCase().includes(skillInput.toLowerCase());
+    const isAlreadySelected = Array.from(selected).some(s => s.toLowerCase() === skill.toLowerCase());
+    return matchesSearch && !isAlreadySelected;
+  });
+
+  const showAddCustom = skillInput.trim() && 
+    !AVAILABLE_SKILLS.some(s => s.toLowerCase() === skillInput.trim().toLowerCase()) && 
+    !Array.from(selected).some(s => s.toLowerCase() === skillInput.trim().toLowerCase());
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (skillInput.trim()) {
+        addSkill(skillInput);
+      }
+    }
+  };
 
   return (
-    <Section title="Technical Skills" icon={Code}>
+    <Section title="Technical Skills" icon={Code} hasAutoSave={true} isSaving={isSaving} isDirty={isDirty}>
       <div className="space-y-6">
-        {/* Existing skills container */}
+        {/* Selected skills tags */}
         <div className="w-full min-h-[80px] border-[3px] border-black p-4 bg-zinc-50 flex flex-wrap gap-2 items-center shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05)]">
           {selected.size > 0 ? (
             Array.from(selected).map((skill) => (
@@ -2639,95 +2766,60 @@ function SkillsSection({
             ))
           ) : (
             <span className="text-zinc-500 font-bold uppercase tracking-widest text-xs py-2 pl-1">
-              No skills selected. Click &quot;Add Skills&quot; below to add.
+              No skills selected. Type below to add skills.
             </span>
           )}
         </div>
 
-        {/* Add Skills Button and Popover */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-[50px] inline-flex items-center gap-2 border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 bg-white py-3 px-6 font-black uppercase text-xs text-black transition-all"
-              >
-                <Plus className="h-4 w-4 text-black border-black border-2 rounded-none p-0 bg-yellow-400" />
-                Add Skills
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-[280px] p-0 border-[3px] border-black rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white z-50"
-              align="start"
-            >
-              <div className="p-3 border-b-[3px] border-black bg-zinc-50">
-                <Input
-                  type="text"
-                  placeholder="Search skills..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="h-10 w-full bg-white placeholder:text-zinc-400 border-[2px] border-black rounded-none px-3 py-1 font-bold text-xs"
-                />
-              </div>
-              <div className="max-h-60 overflow-y-auto p-4 flex flex-col gap-3">
-                {filteredSkills.length > 0 ? (
-                  filteredSkills.map((skill) => {
-                    const isSelected = selected.has(skill);
-                    return (
-                      <div key={skill} className="flex items-center space-x-3">
-                        <Checkbox
-                          id={`skill-${skill}`}
-                          checked={isSelected}
-                          onCheckedChange={(checked) => {
-                            const next = new Set(selected);
-                            if (checked) {
-                              next.add(skill);
-                            } else {
-                              next.delete(skill);
-                            }
-                            setSelected(next);
-                          }}
-                          className="border-[2px] border-black rounded-none data-[state=checked]:bg-black text-white h-5 w-5 shrink-0"
-                        />
-                        <label
-                          htmlFor={`skill-${skill}`}
-                          className="text-sm font-bold uppercase tracking-wide leading-none cursor-pointer select-none"
-                        >
-                          {skill}
-                        </label>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-zinc-500 font-bold uppercase text-xs text-center py-2">
-                    No matching skills
-                  </p>
-                )}
-              </div>
-            </PopoverContent>
-          </Popover>
+        {/* Input & suggestions dropdown */}
+        <div ref={dropdownRef} className="relative">
+          <Input
+            placeholder="Type a skill (e.g. React, Docker) and select or press Enter to add"
+            value={skillInput}
+            onChange={(e) => {
+              setSkillInput(e.target.value);
+              setIsDropdownOpen(true);
+            }}
+            onFocus={() => setIsDropdownOpen(true)}
+            onKeyDown={handleInputKeyDown}
+            className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none px-4 font-bold text-black"
+          />
 
-          {/* Save Button */}
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={isSaving}
-            className="w-full sm:w-auto h-[50px] px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                {isMobile ? "Save" : "Save Skills"}
-              </>
-            )}
-          </Button>
+          {/* Suggestions dropdown */}
+          {isDropdownOpen && (skillInput.trim() || filteredSuggestions.length > 0) && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-50 max-h-[220px] overflow-y-auto rounded-none">
+              {filteredSuggestions.map((skill) => (
+                <button
+                  key={skill}
+                  type="button"
+                  onClick={() => addSkill(skill)}
+                  className="w-full text-left px-4 py-2.5 text-sm font-bold text-black hover:bg-orange-100 transition-colors border-b border-zinc-100 last:border-0 uppercase tracking-wide cursor-pointer"
+                >
+                  {skill}
+                </button>
+              ))}
+              {showAddCustom && (
+                <button
+                  type="button"
+                  onClick={() => addSkill(skillInput)}
+                  className="w-full text-left px-4 py-2.5 text-sm font-black text-orange-600 hover:bg-orange-100 transition-colors border-b border-zinc-100 last:border-0 uppercase tracking-wide cursor-pointer flex items-center gap-1.5"
+                >
+                  <Plus className="w-4.5 h-4.5 border-2 border-orange-600 bg-orange-100" />
+                  Add custom &quot;{skillInput.trim()}&quot;
+                </button>
+              )}
+              {filteredSuggestions.length === 0 && !showAddCustom && (
+                <p className="text-zinc-500 font-bold uppercase text-xs text-center py-3">
+                  No matching skills
+                </p>
+              )}
+            </div>
+          )}
         </div>
+
+        <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+          Select from suggestions or type and press Enter to add a custom skill.
+        </p>
       </div>
     </Section>
   );

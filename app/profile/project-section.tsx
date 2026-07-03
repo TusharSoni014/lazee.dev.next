@@ -276,16 +276,7 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
                       )}
                     </h3>
                     <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2">
-                      {proj.role && (
-                        <span className="text-xs font-bold text-black uppercase tracking-widest bg-zinc-100 px-2 py-0.5 border border-black italic">
-                          Role: {proj.role}
-                        </span>
-                      )}
-                      {proj.duration && (
-                        <span className="text-xs font-bold text-zinc-600 uppercase tracking-widest bg-zinc-100 px-2 py-0.5 border border-black">
-                          {proj.duration}
-                        </span>
-                      )}
+
                       {proj.activeLink && (
                         <a
                           href={proj.activeLink}
@@ -308,9 +299,8 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
                       )}
                     </div>
                     {proj.contribution && (
-                      <p className="text-xs font-bold text-zinc-500 mt-2 uppercase tracking-wide break-words">
-                        <span className="text-black">Contribution:</span>{" "}
-                        {proj.contribution}
+                      <p className="text-xs font-bold text-zinc-500 mt-1.5 italic break-words">
+                        &quot;{proj.contribution}&quot;
                       </p>
                     )}
                   </div>
@@ -456,6 +446,51 @@ interface SaveProgress {
   errorMessage?: string;
 }
 
+const AVAILABLE_TECH_STACKS = [
+  "React",
+  "Next.js",
+  "TypeScript",
+  "JavaScript",
+  "Python",
+  "Node.js",
+  "Tailwind CSS",
+  "PostgreSQL",
+  "MongoDB",
+  "Docker",
+  "AWS",
+  "Git",
+  "Go",
+  "Rust",
+  "Vue.js",
+  "Angular",
+  "Svelte",
+  "FastAPI",
+  "Django",
+  "Flask",
+  "Express",
+  "NestJS",
+  "GraphQL",
+  "Redis",
+  "MySQL",
+  "SQLite",
+  "Kubernetes",
+  "CI/CD",
+  "Firebase",
+  "Supabase",
+  "Prisma",
+  "Drizzle",
+  "HTML",
+  "CSS",
+  "Java",
+  "Spring Boot",
+  "C++",
+  "C#",
+  ".NET",
+  "Ruby on Rails",
+  "PHP",
+  "Laravel"
+];
+
 function ProjectForm({
   proj,
   onConfirm,
@@ -508,6 +543,64 @@ function ProjectForm({
       screenshots: proj.screenshots || [],
     },
   });
+
+  const [stackInput, setStackInput] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const currentStacksVal = form.watch("stacks") || "";
+  const selectedStacks = currentStacksVal
+    ? currentStacksVal.split(",").map((s: string) => s.trim()).filter(Boolean)
+    : [];
+
+  const addStack = (stack: string) => {
+    const trimmed = stack.trim();
+    if (!trimmed) return;
+    const exists = selectedStacks.some(s => s.toLowerCase() === trimmed.toLowerCase());
+    if (exists) {
+      setStackInput("");
+      setIsDropdownOpen(false);
+      return;
+    }
+    const newStacks = [...selectedStacks, trimmed];
+    form.setValue("stacks", newStacks.join(", "), { shouldDirty: true });
+    setStackInput("");
+    setIsDropdownOpen(false);
+  };
+
+  const removeStack = (stackToRemove: string) => {
+    const newStacks = selectedStacks.filter((s: string) => s !== stackToRemove);
+    form.setValue("stacks", newStacks.join(", "), { shouldDirty: true });
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredSuggestions = AVAILABLE_TECH_STACKS.filter((tech) => {
+    const matchesSearch = tech.toLowerCase().includes(stackInput.toLowerCase());
+    const isAlreadySelected = selectedStacks.some(s => s.toLowerCase() === tech.toLowerCase());
+    return matchesSearch && !isAlreadySelected;
+  });
+
+  const showAddCustom = stackInput.trim() && 
+    !AVAILABLE_TECH_STACKS.some(t => t.toLowerCase() === stackInput.trim().toLowerCase()) && 
+    !selectedStacks.some(s => s.toLowerCase() === stackInput.trim().toLowerCase());
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (stackInput.trim()) {
+        addStack(stackInput);
+      }
+    }
+  };
 
   const screenshots = form.watch("screenshots") || [];
   const logoUrl = form.watch("logoUrl") || "";
@@ -835,7 +928,7 @@ function ProjectForm({
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem className="space-y-2">
+                <FormItem className="space-y-2 col-span-full">
                   <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
                     Project Name *
                   </FormLabel>
@@ -851,65 +944,22 @@ function ProjectForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
-                    Your Role
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isPendingSave || isLoading}
-                      value={field.value || ""}
-                      placeholder="Lead Developer"
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
-
           <div className="grid gap-6 md:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="duration"
-              render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
-                    Duration / Timeframe
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isPendingSave || isLoading}
-                      value={field.value || ""}
-                      placeholder="Jan 2024 - Present"
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="contribution"
               render={({ field }) => (
-                <FormItem className="space-y-2">
+                <FormItem className="space-y-2 col-span-full">
                   <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
-                    Key Contribution
+                    Tagline (Optional)
                   </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       disabled={isPendingSave || isLoading}
                       value={field.value || ""}
-                      placeholder="Implemented Real-time Chat"
+                      placeholder="A catchy one-liner tagline for your project"
                       className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
                     />
                   </FormControl>
@@ -1174,21 +1224,80 @@ function ProjectForm({
           <FormField
             control={form.control}
             name="stacks"
-            render={({ field }) => (
-              <FormItem className="space-y-2">
+            render={() => (
+              <FormItem className="space-y-2 col-span-full">
                 <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
-                  Tech Stack (Comma-separated)
+                  Tech Stack
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    disabled={isPendingSave || isLoading}
-                    placeholder="React, Next.js, Tailwind CSS"
-                    className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                  />
+                  <div className="space-y-3" ref={dropdownRef}>
+                    {/* Render selected tags */}
+                    {selectedStacks.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-2 p-3 border-[3px] border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        {selectedStacks.map((stack: string) => (
+                          <span
+                            key={stack}
+                            className="inline-flex items-center gap-1.5 bg-yellow-300 border-2 border-black px-2.5 py-1 text-xs font-black uppercase text-black"
+                          >
+                            {stack}
+                            <button
+                              type="button"
+                              disabled={isPendingSave || isLoading}
+                              onClick={() => removeStack(stack)}
+                              className="hover:bg-black hover:text-white rounded-full p-[1px] transition-colors inline-flex items-center justify-center cursor-pointer"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Input & suggestions dropdown container */}
+                    <div className="relative">
+                      <Input
+                        disabled={isPendingSave || isLoading}
+                        placeholder="Type tech stack (e.g. React, Docker) and select or press Enter"
+                        value={stackInput}
+                        onChange={(e) => {
+                          setStackInput(e.target.value);
+                          setIsDropdownOpen(true);
+                        }}
+                        onFocus={() => setIsDropdownOpen(true)}
+                        onKeyDown={handleInputKeyDown}
+                        className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
+                      />
+
+                      {/* Suggestions dropdown */}
+                      {isDropdownOpen && (stackInput.trim() || filteredSuggestions.length > 0) && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-50 max-h-[220px] overflow-y-auto rounded-none">
+                          {filteredSuggestions.map((tech) => (
+                            <button
+                              key={tech}
+                              type="button"
+                              onClick={() => addStack(tech)}
+                              className="w-full text-left px-4 py-2.5 text-sm font-bold text-black hover:bg-orange-100 transition-colors border-b border-zinc-100 last:border-0 uppercase tracking-wide cursor-pointer"
+                            >
+                              {tech}
+                            </button>
+                          ))}
+                          {showAddCustom && (
+                            <button
+                              type="button"
+                              onClick={() => addStack(stackInput)}
+                              className="w-full text-left px-4 py-2.5 text-sm font-black text-orange-600 hover:bg-orange-100 transition-colors border-b border-zinc-100 last:border-0 uppercase tracking-wide cursor-pointer flex items-center gap-1.5"
+                            >
+                              <Plus className="w-4.5 h-4.5 border-2 border-orange-600 bg-orange-100" />
+                              Add custom &quot;{stackInput.trim()}&quot;
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </FormControl>
                 <p className="text-xs font-bold text-zinc-500 pt-1">
-                  Provide project stacks separated by commas.
+                  Select tech stack from suggestions or type and press Enter to add a custom one.
                 </p>
                 <FormMessage />
               </FormItem>

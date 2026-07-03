@@ -13,6 +13,8 @@ export default function AuthForm() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
 
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
@@ -87,9 +89,10 @@ export default function AuthForm() {
             className="flex flex-col gap-6"
           >
             <button
+              id="google-login-btn"
               onClick={handleGoogleLogin}
               disabled={isEmailLoading || isGoogleLoading}
-              className="flex w-full items-center justify-center gap-3 bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white h-16 px-6 border-[3px] border-black dark:border-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-[5px_5px_0px_0px_#000000] dark:shadow-[5px_5px_0px_0px_#ffffff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[3px_3px_0px_0px_#000000] dark:active:shadow-[3px_3px_0px_0px_#ffffff] disabled:opacity-50 cursor-pointer"
+              className="flex w-full items-center justify-center gap-3 bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white h-16 px-6 border-[3px] border-black dark:border-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-[5px_5px_0px_0px_#000000] dark:shadow-[5px_5px_0px_0px_#ffffff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[3px_3px_0px_0px_#000000] dark:active:shadow-[3px_3px_0px_0px_#ffffff] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isGoogleLoading ? (
                 <Loader2 className="h-6 w-6 animate-spin text-black dark:text-white" />
@@ -148,19 +151,20 @@ export default function AuthForm() {
                   value={email}
                   disabled={isEmailLoading || isGoogleLoading}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-14 px-4 bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white border-[3px] border-black dark:border-white focus:outline-none focus:border-[#f26c0d] dark:focus:border-[#f26c0d] placeholder:text-slate-400 text-lg font-medium transition-all rounded-none shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff] focus:shadow-[6px_6px_0px_0px_#f26c0d] dark:focus:shadow-[6px_6px_0px_0px_#f26c0d]"
+                  className="w-full h-14 px-4 bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white border-[3px] border-black dark:border-white focus:outline-none focus:border-[#f26c0d] dark:focus:border-[#f26c0d] placeholder:text-slate-400 text-lg font-medium transition-all rounded-none shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff] focus:shadow-[6px_6px_0px_0px_#f26c0d] dark:focus:shadow-[6px_6px_0px_0px_#f26c0d] disabled:opacity-50 disabled:cursor-not-allowed"
                 />
-                {email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && !email.toLowerCase().endsWith("@gmail.com") && (
-                  <p className="text-red-500 dark:text-red-400 text-xs font-black uppercase tracking-wide mt-1 flex items-center gap-1">
-                    ⚠️ Only @gmail.com accounts are eligible for free credits.
+                {email && isEmailValid && !email.toLowerCase().endsWith("@gmail.com") && (
+                  <p className="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1.5 flex items-center gap-1 font-sans">
+                    💡 Note: Only @gmail.com accounts are eligible for free signup credits.
                   </p>
                 )}
               </div>
 
               <button
+                id="send-magic-link-btn"
                 type="submit"
-                disabled={isEmailLoading || isGoogleLoading}
-                className="group flex items-center justify-center gap-2 w-full h-16 bg-[#f26c0d] text-[#1c130d] transition-all cursor-pointer border-[3px] border-black dark:border-white shadow-[5px_5px_0px_0px_#000000] dark:shadow-[5px_5px_0px_0px_#ffffff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[3px_3px_0px_0px_#000000] dark:active:shadow-[3px_3px_0px_0px_#ffffff] disabled:opacity-50"
+                disabled={isEmailLoading || isGoogleLoading || !isEmailValid}
+                className="group flex items-center justify-center gap-2 w-full h-16 bg-[#f26c0d] text-[#1c130d] transition-all cursor-pointer border-[3px] border-black dark:border-white shadow-[5px_5px_0px_0px_#000000] dark:shadow-[5px_5px_0px_0px_#ffffff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[3px_3px_0px_0px_#000000] dark:active:shadow-[3px_3px_0px_0px_#ffffff] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isEmailLoading ? (
                   <Loader2 className="h-6 w-6 animate-spin text-black" />

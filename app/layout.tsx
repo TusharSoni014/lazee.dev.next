@@ -35,10 +35,12 @@ export const metadata: Metadata = {
     "browser extension",
     "job hunting automation",
     "auto fill forms",
+    "ai chrome extension for job filling",
+    "job",
     "lazee.dev",
   ],
   authors: [{ name: "Lazee.dev" }],
-  creator: "Lazee.dev",
+  creator: "Tushar Soni",
   openGraph: {
     type: "website",
     locale: "en_US",

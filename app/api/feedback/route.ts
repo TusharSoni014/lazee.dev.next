@@ -15,11 +15,17 @@ export async function POST(req: NextRequest) {
     const session = await auth();
 
     // Rate limiting (use email or IP)
-    const identifier = session?.user?.email || req.headers.get("x-forwarded-for") || "anonymous";
-    const rateLimit = checkRateLimit(`feedback:${identifier}`, RATE_LIMITS.feedback);
+    const identifier =
+      session?.user?.email || req.headers.get("x-forwarded-for") || "anonymous";
+    const rateLimit = checkRateLimit(
+      `feedback:${identifier}`,
+      RATE_LIMITS.feedback,
+    );
     if (!rateLimit.success) {
       return NextResponse.json(
-        { error: `Too many requests. Please try again in ${rateLimit.resetIn} seconds.` },
+        {
+          error: `Too many requests. Please try again in ${rateLimit.resetIn} seconds.`,
+        },
         { status: 429, headers: { "Retry-After": String(rateLimit.resetIn) } },
       );
     }
@@ -30,7 +36,7 @@ export async function POST(req: NextRequest) {
     if (!message || !type) {
       return NextResponse.json(
         { error: "Message and type are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -38,7 +44,7 @@ export async function POST(req: NextRequest) {
       console.error("Notion API configuration is missing");
       return NextResponse.json(
         { error: "Feedback system is not configured correctly" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -80,7 +86,7 @@ export async function POST(req: NextRequest) {
       const port = parseInt(process.env.EMAIL_SERVER_PORT || "587");
       const user = process.env.EMAIL_SERVER_USER;
       const pass = process.env.EMAIL_SERVER_PASSWORD;
-      const from = process.env.EMAIL_FROM || '"Lazee.dev" <no-reply@lazee.dev>';
+      const from = process.env.EMAIL_FROM || "Lazee.dev <no-reply@lazee.dev>";
 
       if (host && user && pass) {
         const transporter = createTransport({
@@ -124,9 +130,13 @@ ${message}
 </div>
           `,
         });
-        console.log(`[FEEDBACK] Email copy successfully sent to tusharsoni014@gmail.com`);
+        console.log(
+          `[FEEDBACK] Email copy successfully sent to tusharsoni014@gmail.com`,
+        );
       } else {
-        console.warn("[FEEDBACK] SMTP credentials missing, skipped email copy.");
+        console.warn(
+          "[FEEDBACK] SMTP credentials missing, skipped email copy.",
+        );
       }
     } catch (emailError) {
       console.error("[FEEDBACK] Failed to send email copy:", emailError);
@@ -138,7 +148,7 @@ ${message}
     console.error("Notion API Error:", error);
     return NextResponse.json(
       { error: "Failed to submit feedback. Please try again later." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

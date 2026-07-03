@@ -626,20 +626,12 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                           <h3 className="text-lg md:text-xl font-black uppercase text-black leading-tight italic">
                             {project.name}
                           </h3>
+                          {project.contribution && (
+                            <p className="text-xs font-medium text-zinc-500 italic mt-0.5 leading-snug">
+                              &quot;{project.contribution}&quot;
+                            </p>
+                          )}
                           
-                          {/* Project details list (Role, Duration) */}
-                          <div className="flex flex-wrap items-center gap-3 text-[10px] font-black text-zinc-500 uppercase tracking-wider">
-                            {project.role && (
-                              <span className="inline-flex items-center gap-1.5 border border-zinc-300 px-2 py-0.5 bg-zinc-100 text-zinc-700">
-                                Role: {project.role}
-                              </span>
-                            )}
-                            {project.duration && (
-                              <span className="inline-flex items-center gap-1.5 border border-zinc-300 px-2 py-0.5 bg-zinc-100 text-zinc-700">
-                                Duration: {project.duration}
-                              </span>
-                            )}
-                          </div>
                         </div>
 
                         {project.description && (
@@ -648,12 +640,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                           </p>
                         )}
 
-                        {project.contribution && (
-                          <div className="border-[2px] border-dashed border-black bg-[#fafafa] p-3 text-xs text-zinc-700 font-medium space-y-1">
-                            <p className="font-black uppercase text-[9px] text-black tracking-wider">My Contributions:</p>
-                            <p className="leading-relaxed whitespace-pre-line">{project.contribution}</p>
-                          </div>
-                        )}
+
 
                         {/* Stacks tags */}
                         {project.stacks && project.stacks.length > 0 && (
