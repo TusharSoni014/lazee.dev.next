@@ -1,0 +1,160 @@
+# Lazee.dev
+
+> Lazee.dev is an AI-powered browser extension that auto-fills job applications using your profile. Apply to jobs 100x faster — stop typing, start applying.
+
+## About
+
+Lazee.dev is a productivity tool built for developers, engineers, and job seekers who are tired of manually filling out repetitive job application forms. It works as a browser extension for Chrome, Firefox, and Edge that automatically detects job application fields on career pages and fills them using your saved profile data and AI-generated answers.
+
+- Website: https://lazee.dev
+- Tagline: "Stop Typing. Start Applying."
+- Category: Developer Tools / Job Search Automation / AI Productivity
+- Status: Launched & Active
+
+## Problem
+
+Applying to jobs is painfully repetitive. Developers spend 4+ minutes per application re-entering the same information — name, email, phone, experience, skills, uploading resumes, and answering open-ended questions. Over 10 applications, that's 40 minutes of mindless form-filling.
+
+## Solution
+
+Lazee.dev reduces application time from ~4 minutes to under 10 seconds per job. It stores your profile data once and autofills everything automatically. AI handles the open-ended questions by generating context-aware, tailored responses drawn from your profile details.
+
+## Key Features
+
+### Smart Auto-Fill (Free, Unlimited)
+Automatically detects and fills job application form fields — names, email, phone, experience, skills, social links, and more — using your saved profile. Non-AI autofill is completely free and unlimited forever.
+
+### AI-Powered Answers
+For open-ended application questions (e.g., "Why do you want to join?"), Lazee analyzes the question and generates professional, context-rich answers using your profile as context. Costs 2 AI credits per field.
+
+### Express AI Fill (Pro Feature)
+Autofill entire job applications with one click. Detects all open-ended questions on a career page and generates high-quality AI responses for all of them simultaneously.
+
+### Multiple Resume Management
+Upload and manage multiple resume versions (e.g., Frontend-focused, Fullstack-focused). Switch between active resumes directly from the browser extension popup when applying.
+
+### AI Cold DM Generator
+Draft professional, personalized recruiter cold emails directly inside Gmail compose. Lazee uses the target job details and your background to write high-converting outreach messages.
+
+### Public Developer Profile
+Get a shareable public profile at lazee.dev/u/yourusername. Showcase your expertise, projects, skills, and contact information — functions as a quick recruiter portal.
+
+### Multi-Platform Compatibility
+Works seamlessly across 100+ job boards and ATS platforms including Greenhouse, Lever, SmartRecruiters, Y Combinator (Work at a Startup), Wellfound, Glassdoor, Google Forms, Notion, Airtable, Tally, Gmail, and more. New platforms added daily.
+
+## Profile Data You Can Store
+
+- Full name, phone number, country
+- Job type preference, current CTC, notice period
+- Work experience and projects
+- Skills
+- Multiple resumes (upload and switch)
+- Social links: LinkedIn, GitHub, Twitter/X, Portfolio, Telegram
+- Default cover letter
+- Custom AI guidance notes (to influence AI answer generation)
+
+## How It Works
+
+1. **Create Your Profile** — Add your details, experience, skills, and upload resumes once on lazee.dev. We remember it all.
+2. **Install the Extension** — Add Lazee to Chrome, Firefox, or Edge with one click. Takes less than 30 seconds.
+3. **Apply Anywhere** — Open any job posting, click apply, and Lazee autofills everything. AI answers the hard questions for you.
+
+## Pricing
+
+### Free Plan — $0/month
+- Unlimited profile data autofill (forever free)
+- Works on 100+ job boards
+- AI Cold DM Generator (Gmail)
+- 200 AI credits per month (refreshed automatically)
+
+### Pro Plan — $9/month
+- Everything in Free
+- 10,000 AI credits per month
+- Express AI Fill (one-click full form autofill)
+- Advanced AI reasoning for better answers
+- Priority support & updates
+
+## Stats
+
+- 2,000+ developers using Lazee
+- 500K+ fields autofilled
+- 10K+ applications submitted
+- 97% time saved compared to manual applications
+
+## Install the Extension
+
+### Chrome / Edge / Chromium Browsers
+https://chromewebstore.google.com/detail/lazeedev-ai-job-autofill/hkompooiicoamiambpjhbbmimjefgiii
+
+### Firefox
+https://addons.mozilla.org/en-US/firefox/addon/lazeedev/
+
+## Launched On
+
+- **Product Hunt**: https://www.producthunt.com/products/lazee-dev
+- **Peerlist**: https://peerlist.io/tusharsoni014/project/lazeedev--job-applications-100x-faster
+- **Chrome Web Store**: https://chromewebstore.google.com/detail/lazeedev-ai-job-autofill/hkompooiicoamiambpjhbbmimjefgiii
+- **Firefox Add-ons**: https://addons.mozilla.org/en-US/firefox/addon/lazeedev/
+
+## Tech Stack
+
+- **Frontend**: Next.js 16, React 19, TypeScript, TailwindCSS 4
+- **Animations**: Motion (Framer Motion)
+- **Auth**: NextAuth.js v5
+- **Database**: PostgreSQL with Prisma ORM
+- **Payments**: Dodo Payments
+- **Storage**: Cloudflare R2 (AWS S3 compatible)
+- **Hosting**: Vercel
+- **Extension**: Cross-browser extension (Chrome, Firefox, Edge)
+
+## Pages & Navigation
+
+- **Home**: https://lazee.dev
+- **Features**: https://lazee.dev/#features
+- **Pricing**: https://lazee.dev/#pricing
+- **FAQ**: https://lazee.dev/#faq
+- **Login**: https://lazee.dev/login
+- **Profile / Dashboard**: https://lazee.dev/profile
+- **Public Profiles**: https://lazee.dev/u/{username}
+- **Feedback**: https://lazee.dev/feedback
+- **Careers**: https://lazee.dev/careers
+- **Privacy Policy**: https://lazee.dev/privacy
+- **Terms of Service**: https://lazee.dev/terms
+
+## Built By
+
+**Tushar Soni** (@tusharsoni014)
+- X / Twitter: https://x.com/tusharsoni014
+- Portfolio: https://tusharsoni.com
+- LinkedIn: https://www.linkedin.com/in/tushar-verma-developer
+- GitHub: https://github.com/tusharsoni014
+
+## FAQ
+
+### How does the AI autofill work?
+Lazee.dev is a browser extension that automatically detects job application fields and autofills them using your saved profile details. Basic autofill (names, contact info, experience, skills, social profiles) is completely free and unlimited forever without needing a subscription. AI-assisted answers (for custom, open-ended questions) draw from your profile context and use 2 credits per field.
+
+### What job boards and ATS platforms are supported?
+Compatible with 100+ job boards. Officially supports Greenhouse, Lever, SmartRecruiters, Y Combinator (Work at a Startup), Glassdoor, Wellfound, Notion, Airtable, Google Forms, Tally, and Gmail compose. New platforms added daily. Works across Chrome, Firefox, and Edge.
+
+### What is the credits system?
+Credits power the AI-assisted fills. Every free account gets 200 credits per month, refreshed automatically. Each AI fill costs 2 credits. Pro users get 10,000 credits per month. Non-AI autofill (your profile data, resumes, links) is completely free and unlimited for all users.
+
+### What's included in the Free vs Pro plan?
+All core autofill features are 100% free. The Free plan gives you unlimited profile data autofill, 200 AI credits/month, and works on 100+ platforms. The Pro plan ($9/mo) adds 10,000 AI credits/month, Express AI Fill (one-click full-form autofill), advanced AI reasoning, and priority support.
+
+### Can I store and use multiple resumes?
+Yes! Lazee.dev supports managing multiple resume versions. Upload different resumes tailored for different roles and switch between them directly from the extension when applying.
+
+### What is the Public Profile feature?
+Set a custom username to get a shareable public profile link (lazee.dev/u/yourusername). Share your professional details publicly for recruiters and job applications.
+
+## Contact
+
+- Feedback: https://lazee.dev/feedback
+- X / Twitter: https://x.com/tusharsoni014
+- Email: Available via the feedback form on lazee.dev
+
+## License
+
+©2026 Lazee.dev. All rights reserved.
