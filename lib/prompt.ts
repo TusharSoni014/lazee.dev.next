@@ -56,7 +56,8 @@ CORE BACKGROUND:\n`;
     user.educations.forEach((edu: any) => {
       prompt += `  - Institution: ${edu.schoolName}\n`;
       if (edu.degree) prompt += `    Degree: ${edu.degree}\n`;
-      if (edu.fieldOfStudy) prompt += `    Field of Study: ${edu.fieldOfStudy}\n`;
+      if (edu.fieldOfStudy)
+        prompt += `    Field of Study: ${edu.fieldOfStudy}\n`;
       const start = edu.startDate
         ? new Date(edu.startDate).toLocaleDateString()
         : "NA";
@@ -103,10 +104,14 @@ CORE BACKGROUND:\n`;
 
   prompt += `\nPERSONAL PROFILE & CONTACT:\n`;
   if (user.email) prompt += `- Email: ${user.email}\n`;
-  if (user.phoneNumber) prompt += `- Phone: ${user.countryCode || ''} ${user.phoneNumber}\n`;
-  if (user.location || user.country) prompt += `- Location: ${[user.location, user.country].filter(Boolean).join(", ")}\n`;
-  if (user.noticePeriod !== null && user.noticePeriod !== undefined) prompt += `- Notice Period: ${user.noticePeriod} days\n`;
-  if (user.currentCtc !== null && user.currentCtc !== undefined) prompt += `- Current CTC: ${user.currency || ''} ${user.currentCtc}\n`;
+  if (user.phoneNumber)
+    prompt += `- Phone: ${user.countryCode || ""} ${user.phoneNumber}\n`;
+  if (user.location || user.country)
+    prompt += `- Location: ${[user.location, user.country].filter(Boolean).join(", ")}\n`;
+  if (user.noticePeriod !== null && user.noticePeriod !== undefined)
+    prompt += `- Notice Period: ${user.noticePeriod} days\n`;
+  if (user.currentCtc !== null && user.currentCtc !== undefined)
+    prompt += `- Current CTC: ${user.currency || ""} ${user.currentCtc}\n`;
   if (user.linkedin) prompt += `- LinkedIn: ${user.linkedin}\n`;
   if (user.github) prompt += `- GitHub: ${user.github}\n`;
   if (user.portfolio) prompt += `- Portfolio/Website: ${user.portfolio}\n`;
@@ -123,7 +128,7 @@ export function buildColdDmPrompt(
   companyOrFounder: string,
   messageType: string,
   tone: string,
-  additionalInstructions: string
+  additionalInstructions: string,
 ) {
   const fullName =
     [user.firstName, user.lastName].filter(Boolean).join(" ") ||
@@ -141,14 +146,14 @@ BACKGROUND ABOUT YOU (${fullName}):
   }
   if (user.experiences && user.experiences.length > 0) {
     prompt += `- Professional Experience: \n`;
-    user.experiences.slice(0, 3).forEach((exp: any) => {
-      prompt += `  - Role at ${exp.companyName}: ${exp.description || 'Software Engineer'}\n`;
+    user.experiences.forEach((exp: any) => {
+      prompt += `  - Role at ${exp.companyName}: ${exp.description || "Software Engineer"}\n`;
     });
   }
   if (user.projects && user.projects.length > 0) {
     prompt += `- Projects you've built: \n`;
-    user.projects.slice(0, 3).forEach((proj: any) => {
-      prompt += `  - ${proj.name}: ${proj.description || ''}\n`;
+    user.projects.forEach((proj: any) => {
+      prompt += `  - ${proj.name}: ${proj.description || ""}\n`;
     });
   }
   if (user.collegeName) {
@@ -156,8 +161,8 @@ BACKGROUND ABOUT YOU (${fullName}):
   }
   if (user.educations && user.educations.length > 0) {
     prompt += `- Education:\n`;
-    user.educations.slice(0, 2).forEach((edu: any) => {
-      prompt += `  - ${edu.degree || 'Degree'} in ${edu.fieldOfStudy || 'Field'} from ${edu.schoolName}\n`;
+    user.educations.forEach((edu: any) => {
+      prompt += `  - ${edu.degree || "Degree"} in ${edu.fieldOfStudy || "Field"} from ${edu.schoolName}\n`;
     });
   }
   if (user.portfolio) prompt += `- Portfolio/Website: ${user.portfolio}\n`;
@@ -230,4 +235,3 @@ CRITICAL WRITING RULES:
 
   return prompt;
 }
-

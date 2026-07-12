@@ -11,8 +11,6 @@ const DATABASE_ID = process.env.NOTION_FEEDBACK_DATABASE_ID;
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-
     const data = await req.json();
     const { name, email, type, message } = data;
 
