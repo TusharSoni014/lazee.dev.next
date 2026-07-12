@@ -4,7 +4,6 @@ import prisma from "@/lib/prisma";
 import { buildSystemPrompt } from "@/lib/prompt";
 import { checkAndRefreshCredits } from "@/lib/credits";
 import { getCorsHeaders } from "@/lib/cors";
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get("origin");
@@ -21,26 +20,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Not authenticated" },
         { status: 401, headers: corsHeaders },
-      );
-    }
-
-    // Rate limiting
-    const rateLimit = checkRateLimit(
-      `chat:${session.user.email}`,
-      RATE_LIMITS.chat,
-    );
-    if (!rateLimit.success) {
-      return NextResponse.json(
-        {
-          error: `Too many requests. Please try again in ${rateLimit.resetIn} seconds.`,
-        },
-        {
-          status: 429,
-          headers: {
-            ...corsHeaders,
-            "Retry-After": String(rateLimit.resetIn),
-          },
-        },
       );
     }
 
