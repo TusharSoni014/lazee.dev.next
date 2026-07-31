@@ -1,4 +1,5 @@
 import { HeroSection } from "@/components/hero-section";
+import { VideoSection } from "@/components/video-section";
 import { LogoCarousel } from "@/components/logo-carousel";
 import { ComparisonSection } from "@/components/comparison-section";
 import { HowItWorksSection } from "@/components/how-it-works-section";
@@ -22,6 +23,7 @@ export default function Home() {
 
       <main className="relative z-10 flex w-full max-w-6xl flex-col items-center px-4 sm:px-8 overflow-visible">
         <HeroSection />
+        <VideoSection />
         <LogoCarousel />
         <ComparisonSection />
         <HowItWorksSection />
