@@ -12,16 +12,22 @@ import { FooterCtaSection } from "@/components/footer-cta-section";
 
 export default function Home() {
   return (
-    <div className="relative py-20 flex min-h-screen flex-col items-center overflow-hidden bg-[#fefaf6] selection:bg-orange-500 selection:text-white">
-      <div
-        className="absolute inset-0 z-0 opacity-[0.08]"
-        style={{
-          backgroundImage: `linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)`,
-          backgroundSize: "40px 40px",
-        }}
-      />
+    <div className="relative min-h-[100dvh] flex flex-col items-center overflow-hidden bg-zinc-50 dark:bg-zinc-950 selection:bg-orange-500/20 selection:text-orange-950 dark:selection:text-orange-200">
+      {/* Subtle Ambient Illumination */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[550px] bg-gradient-to-b from-orange-500/[0.07] via-orange-500/[0.02] to-transparent blur-3xl rounded-full" />
+        <div
+          className="absolute inset-0 opacity-[0.4] dark:opacity-[0.2]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, #d4d4d8 1px, transparent 0)`,
+            backgroundSize: "32px 32px",
+            maskImage: "radial-gradient(ellipse 70% 70% at 50% 30%, #000 40%, transparent 100%)",
+            WebkitMaskImage: "radial-gradient(ellipse 70% 70% at 50% 30%, #000 40%, transparent 100%)",
+          }}
+        />
+      </div>
 
-      <main className="relative z-10 flex w-full max-w-6xl flex-col items-center px-4 sm:px-8 overflow-visible">
+      <div className="relative z-10 flex w-full max-w-7xl flex-col items-center px-4 sm:px-6 lg:px-8">
         <HeroSection />
         <VideoSection />
         <LogoCarousel />
@@ -33,7 +39,7 @@ export default function Home() {
         <PricingSection />
         <FaqSection />
         <FooterCtaSection />
-      </main>
+      </div>
     </div>
   );
 }

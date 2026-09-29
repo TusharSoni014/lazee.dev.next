@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Minus } from "lucide-react";
-import { InstallModal } from "./install-modal";
-import { Button } from "./ui/button";
+import { ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
 const faqs = [
   {
@@ -58,59 +57,58 @@ export function FaqSection() {
   return (
     <section
       id="faq"
-      className="w-full max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8 mb-12"
+      className="w-full max-w-3xl mx-auto py-12 sm:py-16 px-4 sm:px-6 my-8"
     >
-      <div className="flex flex-col items-center mb-16 text-center">
-        <div className="inline-block border-2 border-black bg-white px-3.5 py-1.5 text-xs font-black uppercase tracking-widest shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)] mb-4 rounded-none">
-          FAQ
+      <div className="flex flex-col items-center mb-12 text-center">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-mono font-medium mb-3">
+          <span>Frequently Answered</span>
         </div>
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-black leading-tight mb-4 uppercase text-black">
-          Frequently <br className="sm:hidden" />
-          Asked Questions
+        <h2 className="text-3xl sm:text-4xl font-heading font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          Frequently Asked Questions
         </h2>
+        <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 mt-2">
+          Everything you need to know about security, schemas, and automation.
+        </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {faqs.map((faq, index) => {
           const isOpen = openIndex === index;
           return (
             <div
               key={index}
-              className={`bg-white border-[3px] border-black rounded-none overflow-hidden transition-all duration-200 ${
-                isOpen
-                  ? "shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] -translate-y-0.5"
-                  : "hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5"
-              }`}
+              className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden transition-all shadow-2xs hover:border-zinc-300 dark:hover:border-zinc-700"
             >
               <button
                 onClick={() => toggleFaq(index)}
-                className="w-full flex items-center justify-between p-5 sm:p-6 text-left focus:outline-none cursor-pointer"
+                className="w-full flex items-center justify-between p-4 sm:p-5 text-left focus:outline-none cursor-pointer gap-4"
               >
-                <span className="text-base sm:text-lg font-black text-black leading-snug pr-4">
+                <span className="text-sm sm:text-base font-semibold text-zinc-900 dark:text-zinc-100 leading-snug">
                   {faq.question}
                 </span>
                 <div
-                  className={`flex items-center justify-center w-8 h-8 rounded-full border-2 border-black transition-all duration-200 shrink-0 ${
-                    isOpen ? "rotate-180 bg-orange-500 text-white" : "bg-orange-50 text-orange-500"
+                  className={`size-6 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 ${
+                    isOpen ? "rotate-180 text-orange-600 bg-orange-50 dark:bg-orange-950/40" : "text-zinc-400"
                   }`}
                 >
-                  {isOpen ? (
-                    <Minus className="w-4 h-4" strokeWidth={3} />
-                  ) : (
-                    <Plus className="w-4 h-4" strokeWidth={3} />
-                  )}
+                  <ChevronDown className="size-4" strokeWidth={2} />
                 </div>
               </button>
 
-              <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                }`}
-              >
-                <div className="p-5 sm:p-6 pt-0 border-t-2 border-zinc-100 text-sm sm:text-base font-bold text-zinc-600 bg-zinc-50/50 leading-relaxed rounded-none">
-                  {faq.answer}
-                </div>
-              </div>
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                  >
+                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 border-t border-zinc-100 dark:border-zinc-900 leading-relaxed pt-3">
+                      {faq.answer}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}

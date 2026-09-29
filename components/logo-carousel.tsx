@@ -21,18 +21,18 @@ export function LogoCarousel() {
   const baseUrl = "https://pub-889628534b094cf89bcd7cd93528323d.r2.dev/assets/";
 
   return (
-    <div className="w-full py-20 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="mb-12 text-center">
-          <h2 className="inline-block bg-[#00bcd4] text-black text-xl sm:text-2xl font-black uppercase tracking-tight px-6 py-2 border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform rotate-1">
-            Supported Sites
-          </h2>
+    <section id="platforms" className="w-full py-12 sm:py-16 border-y border-zinc-200/80 dark:border-zinc-800/80 my-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 text-center">
+          <p className="text-xs uppercase font-mono tracking-wider font-semibold text-zinc-400 dark:text-zinc-500">
+            Native DOM Integration Across Modern ATS & Job Portals
+          </p>
         </div>
 
-        <div className="relative bg-white border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] py-12 overflow-hidden">
-          {/* Enhanced Fade Effect */}
-          <div className="absolute top-0 left-0 w-24 sm:w-48 h-full bg-linear-to-r from-white via-white/80 to-transparent z-10 pointer-events-none" />
-          <div className="absolute top-0 right-0 w-24 sm:w-48 h-full bg-linear-to-l from-white via-white/80 to-transparent z-10 pointer-events-none" />
+        <div className="relative overflow-hidden">
+          {/* Subtle Side Fades */}
+          <div className="absolute top-0 left-0 w-20 sm:w-32 h-full bg-gradient-to-r from-zinc-50 dark:from-zinc-950 to-transparent z-10 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-20 sm:w-32 h-full bg-gradient-to-l from-zinc-50 dark:from-zinc-950 to-transparent z-10 pointer-events-none" />
 
           <div className="flex overflow-hidden">
             <motion.div
@@ -43,18 +43,18 @@ export function LogoCarousel() {
                 x: {
                   repeat: Infinity,
                   repeatType: "loop",
-                  duration: 25,
+                  duration: 28,
                   ease: "linear",
                 },
               }}
-              className="flex whitespace-nowrap items-center"
+              className="flex whitespace-nowrap items-center py-2"
             >
               {duplicatedLogos.map((logo, index) => (
                 <div
                   key={`${logo.name}-${index}`}
-                  className="flex items-center justify-center grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300 px-6 sm:px-12"
+                  className="flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-200 px-6 sm:px-10"
                 >
-                  <div className="relative h-10 w-28 sm:h-12 sm:w-36 flex items-center justify-center">
+                  <div className="relative h-8 w-24 sm:h-9 sm:w-28 flex items-center justify-center">
                     <Image
                       src={`${baseUrl}${logo.src}`}
                       alt={logo.name}
@@ -69,6 +69,6 @@ export function LogoCarousel() {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

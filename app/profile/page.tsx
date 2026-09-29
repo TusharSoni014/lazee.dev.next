@@ -3,9 +3,16 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import ProfileForm from "./profile-form";
 import { SignOutButton } from "@/components/SignOutButton";
-import { Lock, FileText, Sparkles, Globe, Key, UserCheck } from "lucide-react";
+import { Lock, FileText, Sparkles, Globe, ArrowRight, UserCheck } from "lucide-react";
+import Link from "next/link";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Candidate Profile",
+  description: "Manage your credentials, resumes, and extension sync settings on Lazee.dev.",
+};
 
 export default async function ProfilePage({
   searchParams,
@@ -20,100 +27,103 @@ export default async function ProfilePage({
 
   if (!session?.user?.email) {
     return (
-      <div className="relative min-h-screen bg-[#fefaf6] selection:bg-orange-500 selection:text-white pb-20 overflow-x-hidden">
-        {/* Background Dots Pattern */}
-        <div
-          className="fixed inset-0 z-0 opacity-[0.03] pointer-events-none"
-          style={{
-            backgroundImage: `radial-gradient(#000 1px, transparent 1px)`,
-            backgroundSize: "40px 40px",
-          }}
-        />
+      <div className="min-h-[calc(100dvh-4rem)] bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 py-16 md:py-24 px-4 flex items-center justify-center relative overflow-hidden transition-colors">
+        {/* Subtle Ambient Radial Glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(234,88,12,0.05),transparent_60%)] pointer-events-none" />
 
-        <div className="relative z-10 container mx-auto max-w-2xl px-4 py-16 md:py-28 flex flex-col items-center">
-          
+        <div className="relative z-10 w-full max-w-xl">
           {/* Main Card */}
-          <div className="w-full border-[4px] border-black bg-white p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden transition-all duration-300">
-            {/* Grid background effect */}
-            <div 
-              className="absolute inset-0 z-0 opacity-[0.02] pointer-events-none"
-              style={{
-                backgroundImage: `linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)`,
-                backgroundSize: "20px 20px"
-              }}
-            />
-
-            {/* Top row window control circles */}
-            <div className="absolute top-4 right-4 flex items-center gap-1.5 z-10">
-              <span className="w-3 h-3 rounded-full border border-black bg-red-400"></span>
-              <span className="w-3 h-3 rounded-full border border-black bg-yellow-400"></span>
-              <span className="w-3 h-3 rounded-full border border-black bg-green-400"></span>
-            </div>
-
-            <div className="relative z-10 flex flex-col items-center text-center space-y-6">
-              
-              {/* Lock Icon Block */}
-              <div className="h-16 w-16 rounded-none border-[3px] border-black bg-orange-100 flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black">
-                <Lock className="w-8 h-8" />
+          <div className="w-full rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-8 sm:p-10 shadow-xl shadow-zinc-950/5 dark:shadow-black/20 backdrop-blur-sm">
+            <div className="flex flex-col items-center text-center">
+              {/* Lock Icon Badge */}
+              <div className="size-12 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center mb-5">
+                <Lock className="size-6" />
               </div>
 
-              <div className="space-y-2">
-                <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-black italic leading-none">
+              <div className="space-y-1.5">
+                <h1 className="text-2xl sm:text-3xl font-heading font-bold tracking-tight text-zinc-900 dark:text-white">
                   Sign In Required
                 </h1>
-                <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">
-                  Create or manage your lazee.dev profile
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 font-sans">
+                  Sign in to access and manage your candidate profile vault.
                 </p>
               </div>
 
-              {/* Informative list */}
-              <div className="w-full border-t-2 border-dashed border-black pt-6 text-left space-y-4">
-                <p className="text-sm font-extrabold text-black uppercase tracking-tight text-center mb-2">
-                  What you can do with a Lazee.dev profile:
+              {/* Informative Value List */}
+              <div className="w-full mt-6 pt-6 border-t border-zinc-100 dark:border-zinc-800 text-left space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-mono text-center">
+                  What you can do with a Lazee profile
                 </p>
-                <div className="grid gap-3.5 text-xs font-bold text-zinc-700">
-                  <div className="flex items-start gap-3 p-2.5 border-2 border-black bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                    <UserCheck className="w-4 h-4 text-orange-600 shrink-0 mt-0.5" />
+
+                <div className="grid gap-2.5">
+                  <div className="flex items-start gap-3 p-3 rounded-xl border border-zinc-200/60 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-950/50">
+                    <div className="p-1.5 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5">
+                      <UserCheck className="size-4" />
+                    </div>
                     <div>
-                      <p className="font-black text-black uppercase tracking-wide">Personal Details & Socials</p>
-                      <p className="text-zinc-600 mt-0.5">Securely store your name, contact email, notice period, and social media handles.</p>
+                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                        Personal Details & Experience
+                      </p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+                        Securely store your contact info, employment history, and education for 1-click autofill.
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-2.5 border-2 border-black bg-yellow-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                    <FileText className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
+
+                  <div className="flex items-start gap-3 p-3 rounded-xl border border-zinc-200/60 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-950/50">
+                    <div className="p-1.5 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5">
+                      <FileText className="size-4" />
+                    </div>
                     <div>
-                      <p className="font-black text-black uppercase tracking-wide">Resume Manager</p>
-                      <p className="text-zinc-600 mt-0.5">Upload and manage multiple resume versions. Instantly choose the active one during autofills.</p>
+                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                        Resume Vault
+                      </p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+                        Upload and manage multiple tailored resumes. Choose the active one during autofills.
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-2.5 border-2 border-black bg-cyan-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                    <Globe className="w-4 h-4 text-cyan-650 shrink-0 mt-0.5" />
+
+                  <div className="flex items-start gap-3 p-3 rounded-xl border border-zinc-200/60 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-950/50">
+                    <div className="p-1.5 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5">
+                      <Globe className="size-4" />
+                    </div>
                     <div>
-                      <p className="font-black text-black uppercase tracking-wide">Shareable Public Profile Page</p>
-                      <p className="text-zinc-600 mt-0.5">Claim a neat `/u/username` link to share your portfolio, experiences, and projects with recruiters.</p>
+                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                        Shareable Public Profile
+                      </p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+                        Claim a custom <span className="font-mono text-orange-600 dark:text-orange-400">/u/username</span> link to showcase your portfolio to hiring managers.
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-2.5 border-2 border-black bg-purple-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                    <Sparkles className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+
+                  <div className="flex items-start gap-3 p-3 rounded-xl border border-zinc-200/60 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-950/50">
+                    <div className="p-1.5 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5">
+                      <Sparkles className="size-4" />
+                    </div>
                     <div>
-                      <p className="font-black text-black uppercase tracking-wide">Custom AI guidance</p>
-                      <p className="text-zinc-600 mt-0.5">Write custom guidelines to direct the AI how to automatically respond to open-ended job questions.</p>
+                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                        Custom AI Guidance
+                      </p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+                        Define personal directives on how AI answers open-ended screening questions.
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Login CTA Button */}
-              <div className="w-full pt-4">
-                <a
+              <div className="w-full mt-6">
+                <Link
                   href="/login"
-                  className="w-full flex items-center justify-center gap-2 bg-orange-500 text-black font-black uppercase text-sm tracking-wider border-[3px] border-black py-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all text-center cursor-pointer select-none"
+                  className="w-full h-11 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm shadow-[0_1px_2px_rgba(0,0,0,0.05),0_8px_16px_-4px_rgba(234,88,12,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Key className="w-4 h-4 shrink-0" />
-                  Log In or Sign Up
-                </a>
+                  <span>Sign In or Create Account</span>
+                  <ArrowRight className="size-4" />
+                </Link>
               </div>
-
             </div>
           </div>
         </div>
@@ -151,34 +161,32 @@ export default async function ProfilePage({
   }
 
   return (
-    <div className="relative min-h-screen bg-[#fefaf6] selection:bg-orange-500 selection:text-white pb-20">
-      {/* Background Pattern */}
-      <div
-        className="fixed inset-0 z-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage: `radial-gradient(#000 1px, transparent 1px)`,
-          backgroundSize: "40px 40px",
-        }}
-      />
+    <div className="min-h-[calc(100dvh-4rem)] bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 pb-24 transition-colors relative overflow-hidden">
+      {/* Subtle Ambient Radial Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(234,88,12,0.04),transparent_50%)] pointer-events-none" />
 
-      <div className="relative z-10 container mx-auto max-w-5xl px-4 py-12 md:py-20">
-        <div className="mb-12 flex flex-col items-center text-center">
-          <h1 className="text-4xl font-black tracking-tighter text-black sm:text-6xl font-heading uppercase italic">
-            Your{" "}
-            <span className="text-orange-500 underline decoration-[3px] underline-offset-4">
-              Profile
-            </span>
+      <div className="relative z-10 container mx-auto max-w-5xl px-4 py-8 md:py-12">
+        {/* Workspace Title & Description */}
+        <div className="mb-8 md:mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-400 text-xs font-medium mb-3">
+            <span>Candidate Workspace</span>
+            <span className="text-zinc-300 dark:text-zinc-700">•</span>
+            <span>Profile Vault</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-heading font-bold tracking-tight text-zinc-900 dark:text-white">
+            Profile &amp; Preferences
           </h1>
-          <p className="mt-4 max-w-lg text-lg font-bold text-zinc-700 uppercase tracking-tight">
-            Manage your account settings, membership, and personal details.
+          <p className="mt-2 max-w-xl text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans">
+            Manage your credentials, master resumes, work experience, and extension synchronization settings.
           </p>
         </div>
 
         <ProfileForm user={user} paymentSuccess={paymentSuccess} />
 
-        <div className="mt-16 flex flex-col items-center border-t-[3px] border-black pt-8">
-          <h2 className="mb-6 text-2xl font-black uppercase tracking-tighter text-black font-heading">
-            Account Actions
+        {/* Account Actions / Sign Out */}
+        <div className="mt-16 pt-8 border-t border-zinc-200/80 dark:border-zinc-800 flex flex-col items-center">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-mono">
+            Session &amp; Account Actions
           </h2>
           <SignOutButton />
         </div>

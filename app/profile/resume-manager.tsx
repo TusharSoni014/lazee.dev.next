@@ -11,10 +11,11 @@ import {
 import {
   FileText,
   Upload,
-  Trash,
+  Trash2,
   Eye,
   Loader2,
   FileWarning,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -36,6 +37,8 @@ import {
 } from "@/components/ui/sheet";
 import { useWindowWidth } from "@/hooks/useWindowWidth";
 import { motion, AnimatePresence } from "motion/react";
+import { useResumeStore } from "@/store/useResumeStore";
+
 
 export function ResumeManager({
   resumes: initialResumes,
@@ -85,6 +88,7 @@ export function ResumeManager({
 
   useEffect(() => {
     if (resumeData) {
+      useResumeStore.getState().setResumes(resumeData.resumes);
       window.postMessage({ type: "LAZEE_SYNC_AUTH" }, window.location.origin);
     }
   }, [resumeData]);
@@ -94,7 +98,11 @@ export function ResumeManager({
     mutationFn: (formData: FormData) => uploadResumeDirect(formData),
     onSuccess: async (result) => {
       if (result.success) {
-        toast.success("Resume uploaded successfully!");
+        toast.success(
+          result.inspected
+            ? "Resume uploaded! PDF inspection logged to server console."
+            : "Resume uploaded successfully!",
+        );
         await queryClient.invalidateQueries({ queryKey: ["resumes"] });
       } else {
         toast.error(result.error || "Failed to upload resume.");
@@ -112,6 +120,8 @@ export function ResumeManager({
       if (input) input.value = "";
     },
   });
+
+
 
   // Delete mutation
   const deleteMutation = useMutation({
@@ -155,8 +165,11 @@ export function ResumeManager({
     const formData = new FormData();
     formData.append("file", file);
 
+
     uploadMutation.mutate(formData);
   }
+
+
 
   async function handlePreview(id: string, name: string) {
     const toastId = toast.loading("Generating preview link...");
@@ -174,36 +187,36 @@ export function ResumeManager({
 
   return (
     <>
-      <div className="border-[3px] border-black bg-white p-6 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mt-10 relative">
+      <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-8 shadow-xs mt-8 transition-colors relative">
         <AnimatePresence mode="wait">
           {(isLoading || isFetching) && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-10 bg-white/50 backdrop-blur-[1px] flex items-center justify-center"
+              className="absolute inset-0 z-10 bg-white/60 dark:bg-zinc-950/60 backdrop-blur-[2px] rounded-2xl flex items-center justify-center"
             >
-              <Loader2 className="w-8 h-8 animate-spin text-black" />
+              <Loader2 className="size-6 animate-spin text-orange-600 dark:text-orange-400" />
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b-[3px] border-black pb-4">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-none border-[3px] border-black bg-orange-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-              <FileText className="w-6 h-6 text-black" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-zinc-100 dark:border-zinc-800">
+          <div className="flex items-center gap-3.5">
+            <div className="flex size-11 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 shrink-0">
+              <FileText className="size-5" />
             </div>
             <div>
-              <h2 className="text-2xl font-black uppercase tracking-tighter text-black font-heading">
-                Resumes
+              <h2 className="text-xl font-heading font-semibold text-zinc-900 dark:text-white tracking-tight">
+                Resume Vault
               </h2>
-              <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mt-1">
-                {resumes.length} / {maxResumes} UPLOADED
+              <p className="font-mono text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                {resumes.length} / {maxResumes} uploaded
               </p>
             </div>
           </div>
 
-          <div className="w-full sm:w-auto">
+          <div className="w-full sm:w-auto flex flex-col sm:items-end gap-2.5">
             <input
               type="file"
               id="resume-upload"
@@ -212,34 +225,39 @@ export function ResumeManager({
               onChange={handleFileChange}
               disabled={!canUpload || uploadMutation.isPending}
             />
-            <Button
-              type="button"
-              disabled={!canUpload || uploadMutation.isPending}
-              onClick={() => document.getElementById("resume-upload")?.click()}
-              className="bg-black text-white hover:bg-zinc-800 tracking-widest uppercase font-bold px-4 py-2 border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-[2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all h-[42px] disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
-            >
-              {uploadMutation.isPending ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Upload className="w-4 h-4 mr-2" />
-              )}
-              {uploadMutation.isPending ? "Uploading..." : "Upload Resume"}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+
+              <Button
+                type="button"
+                disabled={!canUpload || uploadMutation.isPending}
+                onClick={() => document.getElementById("resume-upload")?.click()}
+                className="h-9 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-xs hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {uploadMutation.isPending ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Upload className="size-3.5" />
+                )}
+                <span>{uploadMutation.isPending ? "Uploading..." : "Upload Resume"}</span>
+              </Button>
+            </div>
+
+
           </div>
         </div>
 
         {!canUpload && (
-          <div className="mb-6 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 p-4 md:p-6 border-[3px] border-black bg-[#FFD700] hover:bg-[#ffe135] transition-all duration-300 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 group">
-            <div className="flex items-center gap-4 relative z-10 w-full sm:w-auto flex-col sm:flex-row text-center sm:text-left">
-              <div className="w-14 h-14 bg-white border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center shrink-0 -rotate-6 group-hover:rotate-12 transition-transform duration-500">
-                <FileWarning className="w-8 h-8 text-black animate-pulse" />
+          <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/5 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="size-10 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <FileWarning className="size-5" />
               </div>
-              <div className="space-y-1">
-                <h3 className="text-2xl font-black uppercase text-black font-heading tracking-tighter">
-                  Limit Reached
+              <div>
+                <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
+                  Resume Limit Reached
                 </h3>
-                <p className="font-bold text-black/80 text-sm tracking-widest uppercase">
-                  {maxResumes} / {maxResumes} RESUMES ON {membership} PLAN
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  {maxResumes} / {maxResumes} resumes uploaded on the {membership} plan.
                 </p>
               </div>
             </div>
@@ -248,76 +266,75 @@ export function ResumeManager({
               <Button
                 type="button"
                 onClick={onUpgrade}
-                className="w-full sm:w-auto bg-white text-black hover:bg-zinc-100 tracking-widest uppercase font-black px-8 py-6 border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-[2px] transition-all relative overflow-hidden text-lg"
+                className="h-9 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-900 font-semibold text-xs flex items-center gap-1.5 shadow-xs"
               >
-                <span className="relative z-10 flex items-center">
-                  UPGRADE{" "}
-                  <span className="mx-2 text-2xl animate-bounce">⚡</span> PRO
-                </span>
+                <Zap className="size-3.5 fill-orange-500 text-orange-500" />
+                <span>Upgrade to Pro</span>
               </Button>
             )}
           </div>
         )}
 
         {resumes.length === 0 ? (
-          <div className="text-center py-12 border-[3px] border-dashed border-zinc-300 bg-zinc-50 flex flex-col items-center justify-center">
-            <FileText className="w-12 h-12 text-zinc-300 mb-4" />
-            <p className="font-bold text-zinc-500 uppercase tracking-widest text-sm">
+          <div className="text-center py-12 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 flex flex-col items-center justify-center">
+            <FileText className="size-8 text-zinc-400 mb-2" />
+            <p className="font-medium text-zinc-600 dark:text-zinc-300 text-sm">
               No resumes uploaded yet
             </p>
-            <p className="text-xs text-zinc-400 mt-2">Upload a PDF (max 5MB)</p>
+            <p className="text-xs text-zinc-400 mt-1">Upload a PDF up to 5MB to enable autofill</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {resumes.map((resume: any) => (
               <div
                 key={resume.id}
-                className="group flex flex-col md:flex-row items-start md:items-center justify-between p-4 border-[3px] border-black bg-zinc-50 hover:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                className="group flex flex-col md:flex-row items-start md:items-center justify-between p-3.5 sm:p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors gap-3"
               >
-                <div className="flex items-center gap-4 mb-4 md:mb-0">
-                  <div className="w-10 h-10 bg-white border-[3px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center font-black">
-                    V{resume.version}
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="size-9 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center font-mono text-xs font-semibold text-zinc-700 dark:text-zinc-300 shrink-0">
+                    v{resume.version}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <h4
-                      className="font-black text-black break-all max-w-[200px] sm:max-w-[300px] truncate"
+                      className="font-medium text-sm text-zinc-900 dark:text-zinc-100 truncate max-w-[240px] sm:max-w-sm"
                       title={resume.name}
                     >
                       {resume.name}
                     </h4>
-                    <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                    <p className="text-[11px] text-zinc-400 font-mono mt-0.5">
                       {new Date(resume.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 self-end md:self-auto w-full md:w-auto justify-end">
+                <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => handlePreview(resume.id, resume.name)}
-                    className="border-[3px] border-black bg-white hover:bg-zinc-100 font-black tracking-widest uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-9"
+                    className="h-8 px-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs font-medium"
                   >
-                    <Eye className="w-4 h-4 mr-2" />
-                    Preview
+                    <Eye className="size-3.5 mr-1.5" />
+                    <span>Preview</span>
                   </Button>
 
                   <Button
                     type="button"
                     size="sm"
+                    variant="ghost"
                     onClick={() => setDeleteDialogId(resume.id)}
                     disabled={
                       deleteMutation.isPending && deleteDialogId === resume.id
                     }
-                    className="border-[3px] border-black bg-red-500 text-white hover:bg-red-600 font-black tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-9 px-3"
+                    className="h-8 w-8 p-0 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
                     title="Delete Resume"
                   >
                     {deleteMutation.isPending &&
                     deleteDialogId === resume.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="size-3.5 animate-spin" />
                     ) : (
-                      <Trash className="w-4 h-4" />
+                      <Trash2 className="size-3.5" />
                     )}
                   </Button>
                 </div>
@@ -331,24 +348,23 @@ export function ResumeManager({
         open={!!deleteDialogId}
         onOpenChange={(open) => !open && setDeleteDialogId(null)}
       >
-        <ModalContent className={isMobile ? "" : "sm:max-w-[425px]"}>
+        <ModalContent className={isMobile ? "p-4" : "sm:max-w-[360px] p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900"}>
           <ModalHeader>
-            <ModalTitle className="flex items-center gap-2 text-2xl font-black uppercase tracking-tighter text-black font-heading">
-              <FileWarning className="w-6 h-6 text-red-500" />
-              Delete Resume
+            <ModalTitle className="flex items-center gap-2 text-base font-heading font-semibold text-zinc-900 dark:text-white">
+              <FileWarning className="size-4.5 text-red-500" />
+              <span>Delete Resume</span>
             </ModalTitle>
-            <ModalDescription className="font-bold text-zinc-700 mt-2">
-              Are you sure you want to delete this resume? This action cannot be
-              undone.
+            <ModalDescription className="text-xs text-zinc-600 dark:text-zinc-400 mt-1.5 leading-relaxed">
+              Are you sure you want to delete this resume? This action cannot be undone.
             </ModalDescription>
           </ModalHeader>
-          <ModalFooter className="mt-6 flex gap-4 sm:space-x-0">
+          <ModalFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-4 pt-1">
             <Button
               type="button"
               variant="outline"
               onClick={() => setDeleteDialogId(null)}
               disabled={deleteMutation.isPending}
-              className="flex-1 border-[3px] border-black bg-white hover:bg-zinc-100 font-black tracking-widest uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all h-[42px]"
+              className="w-full sm:w-auto h-9 px-4 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-medium"
             >
               Cancel
             </Button>
@@ -358,14 +374,15 @@ export function ResumeManager({
                 deleteDialogId && deleteMutation.mutate(deleteDialogId)
               }
               disabled={deleteMutation.isPending}
-              className="flex-1 border-[3px] border-black bg-red-500 text-white hover:bg-red-600 font-black tracking-widest uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all h-[42px]"
+              className="w-full sm:w-auto h-9 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-medium shadow-xs"
             >
               {deleteMutation.isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Deleting...
+                  <Loader2 className="size-3.5 mr-1.5 animate-spin" />
+                  <span>Deleting...</span>
                 </>
               ) : (
-                "Delete"
+                <span>Delete</span>
               )}
             </Button>
           </ModalFooter>

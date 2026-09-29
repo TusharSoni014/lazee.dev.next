@@ -1,70 +1,33 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { motion, useInView, AnimatePresence } from "motion/react";
-import { Check, User, FileText, Sparkles, Settings } from "lucide-react";
+import { motion } from "motion/react";
+import {
+  Check,
+  User,
+  FileText,
+  Sparkles,
+  Settings,
+  ShieldCheck,
+  ExternalLink,
+} from "lucide-react";
 
 export function DashboardPreviewSection() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"profile" | "resumes" | "ai-notes" | "settings">("profile");
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
-  useEffect(() => {
-    if (!isAutoPlaying) return;
-    const tabs: ("profile" | "resumes" | "ai-notes" | "settings")[] = [
-      "profile",
-      "resumes",
-      "ai-notes",
-      "settings"
-    ];
-    const interval = setInterval(() => {
-      setActiveTab((prev) => {
-        const nextIdx = (tabs.indexOf(prev) + 1) % tabs.length;
-        return tabs[nextIdx];
-      });
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [isAutoPlaying]);
-
-  const selectTab = (tab: "profile" | "resumes" | "ai-notes" | "settings") => {
-    setActiveTab(tab);
-    setIsAutoPlaying(false);
-  };
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "resumes" | "ai-notes" | "settings"
+  >("profile");
 
   const bulletPoints = [
-    "Store multiple resume versions",
-    "Save social & portfolio links",
-    "Add custom AI instructions",
-    "Basic details & work history",
-    "Secure, simple, and clean",
+    "Multi-variant resume storage with instant active switching",
+    "Comprehensive work history, tech stack, and verified metrics",
+    "Custom AI directives to guide specific answer styles and tone",
+    "Shareable engineer profile link (lazee.dev/u/yourname)",
+    "Strict client-side isolation with zero training on your data",
   ];
-
-  // Looping checklist animation
-  const listRef = useRef<HTMLUListElement>(null);
-  const isListInView = useInView(listRef, { once: false, amount: 0.3 });
-  const [activeCheckIndex, setActiveCheckIndex] = useState(-1);
-
-  useEffect(() => {
-    if (!isListInView) {
-      setActiveCheckIndex(-1);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setActiveCheckIndex((prev) => {
-        // After showing all items + a pause cycle, reset
-        if (prev >= bulletPoints.length) {
-          return -1;
-        }
-        return prev + 1;
-      });
-    }, activeCheckIndex >= bulletPoints.length ? 1500 : activeCheckIndex === -1 ? 600 : 500);
-
-    return () => clearTimeout(timer);
-  }, [activeCheckIndex, isListInView, bulletPoints.length]);
 
   const handleAction = () => {
     if (session) {
@@ -78,249 +41,255 @@ export function DashboardPreviewSection() {
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className="w-full mb-24"
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="w-full my-12 sm:my-20"
     >
-      <div className="w-full bg-[#0d0d12] border-[3px] border-black rounded-none p-4 sm:p-10 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white flex flex-col lg:flex-row items-center gap-12 overflow-hidden relative">
-        {/* Glow effect */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-orange-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="w-full rounded-3xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-900 text-white p-6 sm:p-10 lg:p-12 shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-center gap-10 lg:gap-14">
+        {/* Subtle Ambient Glow */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Profile Mockup (Left Column) */}
-        <div className="flex-1 w-full bg-white text-black border-[3px] border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] flex flex-row overflow-hidden aspect-[4/3] min-h-[300px] sm:min-h-[360px] md:min-h-[400px]">
-          {/* Mock Sidebar */}
-          <div className="w-[70px] sm:w-[110px] md:w-[130px] bg-zinc-950 border-r-[3px] border-black p-2 sm:p-4 flex flex-col gap-5 shrink-0 text-white select-none">
-            <span className="text-[10px] sm:text-xs font-black tracking-tighter text-white font-heading italic uppercase truncate">
-              LAZEE.DEV
-            </span>
-            <div className="flex flex-col gap-1 sm:gap-2">
-              <button
-                onClick={() => selectTab("profile")}
-                className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 rounded-none text-[9px] sm:text-xs font-bold transition-colors w-full cursor-pointer ${
-                  activeTab === "profile"
-                    ? "bg-orange-600/20 text-orange-500 border border-orange-600/30"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                <User size={14} className="shrink-0" />
-                <span className="hidden sm:inline">Profile</span>
-              </button>
-              <button
-                onClick={() => selectTab("resumes")}
-                className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 rounded-none text-[9px] sm:text-xs font-bold transition-colors w-full cursor-pointer ${
-                  activeTab === "resumes"
-                    ? "bg-orange-600/20 text-orange-500 border border-orange-600/30"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                <FileText size={14} className="shrink-0" />
-                <span className="hidden sm:inline">Resumes</span>
-              </button>
-              <button
-                onClick={() => selectTab("ai-notes")}
-                className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 rounded-none text-[9px] sm:text-xs font-bold transition-colors w-full cursor-pointer ${
-                  activeTab === "ai-notes"
-                    ? "bg-orange-600/20 text-orange-500 border border-orange-600/30"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                <Sparkles size={14} className="shrink-0" />
-                <span className="hidden sm:inline">AI Notes</span>
-              </button>
-              <button
-                onClick={() => selectTab("settings")}
-                className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 rounded-none text-[9px] sm:text-xs font-bold transition-colors w-full cursor-pointer ${
-                  activeTab === "settings"
-                    ? "bg-orange-600/20 text-orange-500 border border-orange-600/30"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                <Settings size={14} className="shrink-0" />
-                <span className="hidden sm:inline">Settings</span>
-              </button>
+        <div className="flex-1 w-full rounded-2xl border border-zinc-700/60 bg-zinc-950 shadow-2xl flex flex-row overflow-hidden aspect-[4/3] min-h-[320px] sm:min-h-[380px] select-none">
+          {/* Mock Console Sidebar */}
+          <div className="w-[80px] sm:w-[130px] bg-zinc-950 border-r border-zinc-800/80 p-3 sm:p-4 flex flex-col justify-between shrink-0">
+            <div>
+              <div className="flex items-center gap-1.5 mb-5 pb-3 border-b border-zinc-800/60">
+                <span className="w-2 h-2 rounded-full bg-orange-500" />
+                <span className="text-[11px] font-bold tracking-tight text-white hidden sm:inline">
+                  Vault Console
+                </span>
+              </div>
+              <div className="flex flex-col gap-1">
+                {[
+                  { id: "profile", label: "Profile", icon: User },
+                  { id: "resumes", label: "Resumes", icon: FileText },
+                  { id: "ai-notes", label: "Directives", icon: Sparkles },
+                  { id: "settings", label: "Settings", icon: Settings },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id as typeof activeTab)}
+                      className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-left cursor-pointer ${
+                        isActive
+                          ? "bg-zinc-800 text-orange-400 font-semibold"
+                          : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900"
+                      }`}
+                    >
+                      <Icon size={14} className="shrink-0" />
+                      <span className="hidden sm:inline">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="hidden sm:flex items-center gap-1.5 text-[10px] text-zinc-500 font-mono">
+              <ShieldCheck className="size-3 text-emerald-500" />
+              <span>Encrypted</span>
             </div>
           </div>
 
           {/* Mock Main Content */}
-          <div className="flex-1 bg-zinc-50 p-4 sm:p-5 flex flex-col gap-4 overflow-hidden text-black select-none">
-            {/* Header row */}
-            <div className="flex flex-col border-b-2 border-zinc-200 pb-2">
-              <h4 className="text-xs sm:text-sm font-black text-black flex items-center gap-1.5 leading-none">
-                {activeTab === "profile" && "Personal Profile"}
-                {activeTab === "resumes" && "Resume Manager"}
-                {activeTab === "ai-notes" && "Custom AI Guidance"}
-                {activeTab === "settings" && "Account Settings"}
-              </h4>
-              <span className="text-[8px] sm:text-[9px] font-bold text-zinc-500 mt-1 truncate">
-                {activeTab === "profile" && "Your autofill details are securely saved here."}
-                {activeTab === "resumes" && "Upload and manage different resume versions."}
-                {activeTab === "ai-notes" && "Provide custom instructions for AI answers."}
-                {activeTab === "settings" && "Manage your account options & public link."}
-              </span>
-            </div>
+          <div className="flex-1 bg-zinc-900/60 p-4 sm:p-6 flex flex-col justify-between overflow-hidden">
+            <div>
+              {/* Header row */}
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-3 mb-4">
+                <div>
+                  <h4 className="text-xs sm:text-sm font-semibold text-white">
+                    {activeTab === "profile" && "Candidate Identity Record"}
+                    {activeTab === "resumes" && "Active Resume Variants"}
+                    {activeTab === "ai-notes" && "LLM Reasoning Directives"}
+                    {activeTab === "settings" && "Public Portfolio & Settings"}
+                  </h4>
+                  <p className="text-[10px] text-zinc-400 mt-0.5">
+                    {activeTab === "profile" &&
+                      "Deterministic fields mapped to ATS inputs."}
+                    {activeTab === "resumes" &&
+                      "Manage role-targeted PDF copies."}
+                    {activeTab === "ai-notes" &&
+                      "Fine-tune tone and emphasis for open prompts."}
+                    {activeTab === "settings" &&
+                      "Custom URL and privacy configuration."}
+                  </p>
+                </div>
+                <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">
+                  Live
+                </span>
+              </div>
 
-            {/* Profile fields mockup */}
-            <div className="flex flex-col gap-2.5 flex-1 overflow-y-auto pr-1">
-              {activeTab === "profile" && (
-                <>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[8px] font-black uppercase text-zinc-500">Full Name</span>
-                    <div className="w-full bg-white border border-zinc-300 rounded-none px-2 py-1 text-[9px] sm:text-[10px] font-bold text-black">
-                      Tushar Soni
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[8px] font-black uppercase text-zinc-500">Notice Period</span>
-                      <div className="w-full bg-white border border-zinc-300 rounded-none px-2 py-1 text-[9px] sm:text-[10px] font-bold text-black truncate">
-                        Immediate
+              {/* Dynamic Content */}
+              <div className="space-y-3">
+                {activeTab === "profile" && (
+                  <>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono text-zinc-400">
+                        Full Name
+                      </span>
+                      <div className="rounded-md border border-zinc-700/60 bg-zinc-950 px-2.5 py-1.5 text-xs text-white">
+                        Devin Zhao
                       </div>
                     </div>
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[8px] font-black uppercase text-zinc-500">Job Type</span>
-                      <div className="w-full bg-white border border-zinc-300 rounded-none px-2 py-1 text-[9px] sm:text-[10px] font-bold text-black truncate">
-                        Full-time Remote
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-mono text-zinc-400">
+                          Notice Period
+                        </span>
+                        <div className="rounded-md border border-zinc-700/60 bg-zinc-950 px-2.5 py-1.5 text-xs text-white truncate">
+                          Immediate / 2 Wks
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-mono text-zinc-400">
+                          Target Role
+                        </span>
+                        <div className="rounded-md border border-zinc-700/60 bg-zinc-950 px-2.5 py-1.5 text-xs text-white truncate">
+                          Staff Platform Engineer
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[8px] font-black uppercase text-zinc-500">Active Resume</span>
-                    <div className="w-full bg-white border border-zinc-300 rounded-none px-2 py-1 text-[9px] sm:text-[10px] font-bold text-black flex items-center gap-1.5">
-                      <FileText size={10} className="text-orange-500 shrink-0" />
-                      <span className="truncate">Resume_Frontend_Developer.pdf</span>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {activeTab === "resumes" && (
-                <>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-black uppercase text-zinc-500">Uploaded Resumes</span>
-                    <div className="w-full bg-white border border-zinc-300 rounded-none px-2 py-1.5 text-[9px] sm:text-[10px] font-bold text-black flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 overflow-hidden">
-                        <FileText size={10} className="text-emerald-500 shrink-0" />
-                        <span className="truncate">Resume_Frontend_Developer.pdf</span>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono text-zinc-400">
+                        Active Resume Attachment
+                      </span>
+                      <div className="rounded-md border border-zinc-700/60 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-200 flex items-center justify-between">
+                        <span className="truncate">
+                          Resume_Staff_Platform_2026.pdf
+                        </span>
+                        <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-1.5 rounded">
+                          Selected
+                        </span>
                       </div>
-                      <span className="text-[7px] font-black uppercase bg-emerald-500 text-white px-1.5 py-0.5 border border-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] shrink-0 leading-none">
+                    </div>
+                  </>
+                )}
+
+                {activeTab === "resumes" && (
+                  <div className="space-y-2">
+                    <div className="rounded-lg border border-emerald-800/80 bg-emerald-950/20 p-2.5 flex items-center justify-between">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <FileText className="size-4 text-emerald-400 shrink-0" />
+                        <div className="truncate">
+                          <p className="text-xs font-medium text-white truncate">
+                            Resume_Staff_Platform.pdf
+                          </p>
+                          <p className="text-[9px] text-zinc-400">
+                            Default for Systems/Platform roles
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-mono font-medium text-emerald-400 px-2 py-0.5 rounded bg-emerald-900/40 shrink-0">
                         Active
                       </span>
                     </div>
-                    <div className="w-full bg-white border border-zinc-300 rounded-none px-2 py-1.5 text-[9px] sm:text-[10px] font-bold text-zinc-400 flex items-center gap-1.5 opacity-60">
-                      <FileText size={10} className="shrink-0" />
-                      <span className="truncate">Resume_Fullstack.pdf</span>
+                    <div className="rounded-lg border border-zinc-800 bg-zinc-950/40 p-2.5 flex items-center justify-between opacity-60">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <FileText className="size-4 text-zinc-400 shrink-0" />
+                        <div className="truncate">
+                          <p className="text-xs font-medium text-zinc-300 truncate">
+                            Resume_FullStack_Lead.pdf
+                          </p>
+                          <p className="text-[9px] text-zinc-500">
+                            Targeted for React/Next.js leadership
+                          </p>
+                        </div>
+                      </div>
+                      <button className="text-[9px] font-mono text-zinc-400 hover:text-white px-2 py-0.5 rounded bg-zinc-800 shrink-0">
+                        Select
+                      </button>
                     </div>
                   </div>
-                </>
-              )}
+                )}
 
-              {activeTab === "ai-notes" && (
-                <>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-black uppercase text-zinc-500">Custom AI Guidance</span>
-                    <div className="w-full bg-white border border-zinc-300 rounded-none p-2 text-[8px] sm:text-[9px] font-medium text-zinc-650 leading-normal min-h-[45px]">
-                      "Highlight my 4+ years of React experience. Emphasize performance tuning and design systems."
+                {activeTab === "ai-notes" && (
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-mono text-zinc-400">
+                      Custom Directive Context
+                    </span>
+                    <div className="rounded-lg border border-zinc-700/60 bg-zinc-950 p-2.5 text-xs text-zinc-300 font-mono leading-relaxed">
+                      &quot;Prioritize quantitative impact: highlight 140k
+                      req/sec distributed ingestion pipeline, zero-downtime
+                      database sharding, and P99 latency reductions.&quot;
                     </div>
+                    <p className="text-[10px] text-zinc-500">
+                      Injected into open-ended questions when applying via
+                      browser extension.
+                    </p>
                   </div>
-                </>
-              )}
+                )}
 
-              {activeTab === "settings" && (
-                <>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-black uppercase text-zinc-500">Email Address</span>
-                    <div className="w-full bg-zinc-100 border border-zinc-300 rounded-none px-2 py-1 text-[9px] sm:text-[10px] font-bold text-zinc-500">
-                      tushar@lazee.dev
+                {activeTab === "settings" && (
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono text-zinc-400">
+                        Public Engineering Profile
+                      </span>
+                      <div className="rounded-md border border-zinc-700/60 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-200 flex items-center justify-between">
+                        <span className="text-orange-400 font-mono">
+                          lazee.dev/u/devin
+                        </span>
+                        <ExternalLink size={12} className="text-zinc-500" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono text-zinc-400">
+                        Account Tier
+                      </span>
+                      <div className="rounded-md border border-zinc-700/60 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-300 flex items-center justify-between">
+                        <span>Pro Plan Member</span>
+                        <span className="text-emerald-400 text-[10px] font-mono">
+                          Active
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-black uppercase text-zinc-500">Public Profile</span>
-                    <div className="w-full bg-white border border-zinc-300 rounded-none px-2 py-1 text-[9px] sm:text-[10px] font-bold text-black flex items-center justify-between">
-                      <span className="truncate text-zinc-400">lazee.dev/u/tushar</span>
-                      <span className="text-[7px] font-black uppercase bg-zinc-100 border border-black px-1.5 py-0.5 rounded-none cursor-pointer hover:bg-zinc-200">Copy</span>
-                    </div>
-                  </div>
-                </>
-              )}
+                )}
+              </div>
             </div>
 
-            {/* Action Button */}
-            <div className="pt-2 border-t border-zinc-200 flex justify-end">
+            <div className="pt-3 border-t border-zinc-800 flex items-center justify-between">
+              <span className="text-[10px] text-zinc-400 font-mono">
+                Changes persist automatically
+              </span>
               <button
                 onClick={handleAction}
-                className="bg-orange-500 hover:bg-orange-650 text-white border-2 border-black px-3 py-1 text-[9px] sm:text-[10px] font-black uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all tracking-wider cursor-pointer rounded-none"
+                className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-medium transition-all shadow-xs cursor-pointer"
               >
-                {activeTab === "profile" && "Save Profile"}
-                {activeTab === "resumes" && "Update Resume"}
-                {activeTab === "ai-notes" && "Save AI Notes"}
-                {activeTab === "settings" && "Save Settings"}
+                Open Vault
               </button>
             </div>
           </div>
         </div>
 
         {/* Content (Right Column) */}
-        <div className="flex-1 flex flex-col items-start gap-5 lg:pl-4">
-          <span className="text-xs font-black uppercase bg-orange-500/10 text-orange-500 px-3 py-1.5 rounded-none border border-orange-500/20 tracking-wider">
-            YOUR PROFILE CENTER
+        <div className="flex-1 flex flex-col items-start gap-5">
+          <span className="text-xs font-mono font-medium px-2.5 py-1 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20">
+            Candidate Record Vault
           </span>
-          <h3 className="text-3xl sm:text-4xl font-heading font-black leading-tight uppercase">
-            All your application data. <br />
-            <span className="text-orange-500">In one simple profile.</span>
+          <h3 className="text-3xl sm:text-4xl font-heading font-bold leading-[1.12] text-white">
+            All your career credentials. <br />
+            <span className="text-orange-500">In one unified record.</span>
           </h3>
-          <p className="text-zinc-400 text-base font-bold leading-relaxed max-w-md">
-            No more messy spreadsheets or copying-pasting details. Store your resumes, personal details, social profiles, and custom AI notes in one secure place.
+          <p className="text-zinc-400 text-sm sm:text-base leading-relaxed max-w-lg">
+            No more fragmented documents or copying between multiple text files.
+            Store your verified work history, custom resumes, and prompt
+            instructions once in your encrypted vault.
           </p>
-          <ul ref={listRef} className="flex flex-col gap-3.5 w-full mt-2">
-            {bulletPoints.map((bullet, index) => {
-              const isActive = index <= activeCheckIndex;
-              return (
-                <motion.li
-                  key={index}
-                  animate={{
-                    opacity: isActive ? 1 : 0.35,
-                    x: isActive ? 0 : -10,
-                  }}
-                  transition={{ duration: 0.35, ease: "easeOut" }}
-                  className="flex items-center gap-3"
-                >
-                  <div
-                    className={`flex size-5 shrink-0 items-center justify-center rounded-none border transition-colors duration-300 ${
-                      isActive
-                        ? "bg-orange-500 border-orange-600"
-                        : "bg-orange-500/10 border-orange-500/30"
-                    }`}
-                  >
-                    <AnimatePresence>
-                      {isActive && (
-                        <motion.div
-                          key={`check-${index}`}
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0, opacity: 0 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 15,
-                          }}
-                        >
-                          <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                  <span
-                    className={`font-bold text-base transition-colors duration-300 ${
-                      isActive ? "text-white" : "text-zinc-500"
-                    }`}
-                  >
-                    {bullet}
-                  </span>
-                </motion.li>
-              );
-            })}
+
+          <ul className="space-y-3 w-full mt-2">
+            {bulletPoints.map((bullet, index) => (
+              <li key={index} className="flex items-center gap-3">
+                <div className="size-4 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0 border border-orange-500/30">
+                  <Check className="size-2.5" strokeWidth={3} />
+                </div>
+                <span className="text-xs sm:text-sm text-zinc-300 font-medium">
+                  {bullet}
+                </span>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

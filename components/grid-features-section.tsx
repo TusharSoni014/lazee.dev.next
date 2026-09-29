@@ -2,42 +2,44 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Sparkles, FileText, Globe, ArrowRight, Mail, Layers, Laptop } from "lucide-react";
-import Link from "next/link";
+import { Sparkles, FileText, Mail, Layers, Check } from "lucide-react";
 
-function TypewriterText() {
-  const fullText = "Over my 4 years of experience as a Frontend Engineer, I have successfully designed, built, and optimized complex React applications...";
+function TypewriterSynthesizer() {
+  const fullText =
+    "Led migration of central data pipeline to distributed Apache Kafka architecture, reducing event ingestion latency by 42% while scaling throughput to 180k msgs/sec...";
   const [text, setText] = useState("");
-  
+
   useEffect(() => {
     let active = true;
     const run = async () => {
       while (active) {
         setText("");
-        await new Promise((r) => setTimeout(r, 1000));
+        await new Promise((r) => setTimeout(r, 1200));
         if (!active) break;
-        
+
         for (let i = 0; i <= fullText.length; i += 2) {
           if (!active) break;
           setText(fullText.substring(0, i));
-          await new Promise((r) => setTimeout(r, 30));
+          await new Promise((r) => setTimeout(r, 22));
         }
-        await new Promise((r) => setTimeout(r, 4000));
+        await new Promise((r) => setTimeout(r, 4500));
       }
     };
     run();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, []);
-  
+
   return (
-    <span>
-      "{text}"
+    <div className="font-mono text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed min-h-[58px]">
+      <span>{text}</span>
       <motion.span
         animate={{ opacity: [1, 0] }}
         transition={{ repeat: Infinity, duration: 0.6 }}
-        className="inline-block w-0.5 h-2.5 bg-orange-500 ml-0.5 align-middle"
+        className="inline-block w-1 h-3 bg-orange-600 ml-0.5 align-middle"
       />
-    </span>
+    </div>
   );
 }
 
@@ -46,345 +48,316 @@ function ResumeSwitcher() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev === 0 ? 1 : 0));
-    }, 2500);
+      setActiveIndex((prev) => (prev + 1) % 3);
+    }, 3200);
     return () => clearInterval(interval);
   }, []);
 
   const resumes = [
-    "Resume_Frontend_2026.pdf",
-    "Resume_Fullstack_2026.pdf"
+    {
+      title: "Resume_Staff_Platform.pdf",
+      meta: "Go • K8s • Distributed Systems",
+      badge: "Systems",
+      size: "142 KB",
+    },
+    {
+      title: "Resume_Fullstack_Lead.pdf",
+      meta: "React • Next.js • Architecture",
+      badge: "Fullstack",
+      size: "128 KB",
+    },
+    {
+      title: "Resume_Founding_Eng.pdf",
+      meta: "Product Velocity • 0 to 1 • Node",
+      badge: "Generalist",
+      size: "135 KB",
+    },
   ];
 
   return (
-    <div className="mt-4 flex flex-col gap-2 relative select-none">
-      {resumes.map((name, idx) => {
+    <div className="space-y-2 select-none">
+      {resumes.map((item, idx) => {
         const isActive = activeIndex === idx;
         return (
-          <motion.div
+          <div
             key={idx}
-            animate={{
-              borderColor: isActive ? "#10b981" : "#e4e4e7",
-              scale: isActive ? 1 : 0.96,
-              y: isActive ? 0 : 2,
-              opacity: isActive ? 1 : 0.6,
-            }}
-            transition={{ duration: 0.3 }}
-            className="bg-white border-2 border-black rounded-none p-2 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] flex justify-between items-center"
+            onClick={() => setActiveIndex(idx)}
+            className={`group relative rounded-xl border p-2.5 sm:p-3 flex items-center justify-between transition-all duration-300 cursor-pointer ${
+              isActive
+                ? "border-orange-500/50 bg-orange-50/90 dark:bg-orange-950/30 shadow-xs ring-1 ring-orange-500/20"
+                : "border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/60"
+            }`}
           >
-            <div className="flex items-center gap-2 overflow-hidden">
-              <FileText size={12} className="text-emerald-600 shrink-0" />
-              <span className="text-[9px] font-black uppercase truncate max-w-[120px]">{name}</span>
-            </div>
-            {isActive ? (
-              <motion.span
-                layoutId="activeBadge"
-                className="text-[8px] font-black uppercase bg-emerald-500 text-white px-1.5 py-0.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] rounded-none shrink-0"
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div
+                className={`size-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                  isActive
+                    ? "bg-orange-600 text-white shadow-2xs"
+                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100"
+                }`}
               >
-                Active
-              </motion.span>
-            ) : (
-              <span className="text-[8px] font-black uppercase text-zinc-400 px-1.5 py-0.5 border border-transparent rounded-none shrink-0">
-                Inactive
+                <FileText className="size-4" />
+              </div>
+              <div className="truncate">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate tracking-tight">
+                    {item.title}
+                  </p>
+                  <span
+                    className={`hidden sm:inline-block text-[9px] font-mono px-1.5 py-0.5 rounded ${
+                      isActive
+                        ? "bg-orange-200/70 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300 font-medium"
+                        : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-normal"
+                    }`}
+                  >
+                    {item.badge}
+                  </span>
+                </div>
+                <p
+                  className={`text-[11px] font-mono truncate mt-0.5 ${
+                    isActive
+                      ? "text-orange-950/70 dark:text-orange-200/70"
+                      : "text-zinc-500 dark:text-zinc-400"
+                  }`}
+                >
+                  {item.meta}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 ml-2">
+              <span className="hidden sm:inline text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
+                {item.size}
               </span>
-            )}
-          </motion.div>
+              {isActive ? (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-medium text-orange-700 dark:text-orange-300 bg-orange-100/90 dark:bg-orange-950/70 border border-orange-300/60 dark:border-orange-800/60 shadow-2xs">
+                  <span className="size-1.5 rounded-full bg-orange-600 dark:bg-orange-500 animate-pulse" />
+                  Active
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 group-hover:text-zinc-800 dark:group-hover:text-zinc-200 group-hover:border-zinc-300 dark:group-hover:border-zinc-600 transition-colors">
+                  Ready
+                </span>
+              )}
+            </div>
+          </div>
         );
       })}
     </div>
   );
 }
 
-function ExpressFillSimulator() {
-  const [checkedItems, setCheckedItems] = useState([false, false]);
+function ExpressFillBatchRunner() {
+  const [checkedState, setCheckedState] = useState([true, false, false]);
 
   useEffect(() => {
     let active = true;
     const run = async () => {
       while (active) {
-        setCheckedItems([false, false]);
+        setCheckedState([false, false, false]);
         await new Promise((r) => setTimeout(r, 1000));
         if (!active) break;
 
-        setCheckedItems([true, false]);
-        await new Promise((r) => setTimeout(r, 1000));
+        setCheckedState([true, false, false]);
+        await new Promise((r) => setTimeout(r, 900));
         if (!active) break;
 
-        setCheckedItems([true, true]);
-        await new Promise((r) => setTimeout(r, 2000));
+        setCheckedState([true, true, false]);
+        await new Promise((r) => setTimeout(r, 900));
         if (!active) break;
+
+        setCheckedState([true, true, true]);
+        await new Promise((r) => setTimeout(r, 2600));
       }
     };
     run();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, []);
 
   const items = [
-    "Why do you want to join?",
-    "Describe a challenging project..."
+    { label: "Technical challenge summary", status: "Generated" },
+    { label: "Architecture decision record", status: "Synthesized" },
+    { label: "Preferred compensation range", status: "Extracted" },
   ];
 
   return (
-    <div className="mt-6 bg-zinc-50 border-2 border-black rounded-none p-3 flex flex-col gap-1.5 relative overflow-hidden">
-      {items.map((text, idx) => (
-        <div key={idx} className="flex items-center gap-2">
-          <motion.input
-            type="checkbox"
-            checked={checkedItems[idx]}
-            readOnly
-            animate={{
-              scale: checkedItems[idx] ? [1, 1.25, 1] : 1,
-            }}
-            transition={{ duration: 0.2 }}
-            className="accent-purple-650 accent-purple-600 size-2.5 border border-black cursor-default"
-          />
-          <span className="text-[8px] font-black text-zinc-700 truncate">{text}</span>
-        </div>
-      ))}
+    <div className="space-y-2 font-mono text-xs">
+      {items.map((item, idx) => {
+        const isDone = checkedState[idx];
+        return (
+          <div
+            key={idx}
+            className={`flex items-center justify-between p-2.5 rounded-xl border transition-all ${
+              isDone
+                ? "border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 text-zinc-900 dark:text-zinc-100"
+                : "border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-zinc-900/60 text-zinc-500"
+            }`}
+          >
+            <div className="flex items-center gap-2.5 truncate pr-2">
+              <div
+                className={`size-4 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                  isDone
+                    ? "bg-emerald-500 text-white shadow-2xs"
+                    : "border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-transparent"
+                }`}
+              >
+                <Check className="size-2.5" strokeWidth={3} />
+              </div>
+              <span className={isDone ? "text-zinc-800 dark:text-zinc-200 font-medium truncate text-[11px]" : "text-zinc-500 dark:text-zinc-400 truncate text-[11px]"}>
+                {item.label}
+              </span>
+            </div>
+            <span
+              className={`text-[10px] font-mono px-2 py-0.5 rounded ${
+                isDone
+                  ? "text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/50 font-medium"
+                  : "text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800"
+              }`}
+            >
+              {isDone ? item.status : "Waiting"}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.05,
-    },
-  },
-} as const;
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: "easeOut",
-    },
-  },
-} as const;
-
 export function GridFeaturesSection() {
   return (
-    <section id="features" className="w-full mb-24">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-50px" }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full"
-      >
-        {/* Card 1: AI-Powered Answers */}
-        <motion.div
-          variants={cardVariants}
-          className="flex w-full"
-        >
-          <div className="bg-white border-2 border-black rounded-none p-6 sm:p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-[transform,box-shadow] duration-200 ease-out flex flex-col justify-between min-h-[310px] w-full">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="inline-block border border-orange-200 bg-orange-50 text-orange-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-none">
-                  AI Autofill
-                </span>
-                <Sparkles size={18} className="text-orange-500 fill-orange-100" />
-              </div>
-              <h4 className="text-lg sm:text-xl font-heading font-black text-black uppercase leading-tight">
-                Smart, tailored answers for every question.
-              </h4>
-              <p className="text-xs font-bold text-zinc-500 mt-2 leading-relaxed">
-                Lazee analyzes the question and draws context directly from your profile details to generate professional, context-rich answers.
-              </p>
+    <section id="features" className="w-full my-12 sm:my-20">
+      <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-mono font-medium mb-3">
+          <span>Engine Capabilities</span>
+        </div>
+        <h2 className="text-3xl sm:text-4xl font-heading font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          Engineered for Application Velocity
+        </h2>
+        <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 mt-3 leading-relaxed">
+          Beyond basic form-fillers. Lazee leverages deep DOM extraction and targeted context models to automate the entire candidate submission loop.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-5xl mx-auto">
+        {/* Row 1 - Card 1: Contextual AI Synthesis (7 cols) */}
+        <div className="lg:col-span-7 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-900 mb-4">
+              <span className="text-xs font-mono uppercase tracking-wider text-orange-600 dark:text-orange-400 font-semibold flex items-center gap-1.5">
+                <Sparkles className="size-3.5" />
+                Contextual AI Synthesis
+              </span>
+              <span className="text-[10px] font-mono text-zinc-400">Deterministic</span>
             </div>
-            
-            <div className="mt-6 bg-zinc-50 border-2 border-black rounded-none p-4 flex flex-col gap-2 relative overflow-hidden h-[88px] justify-center">
-              <div className="flex items-center gap-1 text-orange-600 font-black text-[10px] shrink-0">
-                <Sparkles size={12} className="fill-orange-600" />
-                <span>AI SUGGESTION:</span>
-              </div>
-              <p className="text-[9px] font-bold text-zinc-700 leading-normal border-l-2 border-orange-400 pl-2 min-h-[36px]">
-                <TypewriterText />
-              </p>
-            </div>
+
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
+              Drafts verified answers from your production accomplishments.
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed">
+              Instead of generic AI hallucinations, Lazee references your verified engineering record to provide tailored, quantitative answers for subjective ATS prompts.
+            </p>
           </div>
-        </motion.div>
 
-        {/* Card 2: Developer Profile */}
-        <motion.div
-          variants={cardVariants}
-          className="flex w-full"
-        >
-          <div className="bg-white border-2 border-black rounded-none p-6 sm:p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-[transform,box-shadow] duration-200 ease-out flex flex-col justify-between min-h-[310px] w-full">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="inline-block border border-rose-200 bg-rose-50 text-rose-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-none">
-                  Developer Profile
-                </span>
-                <Laptop size={18} className="text-rose-500" />
-              </div>
-              <h4 className="text-lg sm:text-xl font-heading font-black text-black uppercase leading-tight">
-                Get your public profile lazee.dev/username
-              </h4>
-              <p className="text-xs font-bold text-zinc-500 mt-2 leading-relaxed">
-                Create a modern, shareable link showcasing your expertise, projects, and contact info, double-hatting as a quick recruiter portal.
-              </p>
+          <div className="mt-6 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-900/50 p-3.5 space-y-2">
+            <div className="flex items-center justify-between text-[11px] text-zinc-500 font-mono pb-2 border-b border-zinc-200/60 dark:border-zinc-800">
+              <span className="text-zinc-700 dark:text-zinc-300 font-medium">Prompt: System Scalability & Optimization</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-medium">99.4% Match</span>
             </div>
-
-            <div className="mt-6 bg-zinc-50 border-2 border-black rounded-none p-3 flex items-center gap-3 relative overflow-hidden">
-              <div className="w-8 h-8 rounded-none border border-black overflow-hidden relative shrink-0">
-                <div className="w-full h-full bg-rose-500 text-white flex items-center justify-center font-black text-xs rounded-none">
-                  T
-                </div>
-              </div>
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <span className="text-[9px] font-black uppercase text-black leading-none">Tushar Soni</span>
-                <span className="text-[8px] font-bold text-zinc-400 mt-0.5">Full Stack Developer</span>
-              </div>
-              <div className="shrink-0">
-                <ArrowRight size={14} className="text-rose-600" />
-              </div>
-            </div>
+            <TypewriterSynthesizer />
           </div>
-        </motion.div>
+        </div>
 
-        {/* Card 3: Multiple Resumes */}
-        <motion.div
-          variants={cardVariants}
-          className="flex w-full"
-        >
-          <div className="bg-white border-2 border-black rounded-none p-6 sm:p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-[transform,box-shadow] duration-200 ease-out flex flex-col justify-between min-h-[310px] w-full">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="inline-block border border-emerald-200 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-none">
-                  Resumes
-                </span>
-                <FileText size={18} className="text-emerald-500" />
-              </div>
-              <h4 className="text-lg sm:text-xl font-heading font-black text-black uppercase leading-tight">
-                Manage & switch between multiple resumes.
-              </h4>
-              <p className="text-xs font-bold text-zinc-500 mt-2 leading-relaxed">
-                Upload tailored resume copies (e.g. Frontend, Fullstack, PM) and switch active copies instantly directly from the browser popup.
-              </p>
+        {/* Row 1 - Card 2: Multi-Resume Matrix (5 cols) */}
+        <div className="lg:col-span-5 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-900 mb-4">
+              <span className="text-xs font-mono uppercase tracking-wider text-orange-600 dark:text-orange-400 font-semibold flex items-center gap-1.5">
+                <FileText className="size-3.5" />
+                Multi-Resume Matrix
+              </span>
+              <span className="text-[10px] font-mono text-zinc-400">Hot-Swap</span>
             </div>
 
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
+              Switch role-targeted PDF copies instantly.
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed">
+              Store tailored resume versions for Platform, Full-Stack, or Tech Lead tracks and toggle the active file straight from the extension popup.
+            </p>
+          </div>
+
+          <div className="mt-6 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-900/50 p-3.5 space-y-2.5">
+            <div className="flex items-center justify-between text-[11px] text-zinc-500 font-mono pb-2 border-b border-zinc-200/60 dark:border-zinc-800">
+              <span className="text-zinc-700 dark:text-zinc-300 font-medium">Target Profiles (3)</span>
+              <span className="text-orange-600 dark:text-orange-400 flex items-center gap-1.5 font-medium">
+                <span className="size-1.5 rounded-full bg-orange-500 animate-pulse" />
+                Hot-Swap Active
+              </span>
+            </div>
             <ResumeSwitcher />
           </div>
-        </motion.div>
+        </div>
 
-        {/* Card 4: Works Everywhere */}
-        <motion.div
-          variants={cardVariants}
-          className="flex w-full"
-        >
-          <div className="bg-white border-2 border-black rounded-none p-6 sm:p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-[transform,box-shadow] duration-200 ease-out flex flex-col justify-between min-h-[310px] w-full">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="inline-block border border-amber-200 bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-none">
-                  Compatibility
-                </span>
-                <Globe size={18} className="text-amber-500" />
-              </div>
-              <h4 className="text-lg sm:text-xl font-heading font-black text-black uppercase leading-tight">
-                Compatible with 100+ job boards.
-              </h4>
-              <p className="text-xs font-bold text-zinc-500 mt-2 leading-relaxed">
-                Officially supporting Greenhouse, Lever, SmartRecruiters, Y Combinator, Wellfound, Glassdoor, Google Forms, Notion, Airtable, Tally, and Gmail, with new ones added daily.
-              </p>
-              <p className="text-[11px] font-bold text-zinc-700 mt-2">
-                Want to support another ATS?{" "}
-                <Link href="/feedback" className="text-orange-500 font-black hover:underline">
-                  Request it here
-                </Link>.
-              </p>
+        {/* Row 2 - Card 3: Express Batch Fill (5 cols) */}
+        <div className="lg:col-span-5 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-900 mb-4">
+              <span className="text-xs font-mono uppercase tracking-wider text-orange-600 dark:text-orange-400 font-semibold flex items-center gap-1.5">
+                <Layers className="size-3.5" />
+                1-Click Express Fill
+              </span>
+              <span className="text-[10px] font-mono text-zinc-400">Pro Feature</span>
             </div>
 
-            <div className="mt-6 bg-zinc-50 border-2 border-black rounded-none p-2.5 flex items-center justify-center gap-1.5 relative overflow-hidden flex-wrap">
-              {[
-                { name: "Greenhouse", rotate: 2, y: [-2, 2] },
-                { name: "Lever", rotate: -3, y: [2, -2] },
-                { name: "Y Combinator", rotate: 3, y: [-1.5, 1.5] },
-                { name: "Workday", rotate: -1, y: [1.5, -1.5] }
-              ].map((tag, idx) => (
-                <motion.span
-                  key={idx}
-                  animate={{
-                    y: tag.y,
-                  }}
-                  transition={{
-                    repeat: Infinity,
-                    repeatType: "mirror",
-                    duration: 2 + idx * 0.4,
-                    ease: "easeInOut"
-                  }}
-                  style={{ rotate: `${tag.rotate}deg` }}
-                  className="text-[8px] font-black border border-black bg-white px-1.5 py-0.5 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] rounded-none"
-                >
-                  {tag.name}
-                </motion.span>
-              ))}
-            </div>
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
+              Batch-populate multi-question forms.
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed">
+              Scans all detected open-ended textareas across long career pages and synthesizes tailored responses simultaneously.
+            </p>
           </div>
-        </motion.div>
 
-        {/* Card 5: AI Cold DM Generator */}
-        <motion.div
-          variants={cardVariants}
-          className="flex w-full"
-        >
-          <div className="bg-white border-2 border-black rounded-none p-6 sm:p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-[transform,box-shadow] duration-200 ease-out flex flex-col justify-between min-h-[310px] w-full">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="inline-block border border-blue-200 bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-none">
-                  Outreach
-                </span>
-                <Mail size={18} className="text-blue-500" />
-              </div>
-              <h4 className="text-lg sm:text-xl font-heading font-black text-black uppercase leading-tight">
-                Draft recruiter cold DMs instantly.
-              </h4>
-              <p className="text-xs font-bold text-zinc-500 mt-2 leading-relaxed">
-                Draft professional, personalized cold emails directly inside Gmail. Lazee utilizes target job details and your background to write high-converting outreach text.
-              </p>
+          <div className="mt-6 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-900/50 p-3.5 space-y-2.5">
+            <div className="flex items-center justify-between text-[11px] text-zinc-500 font-mono pb-2 border-b border-zinc-200/60 dark:border-zinc-800">
+              <span className="text-zinc-700 dark:text-zinc-300 font-medium">Batch Form Scanner</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-medium">3 Detected</span>
             </div>
-
-            <div className="mt-6 bg-zinc-50 border-2 border-black rounded-none p-3 flex flex-col gap-1.5 relative overflow-hidden">
-              <div className="flex items-center justify-between border-b border-zinc-200 pb-1">
-                <span className="text-[8px] font-black text-black">New Outreach Message</span>
-                <span className="text-[7px] font-bold text-zinc-400">Gmail Compose</span>
-              </div>
-              <p className="text-[8px] font-bold text-zinc-700 leading-tight italic border-l-2 border-blue-400 pl-1.5">
-                "Hi recruiter, I noticed your post for Frontend Engineer..."
-              </p>
-            </div>
+            <ExpressFillBatchRunner />
           </div>
-        </motion.div>
+        </div>
 
-        {/* Card 6: Express AI Fill */}
-        <motion.div
-          variants={cardVariants}
-          className="flex w-full"
-        >
-          <div className="bg-white border-2 border-black rounded-none p-6 sm:p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-[transform,box-shadow] duration-200 ease-out flex flex-col justify-between min-h-[310px] w-full">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="inline-block border border-purple-200 bg-purple-50 text-purple-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-none">
-                  Pro Feature
-                </span>
-                <Layers size={18} className="text-purple-500" />
-              </div>
-              <h4 className="text-lg sm:text-xl font-heading font-black text-black uppercase leading-tight">
-                Autofill entire forms with Express AI Fill.
-              </h4>
-              <p className="text-xs font-bold text-zinc-500 mt-2 leading-relaxed">
-                Review all open-ended questions detected on a career page and generate high-quality AI responses for all of them simultaneously.
-              </p>
+        {/* Row 2 - Card 4: Recruiter Outreach Engine (7 cols) */}
+        <div className="lg:col-span-7 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-900 mb-4">
+              <span className="text-xs font-mono uppercase tracking-wider text-orange-600 dark:text-orange-400 font-semibold flex items-center gap-1.5">
+                <Mail className="size-3.5" />
+                Recruiter Outreach
+              </span>
+              <span className="text-[10px] font-mono text-zinc-400">Gmail Integration</span>
             </div>
 
-            <ExpressFillSimulator />
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
+              Synthesize high-converting outreach in Gmail compose.
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed">
+              Extract company and role context directly from active tabs to craft crisp, non-fluff cold emails and referral notes directly inside Gmail.
+            </p>
           </div>
-        </motion.div>
-      </motion.div>
+
+          <div className="mt-6 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-900/50 p-3.5 space-y-2 font-mono text-xs">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-200/60 dark:border-zinc-800 text-[11px] text-zinc-500">
+              <span className="text-zinc-800 dark:text-zinc-200 font-medium">To: hiring-team@stripe.com</span>
+              <span className="text-orange-600 dark:text-orange-400 font-medium">Staff Platform Candidate</span>
+            </div>
+            <p className="text-zinc-600 dark:text-zinc-300 text-[11px] leading-relaxed">
+              &quot;Hi Alex, saw your opening for Staff Platform Engineer. In my current role I scaled our Raft consensus cluster to 180k req/sec with P99 &lt; 14ms. Would love to connect regarding infrastructure scaling.&quot;
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

@@ -10,82 +10,89 @@ export const metadata: Metadata = {
 export default function CareersPage() {
   return (
     <div className="flex flex-1 justify-center py-12 px-4 sm:px-6">
-      <div className="max-w-[800px] flex-1">
+      <div className="max-w-3xl flex-1">
         {/* Back Link */}
         <Link
-          className="inline-flex items-center gap-2 text-[#f26c0d] font-bold uppercase text-sm mb-8 group"
+          className="inline-flex items-center gap-2 text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors mb-8"
           href="/"
         >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <ArrowLeft className="w-3.5 h-3.5" />
           Back to Home
         </Link>
 
         {/* Title Section */}
-        <div className="mb-12">
-          <div className="inline-block bg-[#f26c0d] px-4 py-1 border-2 border-black shadow-[4px_4px_0px_0px_#000000] mb-4">
-            <p className="text-white text-xs font-black uppercase tracking-widest">
-              Join the Team
-            </p>
+        <div className="mb-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 mb-4 shadow-2xs">
+            <span>Join the Team</span>
           </div>
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black uppercase leading-[0.9] tracking-tighter mb-4 italic text-slate-900 dark:text-slate-100 break-words">
-            Careers <br />
-            <span className="text-[#f26c0d]">at Lazee.dev</span>
+          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-3">
+            Careers at Lazee.dev
           </h1>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 border-t-2 border-black pt-4">
-            <Briefcase className="w-5 h-5 text-[#f26c0d] shrink-0" />
-            <p className="font-bold text-slate-600 dark:text-slate-400 uppercase text-xs sm:text-sm">
-              Current Status: Keeping it Lean & Automated
-            </p>
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-normal">
+            <Briefcase className="w-4 h-4 text-orange-500 shrink-0" />
+            <span>Current Status: Keeping operations lean and automated</span>
           </div>
         </div>
 
         {/* Content Sections */}
-        <div className="space-y-12">
+        <div className="space-y-6">
           {/* Section 1: Hiring Status */}
-          <section className="border-2 border-black bg-white dark:bg-slate-900 p-5 sm:p-8 shadow-[4px_4px_0px_0px_#000000]">
-            <div className="flex items-start gap-3 sm:gap-4 mb-4">
-              <span className="text-3xl sm:text-4xl font-black text-[#f26c0d]/30">01</span>
-              <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
+          <section className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 sm:p-8 shadow-xs backdrop-blur-xs">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-sm font-mono font-semibold text-orange-500/80">01</span>
+              <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
                 Current Openings
               </h2>
             </div>
-            <div className="space-y-4 text-sm sm:text-base md:text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
-              <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-500 p-4 mb-4">
-                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                <p className="text-sm sm:text-base text-amber-900 dark:text-amber-200">
-                  We aren't looking for job roles right now.
+            <div className="space-y-4 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 font-normal">
+              <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 dark:bg-amber-500/15 p-4 text-amber-900 dark:text-amber-200">
+                <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <p className="text-xs sm:text-sm">
+                  We are not actively hiring for open roles right now.
                 </p>
               </div>
               <p>
-                Since Lazee.dev is built to help developers automate repetitive job applications and save valuable hours, we practice exactly what we preach: keeping our operations highly automated, extremely focused, and run by a tight-knit core group.
+                Since Lazee.dev is built to help developers automate repetitive job applications and save valuable hours, we practice what we preach: keeping our core product highly automated, focused, and run by a small, high-agency team.
               </p>
             </div>
           </section>
 
           {/* Section 2: Core Values */}
-          <section className="border-2 border-black bg-white dark:bg-slate-900 p-5 sm:p-8 shadow-[4px_4px_0px_0px_#000000]">
-            <div className="flex items-start gap-3 sm:gap-4 mb-4">
-              <span className="text-3xl sm:text-4xl font-black text-[#f26c0d]/30">02</span>
-              <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
+          <section className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 sm:p-8 shadow-xs backdrop-blur-xs">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-sm font-mono font-semibold text-orange-500/80">02</span>
+              <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
                 Our Engineering DNA
               </h2>
             </div>
-            <div className="space-y-4 text-sm sm:text-base md:text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
+            <div className="space-y-4 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 font-normal">
               <p>
                 When we do expand the team, these are the traits we value above all else:
               </p>
-              <ul className="list-none space-y-3">
+              <ul className="list-none space-y-3 pt-1">
                 <li className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-[#f26c0d] shrink-0 mt-1" />
-                  <span><strong>High agency:</strong> Absolute ownership over outcomes, not just output.</span>
+                  <div className="size-6 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <strong className="font-semibold text-zinc-900 dark:text-zinc-100">High agency:</strong> Absolute ownership over outcomes, not just task completion.
+                  </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-[#f26c0d] shrink-0 mt-1" />
-                  <span><strong>Obsessive automation:</strong> A deep-seated aversion to doing the same manual task twice.</span>
+                  <div className="size-6 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <strong className="font-semibold text-zinc-900 dark:text-zinc-100">Obsessive automation:</strong> A deep-seated aversion to performing repetitive manual workflows.
+                  </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-[#f26c0d] shrink-0 mt-1" />
-                  <span><strong>Developer empathy:</strong> A passion for crafting beautiful, responsive, and reliable tools.</span>
+                  <div className="size-6 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <strong className="font-semibold text-zinc-900 dark:text-zinc-100">Developer empathy:</strong> A passion for crafting beautiful, responsive, and tactile software tools.
+                  </div>
                 </li>
               </ul>
             </div>

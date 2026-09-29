@@ -1,167 +1,154 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, CheckSquare } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Terms and Conditions",
+  description: "Read the terms and conditions governing the use of Lazee.dev.",
+};
 
 export default function TermsPage() {
   return (
-    <div className="flex-1 px-4 py-12 md:px-20 lg:px-48 xl:px-64">
-      <div className="mb-12">
+    <div className="flex flex-1 justify-center py-12 px-4 sm:px-6">
+      <div className="max-w-3xl flex-1">
+        {/* Back Link */}
         <Link
-          className="inline-flex items-center gap-2 text-sm font-bold uppercase bg-white dark:bg-slate-900 border-2 border-black px-4 py-1.5 mb-6 hover:bg-[#f26c0d]/10 dark:hover:bg-[#f26c0d]/10 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 active:shadow-none"
+          className="inline-flex items-center gap-2 text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors mb-8"
           href="/"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-3.5 h-3.5" />
           Back to Home
         </Link>
-        <h1 className="text-4xl sm:text-5xl md:text-7xl font-black uppercase leading-none mb-4 tracking-tighter italic break-words">
-          Terms <span className="text-[#f26c0d]">&amp;</span> Conditions
-        </h1>
-        <div className="inline-block bg-black text-white px-3 py-1 font-bold text-sm uppercase">
-          Last updated: February 2026
+
+        {/* Title Section */}
+        <div className="mb-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 mb-4 shadow-2xs">
+            <span>Agreement</span>
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-3">
+            Terms &amp; Conditions
+          </h1>
+          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-normal">
+            Last Updated: February 2026
+          </p>
         </div>
-      </div>
-      <section className="space-y-6">
-        <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 border-[3px] border-black shadow-[4px_4px_0px_0px_#000000]">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="bg-[#f26c0d] text-white w-8 h-8 flex items-center justify-center font-black border-2 border-black">
-              1
-            </span>
-            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
-              Acceptance of Terms
-            </h2>
-          </div>
-          <div className="space-y-4 text-sm sm:text-base md:text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
-            <p>
-              By accessing or using Lazee.dev, you agree to be bound by these
-              Terms and Conditions and our Privacy Policy. If you do not agree
-              to these terms, you must not use our services.
-            </p>
-            <p>
-              We reserve the right to change, modify, or revise these terms at
-              any time. Your continued use of the platform after changes are
-              posted constitutes your acceptance of the new terms.
-            </p>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 border-[3px] border-black shadow-[4px_4px_0px_0px_#000000]">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="bg-[#f26c0d] text-white w-8 h-8 flex items-center justify-center font-black border-2 border-black">
-              2
-            </span>
-            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
-              User Accounts
-            </h2>
-          </div>
-          <div className="space-y-4 text-sm sm:text-base md:text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
-            <p>
-              To access certain features of Lazee.dev, you may be required to
-              register for an account. You are responsible for:
-            </p>
-            <ul className="list-none space-y-2">
-              <li className="flex items-start gap-2">
-                <CheckSquare className="w-5 h-5 text-[#f26c0d] font-black shrink-0 mt-1" />
-                <span>Maintaining the confidentiality of your account credentials.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckSquare className="w-5 h-5 text-[#f26c0d] font-black shrink-0 mt-1" />
-                <span>All activities that occur under your account.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckSquare className="w-5 h-5 text-[#f26c0d] font-black shrink-0 mt-1" />
-                <span>Notifying us immediately of any unauthorized use of your account.</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 border-[3px] border-black shadow-[4px_4px_0px_0px_#000000]">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="bg-[#f26c0d] text-white w-8 h-8 flex items-center justify-center font-black border-2 border-black">
-              3
-            </span>
-            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
-              Platform Integration Usage
-            </h2>
-          </div>
-          <div className="space-y-4 text-sm sm:text-base md:text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
-            <p>
-              Our platform integrations are designed to enhance your development
-              workflow. Usage of our tools is subject to:
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-[#f8f7f5] dark:bg-slate-800 border-2 border-black p-4">
-                <h3 className="font-black uppercase mb-2">Permissions</h3>
-                <p className="text-sm">
-                  The tools may require permissions to interact with your code
-                  editors and API endpoints as documented in our setup guide.
-                </p>
-              </div>
-              <div className="bg-[#f8f7f5] dark:bg-slate-800 border-2 border-black p-4">
-                <h3 className="font-black uppercase mb-2">Updates</h3>
-                <p className="text-sm">
-                  Updates may be pushed automatically. You agree to receive
-                  these updates to ensure proper functionality and security.
-                </p>
+
+        {/* Content Sections */}
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 sm:p-8 shadow-xs backdrop-blur-xs">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-sm font-mono font-semibold text-orange-500/80">01</span>
+              <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                Acceptance of Terms
+              </h2>
+            </div>
+            <div className="space-y-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 font-normal">
+              <p>
+                By accessing or using Lazee.dev, you agree to be bound by these Terms and Conditions and our Privacy Policy. If you do not agree to these terms, you must discontinue using our services.
+              </p>
+              <p>
+                We reserve the right to revise these terms to reflect feature updates, legal requirements, or platform modifications. Continued use after changes indicates acceptance.
+              </p>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 sm:p-8 shadow-xs backdrop-blur-xs">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-sm font-mono font-semibold text-orange-500/80">02</span>
+              <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                User Accounts &amp; Security
+              </h2>
+            </div>
+            <div className="space-y-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 font-normal">
+              <p>
+                When creating an account on Lazee.dev, you are responsible for maintaining confidentiality of your credentials and all actions taken under your account:
+              </p>
+              <ul className="list-none space-y-2 pt-1">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <span>Keeping your authentication tokens and login passwords secure.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <span>Ensuring submitted information is truthful and accurately represents your experience.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <span>Notifying support immediately upon discovering any unauthorized account usage.</span>
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 sm:p-8 shadow-xs backdrop-blur-xs">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-sm font-mono font-semibold text-orange-500/80">03</span>
+              <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                Platform Integration &amp; Extension Usage
+              </h2>
+            </div>
+            <div className="space-y-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 font-normal">
+              <p>
+                Our Chrome and Firefox browser extensions interact with supported ATS job boards (Workday, Greenhouse, Lever, Ashby, and others) on your behalf to assist with application form filling:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1">
+                <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 p-4">
+                  <h3 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Permissions</h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-normal leading-relaxed">
+                    The extension accesses web pages strictly within your active browser tabs to detect input fields and fill them with your saved profile data.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 p-4">
+                  <h3 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Updates</h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-normal leading-relaxed">
+                    Browser extensions update automatically through official web stores to patch ATS layout shifts and guarantee system reliability.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div className="bg-[#f26c0d]/10 border-[#f26c0d] p-5 sm:p-8 border-[3px] shadow-[4px_4px_0px_0px_#000000]">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="bg-[#f26c0d] text-white w-8 h-8 flex items-center justify-center font-black border-2 border-black">
-              4
-            </span>
-            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
-              Pro Subscription &amp; Credits
-            </h2>
-          </div>
-          <div className="space-y-4 text-sm sm:text-base md:text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
-            <p>
-              Certain advanced features require a Pro Subscription or individual
-              Credits. Please note:
+          </section>
+
+          <section className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 sm:p-8 shadow-xs backdrop-blur-xs">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-sm font-mono font-semibold text-orange-500/80">04</span>
+              <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                Pro Subscription &amp; Credits
+              </h2>
+            </div>
+            <div className="space-y-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 font-normal">
+              <p>
+                Certain AI capabilities and advanced multi-resume features require a Pro Subscription or individual credit packs:
+              </p>
+              <ul className="list-none space-y-2 pt-1">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <span><strong>Billing:</strong> Subscriptions are processed securely via our merchant of record (Dodo Payments) and recur monthly or annually.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <span><strong>Refunds:</strong> Credits and active billing cycles are generally non-refundable once consumed, except where mandated by local consumer regulations.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <span><strong>Fair Use:</strong> Pro plans include generous limits designed for active job search workflows while preventing automated abuse.</span>
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 sm:p-8 shadow-xs backdrop-blur-xs">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-sm font-mono font-semibold text-orange-500/80">05</span>
+              <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                Termination &amp; Inquiries
+              </h2>
+            </div>
+            <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 font-normal">
+              We may suspend accounts that engage in fraudulent activity or abuse API boundaries. You may terminate your account at any time by requesting deletion through support at <a href="mailto:support@lazee.dev" className="text-orange-600 dark:text-orange-400 hover:underline">support@lazee.dev</a>.
             </p>
-            <ul className="list-none space-y-3">
-              <li className="bg-white dark:bg-slate-900 border-2 border-black p-3">
-                <strong className="uppercase text-[#f26c0d]">Billing:</strong>{" "}
-                Subscriptions are billed in advance on a recurring basis
-                (monthly or annually).
-              </li>
-              <li className="bg-white dark:bg-slate-900 border-2 border-black p-3">
-                <strong className="uppercase text-[#f26c0d]">Refunds:</strong>{" "}
-                Credits and subscription fees are generally non-refundable
-                unless required by law.
-              </li>
-              <li className="bg-white dark:bg-slate-900 border-2 border-black p-3">
-                <strong className="uppercase text-[#f26c0d]">
-                  Usage Limits:
-                </strong>{" "}
-                Pro plans may have rate limits to prevent abuse and ensure
-                system stability.
-              </li>
-            </ul>
-          </div>
+          </section>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 border-[3px] border-black shadow-[4px_4px_0px_0px_#000000]">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="bg-[#f26c0d] text-white w-8 h-8 flex items-center justify-center font-black border-2 border-black">
-              5
-            </span>
-            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
-              Termination
-            </h2>
-          </div>
-          <div className="space-y-4 text-sm sm:text-base md:text-lg leading-relaxed font-bold text-slate-900 dark:text-slate-100">
-            <p>
-              We may terminate or suspend your account and access to our
-              services immediately, without prior notice or liability, for any
-              reason, including without limitation if you breach the Terms.
-            </p>
-            <p>
-              Upon termination, your right to use the service will immediately
-              cease. All provisions of the Terms which by their nature should
-              survive termination shall survive.
-            </p>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 }

@@ -14,14 +14,14 @@ import {
   MapPin,
   Code,
   Mail,
-  Phone,
   FileText,
   Folder,
   Sparkles,
   GraduationCap,
   Video,
   Fingerprint,
-  Coins
+  Coins,
+  Zap,
 } from "lucide-react";
 import { ElementType } from "react";
 import { format } from "date-fns";
@@ -50,17 +50,6 @@ interface PublicProfilePageProps {
     username: string;
   }>;
 }
-
-const BADGE_COLORS = [
-  "bg-orange-100 hover:bg-orange-200",
-  "bg-yellow-100 hover:bg-yellow-200",
-  "bg-cyan-100 hover:bg-cyan-200",
-  "bg-amber-100 hover:bg-amber-200",
-  "bg-pink-100 hover:bg-pink-200",
-  "bg-emerald-100 hover:bg-emerald-200",
-];
-
-
 
 export async function generateMetadata({ params }: PublicProfilePageProps): Promise<Metadata> {
   const resolvedParams = await params;
@@ -98,34 +87,24 @@ function calculateTotalExperience(
 
   experiences.forEach((exp) => {
     if (!exp.startDate) return;
-
     const start = new Date(exp.startDate);
-    const end = exp.isCurrent
-      ? new Date()
-      : exp.endDate
-      ? new Date(exp.endDate)
-      : new Date();
+    const end = exp.isCurrent || !exp.endDate ? new Date() : new Date(exp.endDate);
 
-    const startYear = start.getFullYear();
-    const startMonth = start.getMonth();
-    const endYear = end.getFullYear();
-    const endMonth = end.getMonth();
-
-    const months = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
-    if (months > 0) {
-      totalMonths += months;
-    }
+    const months =
+      (end.getFullYear() - start.getFullYear()) * 12 +
+      (end.getMonth() - start.getMonth());
+    if (months > 0) totalMonths += months;
   });
 
-  if (totalMonths <= 0) return null;
+  if (totalMonths === 0) return null;
 
   const years = Math.floor(totalMonths / 12);
   const remainingMonths = totalMonths % 12;
 
-  const yearsStr = years > 0 ? `${years} ${years === 1 ? "year" : "years"}` : "";
+  const yearsStr = years > 0 ? `${years} yr${years > 1 ? "s" : ""}` : "";
   const monthsStr =
     remainingMonths > 0
-      ? `${remainingMonths} ${remainingMonths === 1 ? "month" : "months"}`
+      ? `${remainingMonths} mo${remainingMonths > 1 ? "s" : ""}`
       : "";
 
   return [yearsStr, monthsStr].filter(Boolean).join(" ");
@@ -171,49 +150,30 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   }
 
   return (
-    <div className="min-h-screen bg-[#fefaf6] selection:bg-orange-500 selection:text-white overflow-x-hidden pb-16">
-      {/* Background Dots Pattern */}
-      <div
-        className="fixed inset-0 z-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage: `radial-gradient(#000 1px, transparent 1px)`,
-          backgroundSize: "40px 40px",
-        }}
-      />
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 selection:bg-orange-500 selection:text-white pb-16 relative">
+      {/* Ambient background glow */}
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-500/5 via-transparent to-transparent" />
 
-      <div className="relative z-10 container mx-auto max-w-5xl px-4 py-8 md:py-16">
+      <div className="relative z-10 container mx-auto max-w-5xl px-4 py-8 md:py-14">
         
-        {/* Header Hero Section */}
-        <div className="relative mb-8 border-[4px] border-black bg-white p-6 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden transition-all duration-300">
-          {/* Grid background effect */}
-          <div 
-            className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
-            style={{
-              backgroundImage: `linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)`,
-              backgroundSize: "20px 20px"
-            }}
-          />
+        {/* Header Hero Card */}
+        <div className="relative mb-8 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-10 shadow-xs overflow-hidden backdrop-blur-xs">
+          {/* Subtle glow in corner */}
+          <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-orange-500/5 blur-3xl pointer-events-none" />
 
-          {/* Window control circles in top-right */}
-          <div className="absolute top-4 right-4 hidden md:flex items-center gap-1.5 z-10">
-            <span className="w-3.5 h-3.5 rounded-full border-2 border-black bg-red-400"></span>
-            <span className="w-3.5 h-3.5 rounded-full border-2 border-black bg-yellow-400"></span>
-            <span className="w-3.5 h-3.5 rounded-full border-2 border-black bg-green-400"></span>
-          </div>
-
-          <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-10">
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-8">
             {/* Avatar block */}
-            <div className="h-44 w-44 shrink-0 rounded-none border-[4px] border-black bg-[#fefaf6] flex items-center justify-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden relative">
+            <div className="h-28 w-28 md:h-36 md:w-36 shrink-0 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center shadow-xs overflow-hidden relative group">
               {user.image ? (
                 <Image
                   src={user.image}
                   alt={fullName}
-                  width={176}
-                  height={176}
+                  width={144}
+                  height={144}
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-6xl font-black text-black">
+                <span className="text-4xl md:text-5xl font-semibold text-zinc-700 dark:text-zinc-300 uppercase">
                   {user.firstName ? user.firstName[0] : ""}
                   {user.lastName ? user.lastName[0] : ""}
                 </span>
@@ -221,51 +181,51 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             </div>
 
             {/* Title / Badges */}
-            <div className="flex-1 text-center md:text-left space-y-4 min-w-0">
-              <div className="space-y-2">
-                {/* PRO Badge */}
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
-                  <span className="inline-flex items-center gap-1 border-[2px] border-black px-2.5 py-0.5 bg-orange-500 text-black font-black uppercase text-[10px] tracking-widest shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex-1 text-center md:text-left space-y-3 min-w-0">
+              <div className="space-y-1.5">
+                {/* Username & PRO Badge */}
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
                     @{user.username}
                   </span>
                   {user.membership === "PRO" && (
-                    <span className="relative inline-flex items-center gap-1 px-2.5 py-0.5 bg-yellow-300 text-black border-[2px] border-black font-black uppercase text-[10px] tracking-widest shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)] hover:scale-105 transition-all select-none">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                       <span className="relative flex h-1.5 w-1.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-orange-500"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
                       </span>
                       PRO MEMBER
                     </span>
                   )}
                 </div>
 
-                <h1 className="text-3xl md:text-5xl lg:text-6xl font-black uppercase font-heading text-black tracking-tighter leading-none italic truncate py-1">
+                <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight truncate py-0.5">
                   {fullName}
                 </h1>
 
                 {/* Info Pills */}
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 pt-1">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 pt-0.5">
                   {user.jobType && (
-                    <div className="inline-flex items-center gap-1.5 border-[2px] border-black px-2.5 py-1 bg-cyan-200 text-black font-bold uppercase text-[10px] tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                      <Briefcase className="w-3.5 h-3.5 text-black" />
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-700/80">
+                      <Briefcase className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />
                       {user.jobType}
                     </div>
                   )}
                   {(user.city || user.country) && (
-                    <div className="inline-flex items-center gap-1.5 border-[2px] border-black px-2.5 py-1 bg-orange-200 text-black font-bold uppercase text-[10px] tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                      <Globe className="w-3.5 h-3.5 text-black" />
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-700/80">
+                      <Globe className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />
                       {[user.city, user.country].filter(Boolean).join(", ")}
                     </div>
                   )}
                   {user.noticePeriod !== null && (
-                    <div className="inline-flex items-center gap-1.5 border-[2px] border-black px-2.5 py-1 bg-emerald-200 text-black font-bold uppercase text-[10px] tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                      <Calendar className="w-3.5 h-3.5 text-black" />
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-700/80">
+                      <Calendar className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />
                       {user.noticePeriod === 0 ? "Immediate" : `${user.noticePeriod}d Notice`}
                     </div>
                   )}
                   {user.currentCtc !== null && (
-                    <div className="inline-flex items-center gap-1.5 border-[2px] border-black px-2.5 py-1 bg-purple-200 text-black font-bold uppercase text-[10px] tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                      <Coins className="w-3.5 h-3.5 text-black" />
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-700/80">
+                      <Coins className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />
                       {user.currency || "USD"} {Number(user.currentCtc).toLocaleString()}
                     </div>
                   )}
@@ -273,7 +233,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
               </div>
 
               {/* Social Link strip */}
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 pt-1">
                 {user.linkedin && (
                   <SocialLink href={user.linkedin} icon={Linkedin} label="LinkedIn" />
                 )}
@@ -297,24 +257,24 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           </div>
         </div>
 
-        {/* Dynamic Asymmetrical Grid */}
-        <div className="grid gap-8 lg:grid-cols-3 items-start">
+        {/* 2-Column Responsive Layout */}
+        <div className="grid gap-6 lg:grid-cols-3 items-start">
           
-          {/* LEFT COLUMN: Sticky Sidebar */}
-          <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-24">
+          {/* LEFT COLUMN: Sidebar */}
+          <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-20">
             
             {/* Quick Actions & Contact */}
-            <div className="border-[4px] border-black bg-white p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-              <h2 className="text-lg font-black uppercase tracking-tighter text-black border-b-[2px] border-black pb-2 mb-4 italic flex items-center gap-2">
-                <Send className="w-5 h-5" /> Contact & Info
+            <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-5 md:p-6 shadow-xs backdrop-blur-xs">
+              <h2 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 pb-3 mb-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
+                <Send className="w-4 h-4 text-orange-500" /> Contact &amp; Resume
               </h2>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {(user.contactEmail || user.email) && (
                   <a
                     href={`mailto:${user.contactEmail || user.email}`}
-                    className="w-full flex items-center justify-center gap-2 bg-[#ff6b00] text-white font-black uppercase text-xs tracking-wider border-[3px] border-black py-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all text-center"
+                    className="w-full h-10 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white font-medium text-xs shadow-xs shadow-orange-600/20 transition-all flex items-center justify-center gap-2"
                   >
-                    <Mail className="w-4 h-4 text-white" />
+                    <Mail className="w-3.5 h-3.5" />
                     Email Me
                   </a>
                 )}
@@ -323,29 +283,29 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                     href={generatedResumeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 bg-[#ffeb3b] text-black font-black uppercase text-xs tracking-wider border-[3px] border-black py-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all text-center"
+                    className="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 active:scale-[0.98] text-zinc-900 dark:text-zinc-100 font-medium text-xs shadow-2xs transition-all flex items-center justify-center gap-2"
                   >
-                    <FileText className="w-4 h-4" />
-                    View Resume
+                    <FileText className="w-3.5 h-3.5 text-zinc-500" />
+                    View Primary Resume
                   </a>
                 )}
 
-                <div className="pt-2 space-y-2.5">
+                <div className="pt-2 space-y-2 border-t border-zinc-100 dark:border-zinc-800">
                   {(user.contactEmail || user.email) && (
-                    <div className="flex items-center gap-2.5 text-xs font-bold text-zinc-700 break-all">
-                      <Mail className="w-4 h-4 text-black shrink-0" />
+                    <div className="flex items-center gap-2.5 text-xs text-zinc-600 dark:text-zinc-400 break-all font-normal">
+                      <Mail className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                       <span>{user.contactEmail || user.email}</span>
                     </div>
                   )}
                   {(user.city || user.country) && (
-                    <div className="flex items-center gap-2.5 text-xs font-bold text-zinc-700">
-                      <MapPin className="w-4 h-4 text-black shrink-0" />
+                    <div className="flex items-center gap-2.5 text-xs text-zinc-600 dark:text-zinc-400 font-normal">
+                      <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                       <span>Based in {[user.city, user.country].filter(Boolean).join(", ")}</span>
                     </div>
                   )}
                   {user.collegeName && (
-                    <div className="flex items-center gap-2.5 text-xs font-bold text-zinc-700">
-                      <GraduationCap className="w-4 h-4 text-black shrink-0" />
+                    <div className="flex items-center gap-2.5 text-xs text-zinc-600 dark:text-zinc-400 font-normal">
+                      <GraduationCap className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                       <span>{user.collegeName}</span>
                     </div>
                   )}
@@ -354,59 +314,59 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             </div>
 
             {/* Skills Card */}
-            <div className="border-[4px] border-black bg-white p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-              <h2 className="text-lg font-black uppercase tracking-tighter text-black border-b-[2px] border-black pb-2 mb-4 italic flex items-center gap-2">
-                <Code className="w-5 h-5" /> Skills & Tech
+            <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-5 md:p-6 shadow-xs backdrop-blur-xs">
+              <h2 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 pb-3 mb-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
+                <Code className="w-4 h-4 text-orange-500" /> Skills &amp; Tech
               </h2>
-              <div className="flex flex-wrap gap-2.5">
+              <div className="flex flex-wrap gap-1.5">
                 {user.skills && user.skills.length > 0 ? (
-                  user.skills.map((skill, index) => {
-                    const badgeBg = BADGE_COLORS[index % BADGE_COLORS.length];
-                    return (
-                      <span
-                        key={skill}
-                        className={clsx(
-                          "border-[2px] border-black px-2.5 py-1 text-black font-black uppercase text-[10px] tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:scale-105 transition-all",
-                          badgeBg
-                        )}
-                      >
-                        {skill}
-                      </span>
-                    );
-                  })
+                  Array.from(
+                    new Set(
+                      (user.skills as string[])
+                        .map((s: string) => s?.trim())
+                        .filter(Boolean)
+                    )
+                  ).map((skill, idx) => (
+                    <span
+                      key={`${skill}-${idx}`}
+                      className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-700/80"
+                    >
+                      {skill}
+                    </span>
+                  ))
                 ) : (
-                  <p className="text-zinc-500 font-bold uppercase text-xs italic">No skills listed</p>
+                  <p className="text-zinc-400 dark:text-zinc-500 text-xs font-normal">No skills listed</p>
                 )}
               </div>
             </div>
 
             {/* Demographics / EEOC Card */}
             {(user.gender || user.veteranStatus || user.disabilityStatus) && (
-              <div className="border-[4px] border-black bg-white p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-                <h2 className="text-lg font-black uppercase tracking-tighter text-black border-b-[2px] border-black pb-2 mb-4 italic flex items-center gap-2">
-                  <Fingerprint className="w-5 h-5" /> Demographics & EEOC
+              <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-5 md:p-6 shadow-xs backdrop-blur-xs">
+                <h2 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 pb-3 mb-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
+                  <Fingerprint className="w-4 h-4 text-orange-500" /> Demographics &amp; EEOC
                 </h2>
                 <div className="space-y-3">
                   {user.gender && (
                     <div className="space-y-1">
-                      <span className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">Gender</span>
-                      <div className="border-[2px] border-black px-2.5 py-1.5 bg-orange-50 text-black font-bold text-xs uppercase tracking-wide shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                      <span className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Gender</span>
+                      <div className="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 text-zinc-800 dark:text-zinc-200 text-xs font-medium">
                         {user.gender}
                       </div>
                     </div>
                   )}
                   {user.veteranStatus && (
                     <div className="space-y-1">
-                      <span className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">Veteran Status</span>
-                      <div className="border-[2px] border-black px-2.5 py-1.5 bg-yellow-50 text-black font-bold text-xs uppercase tracking-wide shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                      <span className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Veteran Status</span>
+                      <div className="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 text-zinc-800 dark:text-zinc-200 text-xs font-medium">
                         {user.veteranStatus}
                       </div>
                     </div>
                   )}
                   {user.disabilityStatus && (
                     <div className="space-y-1">
-                      <span className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">Disability Status</span>
-                      <div className="border-[2px] border-black px-2.5 py-1.5 bg-cyan-50 text-black font-bold text-xs uppercase tracking-wide shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                      <span className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Disability Status</span>
+                      <div className="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 text-zinc-800 dark:text-zinc-200 text-xs font-medium">
                         {user.disabilityStatus}
                       </div>
                     </div>
@@ -421,28 +381,28 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           <div className="lg:col-span-2 space-y-6">
 
             {/* Summary Stats Panel */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="border-[3px] border-black bg-orange-100 p-4 text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                <div className="text-2xl md:text-3xl font-black text-black">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-4 text-center shadow-xs">
+                <div className="text-2xl md:text-3xl font-bold font-mono text-zinc-900 dark:text-zinc-100">
                   {user.projects.length}
                 </div>
-                <div className="text-[9px] md:text-[10px] font-black text-zinc-600 uppercase tracking-wider mt-1">
+                <div className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mt-0.5">
                   Projects
                 </div>
               </div>
-              <div className="border-[3px] border-black bg-yellow-100 p-4 text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                <div className="text-2xl md:text-3xl font-black text-black">
+              <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-4 text-center shadow-xs">
+                <div className="text-2xl md:text-3xl font-bold font-mono text-zinc-900 dark:text-zinc-100">
                   {user.experiences.length}
                 </div>
-                <div className="text-[9px] md:text-[10px] font-black text-zinc-600 uppercase tracking-wider mt-1">
+                <div className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mt-0.5">
                   Experiences
                 </div>
               </div>
-              <div className="border-[3px] border-black bg-cyan-100 p-4 text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                <div className="text-2xl md:text-3xl font-black text-black">
+              <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-4 text-center shadow-xs">
+                <div className="text-2xl md:text-3xl font-bold font-mono text-zinc-900 dark:text-zinc-100">
                   {user.skills.length}
                 </div>
-                <div className="text-[9px] md:text-[10px] font-black text-zinc-600 uppercase tracking-wider mt-1">
+                <div className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mt-0.5">
                   Skills
                 </div>
               </div>
@@ -462,11 +422,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                 if (!embedUrl) return null;
 
                 return (
-                  <div className="border-[4px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                    <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-black border-b-[3px] border-black pb-3 mb-6 italic flex items-center gap-2.5">
-                      <Video className="w-6 h-6 text-black shrink-0" /> Intro Video
+                  <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-8 shadow-xs">
+                    <h2 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
+                      <Video className="w-4 h-4 text-orange-500 shrink-0" /> Intro Video
                     </h2>
-                    <div className="aspect-video w-full border-[3px] border-black bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+                    <div className="aspect-video w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-950 shadow-xs relative overflow-hidden">
                       <iframe
                         src={embedUrl}
                         className="absolute inset-0 w-full h-full"
@@ -480,31 +440,31 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             )}
 
             {/* Experience Timeline Section */}
-            <div className="border-[4px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-black border-b-[3px] border-black pb-3 mb-6 italic flex items-center justify-between gap-2.5">
-                <span className="flex items-center gap-2.5">
-                  <Briefcase className="w-6 h-6 text-black" /> Work Experience
+            <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-8 shadow-xs">
+              <h2 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 pb-3 mb-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2.5">
+                <span className="flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 text-orange-500" /> Work Experience
                 </span>
                 {totalExperienceString && (
-                  <span className="inline-flex items-center border-[2px] border-black px-2.5 py-1 bg-yellow-100 text-black font-black uppercase text-[10px] md:text-xs tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] not-italic">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
                     {totalExperienceString}
                   </span>
                 )}
               </h2>
-              <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[3px] before:bg-black">
+              <div className="space-y-6 relative before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-[2px] before:bg-zinc-200 dark:before:bg-zinc-800">
                 {user.experiences.length > 0 ? (
                   user.experiences.map((exp) => (
-                    <div key={exp.id} className="relative pl-8 group">
-                      {/* Timeline circle node */}
-                      <div className="absolute left-[3px] top-1.5 h-[19px] w-[19px] border-[3px] border-black bg-[#ffeb3b] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] group-hover:bg-[#ff6b00] transition-colors duration-200" />
+                    <div key={exp.id} className="relative pl-7 group">
+                      {/* Timeline node */}
+                      <div className="absolute left-[1px] top-2 h-3.5 w-3.5 rounded-full border-2 border-white dark:border-zinc-900 bg-orange-500 shadow-2xs" />
                       
-                      <div className="space-y-1.5">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                          <h3 className="text-base md:text-lg font-black uppercase text-black leading-tight">
-                            {exp.role} <span className="text-orange-500">@</span> {exp.companyName}
+                      <div className="space-y-1">
+                        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+                          <h3 className="text-sm sm:text-base font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
+                            {exp.role} <span className="text-orange-500 font-normal">at</span> {exp.companyName}
                           </h3>
-                          <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5 shrink-0 text-black" />
+                          <div className="text-xs text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5 shrink-0">
+                            <Calendar className="w-3 h-3 text-zinc-400" />
                             <span>
                               {exp.startDate ? format(new Date(exp.startDate), "MMM yyyy") : "N/A"} - {exp.isCurrent ? "Present" : exp.endDate ? format(new Date(exp.endDate), "MMM yyyy") : "N/A"}
                             </span>
@@ -512,10 +472,10 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                         </div>
 
                         {/* Location / Meta */}
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-3 pt-0.5">
                           {exp.location && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">
-                              <MapPin className="w-3.5 h-3.5" />
+                            <span className="inline-flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+                              <MapPin className="w-3 h-3 text-zinc-400" />
                               {exp.location}
                             </span>
                           )}
@@ -524,7 +484,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                               href={exp.companyWebsite} 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600 hover:text-blue-800 underline uppercase tracking-wider"
+                              className="inline-flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400 hover:underline"
                             >
                               <ExternalLink className="w-3 h-3" />
                               Website
@@ -533,7 +493,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                         </div>
 
                         {exp.description && (
-                          <p className="text-sm text-zinc-700 font-medium leading-relaxed pt-1 whitespace-pre-line text-justify">
+                          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 font-normal leading-relaxed pt-1 whitespace-pre-line">
                             {exp.description}
                           </p>
                         )}
@@ -541,29 +501,29 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                     </div>
                   ))
                 ) : (
-                  <p className="text-zinc-500 font-bold uppercase text-xs italic pl-4">No experience listed</p>
+                  <p className="text-zinc-400 dark:text-zinc-500 text-xs font-normal pl-4">No experience listed</p>
                 )}
               </div>
             </div>
 
             {/* Education Timeline Section */}
             {user.educations && user.educations.length > 0 && (
-              <div className="border-[4px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-black border-b-[3px] border-black pb-3 mb-6 italic flex items-center gap-2.5">
-                  <GraduationCap className="w-6 h-6 text-black shrink-0" /> Education
+              <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-8 shadow-xs">
+                <h2 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 pb-3 mb-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-orange-500" /> Education
                 </h2>
-                <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[3px] before:bg-black">
+                <div className="space-y-6 relative before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-[2px] before:bg-zinc-200 dark:before:bg-zinc-800">
                   {user.educations.map((edu) => (
-                    <div key={edu.id} className="relative pl-8 group">
-                      <div className="absolute left-[3px] top-1.5 h-[19px] w-[19px] border-[3px] border-black bg-[#ffeb3b] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] group-hover:bg-[#ff6b00] transition-colors duration-200" />
+                    <div key={edu.id} className="relative pl-7 group">
+                      <div className="absolute left-[1px] top-2 h-3.5 w-3.5 rounded-full border-2 border-white dark:border-zinc-900 bg-orange-500 shadow-2xs" />
                       
-                      <div className="space-y-1.5">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                          <h3 className="text-base md:text-lg font-black uppercase text-black leading-tight">
+                      <div className="space-y-1">
+                        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+                          <h3 className="text-sm sm:text-base font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
                             {edu.degree || edu.fieldOfStudy || "Education"}{edu.schoolName ? ` at ${edu.schoolName}` : ""}
                           </h3>
-                          <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5 shrink-0 text-black" />
+                          <div className="text-xs text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5 shrink-0">
+                            <Calendar className="w-3 h-3 text-zinc-400" />
                             <span>
                               {edu.startDate ? format(new Date(edu.startDate), "MMM yyyy") : "N/A"} - {edu.isCurrent ? "Present" : edu.endDate ? format(new Date(edu.endDate), "MMM yyyy") : "N/A"}
                             </span>
@@ -571,13 +531,13 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                         </div>
 
                         {(edu.degree || edu.fieldOfStudy) && (
-                          <div className="text-xs font-bold text-zinc-600 uppercase tracking-wide">
+                          <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
                             {edu.degree}{edu.fieldOfStudy ? ` in ${edu.fieldOfStudy}` : ""}
                           </div>
                         )}
 
                         {edu.description && (
-                          <p className="text-sm text-zinc-700 font-medium leading-relaxed pt-1 whitespace-pre-line text-justify">
+                          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 font-normal leading-relaxed pt-1 whitespace-pre-line">
                             {edu.description}
                           </p>
                         )}
@@ -589,138 +549,132 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             )}
 
             {/* Featured Projects Section */}
-            <div className="border-[4px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-black border-b-[3px] border-black pb-3 mb-6 italic flex items-center gap-2.5">
-                <Folder className="w-6 h-6 text-black" /> Projects & Creations
+            <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-8 shadow-xs">
+              <h2 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 pb-3 mb-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
+                <Folder className="w-4 h-4 text-orange-500" /> Projects &amp; Creations
               </h2>
-              <div className="grid gap-6">
+              <div className="grid gap-5">
                 {user.projects.length > 0 ? (
                   user.projects.map((project) => (
                     <div 
                       key={project.id} 
-                      className={clsx(
-                        "group border-[3px] border-black bg-white shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all overflow-hidden",
-                        project.isTopProject && "border-orange-500 shadow-orange-500/20"
-                      )}
+                      className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 p-5 md:p-6 shadow-2xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
                     >
-                      {/* Window Header bar (Retro Folder Style) */}
-                      <div className={clsx(
-                        "flex items-center justify-between border-b-[3px] border-black px-4 py-2 bg-zinc-50",
-                        project.isTopProject && "bg-orange-50 border-orange-500"
-                      )}>
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full border border-black bg-red-400"></span>
-                          <span className="w-2.5 h-2.5 rounded-full border border-black bg-yellow-400"></span>
-                          <span className="w-2.5 h-2.5 rounded-full border border-black bg-green-400"></span>
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div>
+                          <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
+                            {project.name}
+                          </h3>
+                          {project.contribution && (
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                              {project.contribution}
+                            </p>
+                          )}
                         </div>
                         {project.isTopProject && (
-                          <span className="inline-flex items-center gap-1 bg-orange-500 text-black text-[9px] font-black px-2 py-0.5 border-[2px] border-black uppercase tracking-wider shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] select-none animate-pulse">
-                            <Sparkles className="w-2.5 h-2.5 fill-black" /> Featured Project
+                          <span className="inline-flex items-center gap-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[11px] font-medium px-2.5 py-0.5 rounded-full border border-orange-500/20 select-none">
+                            <Sparkles className="w-3 h-3" /> Featured
                           </span>
                         )}
                       </div>
 
-                      {/* Card Body */}
-                      <div className="p-5 space-y-4">
-                        <div className="space-y-1">
-                          <h3 className="text-lg md:text-xl font-black uppercase text-black leading-tight italic">
-                            {project.name}
-                          </h3>
-                          {project.contribution && (
-                            <p className="text-xs font-medium text-zinc-500 italic mt-0.5 leading-snug">
-                              &quot;{project.contribution}&quot;
-                            </p>
-                          )}
-                          
+                      {project.description && (
+                        <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 font-normal leading-relaxed mb-3">
+                          {project.description}
+                        </p>
+                      )}
+
+                      {/* Stacks tags */}
+                      {project.stacks && (
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {Array.from(
+                            new Set(
+                              (Array.isArray(project.stacks)
+                                ? project.stacks
+                                : typeof project.stacks === "string"
+                                  ? (project.stacks as string).split(",")
+                                  : []
+                              )
+                                .map((s: string) => s?.trim())
+                                .filter(Boolean)
+                            )
+                          ).map((stack, idx) => (
+                            <span
+                              key={`${stack}-${idx}`}
+                              className="text-[11px] font-medium rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 px-2 py-0.5"
+                            >
+                              #{stack}
+                            </span>
+                          ))}
                         </div>
+                      )}
 
-                        {project.description && (
-                          <p className="text-sm text-zinc-700 font-medium leading-relaxed">
-                            {project.description}
-                          </p>
-                        )}
+                      {/* Screenshots Carousel/Grid */}
+                      {(() => {
+                        const maxScreenshots = user.membership === "PRO" ? 10 : 3;
+                        const activeScreenshots = (project.screenshots || [])
+                          .slice(0, maxScreenshots)
+                          .map((url) => getPublicImageUrl(url));
 
+                        if (activeScreenshots.length === 0) return null;
 
-
-                        {/* Stacks tags */}
-                        {project.stacks && project.stacks.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5">
-                            {project.stacks.map((stack) => (
-                              <span key={stack} className="text-[9px] font-black border border-black bg-zinc-100 text-zinc-700 uppercase tracking-widest px-2 py-0.5">
-                                #{stack}
-                              </span>
-                            ))}
+                        return (
+                          <div className="space-y-2 mt-4 pt-1">
+                            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Media &amp; Screenshots:</p>
+                            {activeScreenshots.length >= 3 ? (
+                              <ProjectCarousel screenshots={activeScreenshots} />
+                            ) : (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {activeScreenshots.map((url, idx) => (
+                                  <a
+                                    key={idx}
+                                    href={url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="relative aspect-video rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 overflow-hidden group shadow-2xs"
+                                  >
+                                    <img
+                                      src={url}
+                                      alt={`${project.name} screenshot ${idx + 1}`}
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                  </a>
+                                ))}
+                              </div>
+                            )}
                           </div>
+                        );
+                      })()}
+
+                      {/* Project Actions */}
+                      <div className="flex gap-4 pt-4 border-t border-zinc-200/80 dark:border-zinc-800 mt-4">
+                        {project.activeLink && (
+                          <a 
+                            href={project.activeLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-orange-600 dark:text-orange-400 hover:underline"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            Live Demo
+                          </a>
                         )}
-
-                        {/* Screenshots Carousel/Grid */}
-                        {(() => {
-                          const maxScreenshots = user.membership === "PRO" ? 10 : 3;
-                          const activeScreenshots = (project.screenshots || [])
-                            .slice(0, maxScreenshots)
-                            .map((url) => getPublicImageUrl(url));
-
-                          if (activeScreenshots.length === 0) return null;
-
-                          return (
-                            <div className="space-y-2 mt-4 pt-1">
-                              <p className="text-[10px] font-black uppercase text-zinc-500 tracking-wider">Project Media / Screenshots:</p>
-                              {activeScreenshots.length >= 3 ? (
-                                <ProjectCarousel screenshots={activeScreenshots} />
-                              ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                  {activeScreenshots.map((url, idx) => (
-                                    <a
-                                      key={idx}
-                                      href={url}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="relative aspect-video border-[3px] border-black bg-zinc-100 overflow-hidden group shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
-                                    >
-                                      <img
-                                        src={url}
-                                        alt={`${project.name} screenshot ${idx + 1}`}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                      />
-                                    </a>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })()}
-
-                        {/* Project Actions */}
-                        <div className="flex gap-4 pt-4 border-t border-zinc-100">
-                          {project.activeLink && (
-                            <a 
-                              href={project.activeLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-[10px] font-black text-black border-b-[2px] border-black hover:bg-black hover:text-white px-1 py-0.5 transition-colors uppercase tracking-widest"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                              Live Demo
-                            </a>
-                          )}
-                          {project.githubLink && (
-                            <a 
-                              href={project.githubLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-[10px] font-black text-black border-b-[2px] border-black hover:bg-black hover:text-white px-1 py-0.5 transition-colors uppercase tracking-widest"
-                            >
-                              <Github className="w-3.5 h-3.5" />
-                              Source Code
-                            </a>
-                          )}
-                        </div>
+                        {project.githubLink && (
+                          <a 
+                            href={project.githubLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white"
+                          >
+                            <Github className="w-3.5 h-3.5" />
+                            Source Code
+                          </a>
+                        )}
                       </div>
-
                     </div>
                   ))
                 ) : (
-                  <p className="text-zinc-500 font-bold uppercase text-xs italic pl-4">No projects listed</p>
+                  <p className="text-zinc-400 dark:text-zinc-500 text-xs font-normal pl-4">No projects listed</p>
                 )}
               </div>
             </div>
@@ -728,23 +682,28 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           </div>
         </div>
 
-        {/* Viral Brand Footer Banner */}
-        <div className="mt-12 border-[4px] border-black bg-[#ffeb3b] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-all">
-          <div className="space-y-2 text-center md:text-left">
-            <h3 className="text-xl font-black uppercase text-black italic leading-none">
-              Tired of typing job applications? ⚡
-            </h3>
-            <p className="text-xs font-bold text-black/80 uppercase tracking-tight">
-              Auto-fill job applications in seconds using AI. Create your own portfolio on Lazee.dev.
+        {/* Brand Footer Banner */}
+        <div className="mt-12 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-gradient-to-r from-zinc-900 via-zinc-900 to-zinc-950 text-white p-6 md:p-8 shadow-sm relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-1.5 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <div className="size-6 rounded-md bg-orange-500/20 text-orange-400 border border-orange-500/30 flex items-center justify-center">
+                <Zap className="w-3.5 h-3.5" />
+              </div>
+              <h3 className="text-lg md:text-xl font-semibold text-white tracking-tight">
+                Tired of typing job applications?
+              </h3>
+            </div>
+            <p className="text-xs text-zinc-400 max-w-xl font-normal">
+              Auto-fill repetitive job application forms in seconds across Greenhouse, Lever, Workday, and Ashby with Lazee.dev.
             </p>
           </div>
           <a
             href="https://lazee.dev"
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 w-full md:w-auto text-center bg-black text-white font-black uppercase text-xs tracking-wider border-[3px] border-black px-6 py-3.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer"
+            className="shrink-0 w-full md:w-auto h-10 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-xs shadow-orange-600/20 transition-all active:scale-[0.98] flex items-center justify-center cursor-pointer"
           >
-            Get Lazee.dev Pro
+            Get Lazee Free
           </a>
         </div>
 
@@ -759,11 +718,10 @@ function SocialLink({ href, icon: Icon, label }: { href: string; icon: ElementTy
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="h-10 w-10 flex items-center justify-center border-[3px] border-black bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all md:h-11 md:w-11 group"
+      className="h-9 w-9 flex items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/80 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 text-zinc-600 dark:text-zinc-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors shadow-2xs cursor-pointer"
       aria-label={label}
     >
-      <Icon className="w-4.5 h-4.5 text-black group-hover:text-orange-500 transition-colors" />
+      <Icon className="w-4 h-4" />
     </a>
   );
 }
-

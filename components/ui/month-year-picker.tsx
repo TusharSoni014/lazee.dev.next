@@ -53,25 +53,24 @@ export function MonthYearPicker({
 
   const handleSelect = (monthIndex: number) => {
     if (isMonthDisabled(monthIndex)) return;
-    // Set to the 1st of the selected month
     onChange(new Date(viewYear, monthIndex, 1));
   };
 
   return (
-    <div className={cn("p-3 w-[280px]", className)}>
+    <div className={cn("p-3 w-[260px]", className)}>
       {/* Year navigator */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-3 px-1">
         <Button
           type="button"
           variant="ghost"
           size="icon"
           onClick={goToPrevYear}
           disabled={viewYear <= minYear}
-          className="h-8 w-8 rounded-none border-2 border-black hover:bg-orange-50 disabled:opacity-30"
+          className="h-7 w-7 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-30"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-3.5 w-3.5" />
         </Button>
-        <span className="text-sm font-black uppercase tracking-widest select-none">
+        <span className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 select-none">
           {viewYear}
         </span>
         <Button
@@ -80,36 +79,35 @@ export function MonthYearPicker({
           size="icon"
           onClick={goToNextYear}
           disabled={viewYear >= maxYear}
-          className="h-8 w-8 rounded-none border-2 border-black hover:bg-orange-50 disabled:opacity-30"
+          className="h-7 w-7 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-30"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-3.5 w-3.5" />
         </Button>
       </div>
 
       {/* Month grid */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-1.5">
         {MONTHS.map((month, index) => {
           const isSelected =
             selectedYear === viewYear && selectedMonth === index;
           const isDisabled = isMonthDisabled(index);
 
           return (
-            <Button
+            <button
               key={month}
               type="button"
-              variant="ghost"
               onClick={() => handleSelect(index)}
               disabled={isDisabled}
               className={cn(
-                "h-9 rounded-none border-2 text-xs font-black uppercase tracking-wider transition-all",
+                "h-8 rounded-lg text-xs font-medium transition-all text-center",
                 isSelected
-                  ? "bg-black text-white border-black hover:bg-black hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                  : "border-zinc-300 bg-white text-black hover:bg-orange-50 hover:border-black",
-                isDisabled && "opacity-30 cursor-not-allowed hover:bg-white hover:border-zinc-300"
+                  ? "bg-orange-600 text-white font-semibold shadow-xs"
+                  : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100",
+                isDisabled && "opacity-30 cursor-not-allowed hover:bg-transparent text-zinc-400"
               )}
             >
               {month}
-            </Button>
+            </button>
           );
         })}
       </div>

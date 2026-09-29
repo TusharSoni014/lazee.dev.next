@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import GoogleProvider from "next-auth/providers/google";
 import Nodemailer from "next-auth/providers/nodemailer";
 import { createTransport } from "nodemailer";
+import { cookies } from "next/headers";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -21,7 +22,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           pass: process.env.EMAIL_SERVER_PASSWORD,
         },
       },
-      from: process.env.EMAIL_FROM,
+      from: process.env.EMAIL_FROM || "Lazee.dev <no-reply@lazee.dev>",
       async sendVerificationRequest({ identifier, url, provider }) {
         const { host } = new URL(url);
         const transport = createTransport(provider.server);
@@ -111,6 +112,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   events: {
     async signIn({ user, account, isNewUser }) {
       if (isNewUser) {
+        const cookieStore = await cookies();
+        cookieStore.set("lazee_new_user", "1", {
+          maxAge: 60 * 30,
+          path: "/",
+          sameSite: "lax",
+        });
+
         if (account?.provider === "nodemailer" || account?.provider === "email") {
           const email = user.email?.toLowerCase() || "";
           const isGmail = email.endsWith("@gmail.com");

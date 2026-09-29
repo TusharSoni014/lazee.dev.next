@@ -16,17 +16,17 @@ export function EarlyAccessSection() {
         <EarlyAccessForm />
       </div>
 
-      <p className="text-sm sm:text-base font-bold text-zinc-700 tracking-tight text-center">
+      <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 tracking-tight text-center">
         Follow{" "}
         <a
           href="https://twitter.com/tusharsoni014"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-500 hover:text-blue-600 underline decoration-2 underline-offset-4"
+          className="text-zinc-900 dark:text-zinc-200 font-medium hover:text-orange-600 dark:hover:text-orange-500 underline underline-offset-4 transition-colors"
         >
           @tusharsoni014
         </a>{" "}
-        on Twitter for dev log updates.
+        on X (Twitter) for dev log updates.
       </p>
     </motion.div>
   );

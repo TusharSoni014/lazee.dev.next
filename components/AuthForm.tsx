@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { Loader2, ArrowRight, Mail } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, Mail, Sparkles, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 
 export default function AuthForm() {
@@ -43,7 +43,7 @@ export default function AuthForm() {
         setIsSent(true);
         toast.success("Magic link sent!");
       }
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsEmailLoading(false);
@@ -59,23 +59,28 @@ export default function AuthForm() {
       : "/?logged_in=true";
     try {
       await signIn("google", { callbackUrl });
-    } catch (error) {
+    } catch {
       toast.error("Failed to sign in with Google");
       setIsGoogleLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col gap-8 w-full font-heading">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-[#1c130d] dark:text-white text-3xl sm:text-4xl font-black tracking-tight uppercase lg:hidden">
-          Welcome Back
+    <div className="w-full rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 shadow-xl shadow-zinc-950/5 dark:shadow-black/20 p-6 sm:p-8 backdrop-blur-sm">
+      {/* Top Header */}
+      <div className="flex flex-col mb-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors mb-5 group w-fit"
+        >
+          <ArrowLeft className="size-3.5 group-hover:-translate-x-0.5 transition-transform" />
+          <span>Back to home</span>
+        </Link>
+        <h2 className="text-2xl sm:text-3xl font-heading font-bold tracking-tight text-zinc-900 dark:text-white">
+          Welcome back
         </h2>
-        <h2 className="text-[#1c130d] dark:text-white text-3xl font-black tracking-tight hidden lg:block uppercase font-heading">
-          Log in to your account
-        </h2>
-        <p className="text-slate-600 dark:text-slate-400 font-medium font-sans">
-          Enter your details to access your dashboard.
+        <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1.5 font-sans">
+          Sign in to sync your profile and browser extension.
         </p>
       </div>
 
@@ -83,115 +88,134 @@ export default function AuthForm() {
         {!isSent ? (
           <motion.div
             key="form"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="flex flex-col gap-6"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col gap-5"
           >
+            {/* Google OAuth Button */}
             <button
               id="google-login-btn"
+              type="button"
               onClick={handleGoogleLogin}
               disabled={isEmailLoading || isGoogleLoading}
-              className="flex w-full items-center justify-center gap-3 bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white h-16 px-6 border-[3px] border-black dark:border-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-[5px_5px_0px_0px_#000000] dark:shadow-[5px_5px_0px_0px_#ffffff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[3px_3px_0px_0px_#000000] dark:active:shadow-[3px_3px_0px_0px_#ffffff] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="relative flex w-full items-center justify-center gap-3 h-11 sm:h-12 px-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200 text-sm font-medium transition-all shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isGoogleLoading ? (
-                <Loader2 className="h-6 w-6 animate-spin text-black dark:text-white" />
+                <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
+                  <Loader2 className="size-4 animate-spin" />
+                  <span>Connecting to Google...</span>
+                </div>
               ) : (
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    fill="#4285F4"
-                  />
-                  <path
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    fill="#34A853"
-                  />
-                  <path
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    fill="#FBBC05"
-                  />
-                  <path
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    fill="#EA4335"
-                  />
-                </svg>
+                <>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="shrink-0"
+                  >
+                    <path
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      fill="#4285F4"
+                    />
+                    <path
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      fill="#34A853"
+                    />
+                    <path
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                      fill="#FBBC05"
+                    />
+                    <path
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                      fill="#EA4335"
+                    />
+                  </svg>
+                  <span>Continue with Google</span>
+                </>
               )}
-              <span className="text-lg font-black uppercase tracking-tight">
-                Login with Google
-              </span>
             </button>
 
-            <div className="relative flex py-2 items-center">
-              <div className="grow h-[3px] bg-black dark:bg-white"></div>
-              <span className="shrink-0 mx-4 text-black dark:text-white font-black text-sm uppercase tracking-widest">
-                Or with email
+            {/* Hairline Divider */}
+            <div className="relative flex py-1 items-center">
+              <div className="grow border-t border-zinc-200 dark:border-zinc-800" />
+              <span className="shrink-0 mx-3 text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                or continue with email
               </span>
-              <div className="grow h-[3px] bg-black dark:bg-white"></div>
+              <div className="grow border-t border-zinc-200 dark:border-zinc-800" />
             </div>
 
-            <form onSubmit={handleEmailLogin} className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2">
+            {/* Email Form */}
+            <form onSubmit={handleEmailLogin} className="flex flex-col gap-4">
+              <div>
                 <label
                   htmlFor="email"
-                  className="text-[#1c130d] dark:text-slate-200 text-sm font-black uppercase tracking-wide"
+                  className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-1.5 font-mono"
                 >
                   Magic Link Email
                 </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="name@example.com"
-                  value={email}
-                  disabled={isEmailLoading || isGoogleLoading}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-14 px-4 bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white border-[3px] border-black dark:border-white focus:outline-none focus:border-[#f26c0d] dark:focus:border-[#f26c0d] placeholder:text-slate-400 text-lg font-medium transition-all rounded-none shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff] focus:shadow-[6px_6px_0px_0px_#f26c0d] dark:focus:shadow-[6px_6px_0px_0px_#f26c0d] disabled:opacity-50 disabled:cursor-not-allowed"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+                    <Mail className="size-4" />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="name@example.com"
+                    value={email}
+                    disabled={isEmailLoading || isGoogleLoading}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full h-11 pl-10 pr-3.5 bg-zinc-50/60 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-900 dark:text-white placeholder:text-zinc-400 text-sm font-medium transition-all focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
                 {email && isEmailValid && !email.toLowerCase().endsWith("@gmail.com") && (
-                  <p className="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1.5 flex items-center gap-1 font-sans">
-                    💡 Note: Only @gmail.com accounts are eligible for free signup credits.
-                  </p>
+                  <div className="flex items-start gap-2 mt-2 p-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-400 text-xs">
+                    <Sparkles className="size-3.5 shrink-0 mt-0.5" />
+                    <span>Note: Only @gmail.com accounts are eligible for free signup credits.</span>
+                  </div>
                 )}
               </div>
 
+              {/* Submit Button */}
               <button
                 id="send-magic-link-btn"
                 type="submit"
                 disabled={isEmailLoading || isGoogleLoading || !isEmailValid}
-                className="group flex items-center justify-center gap-2 w-full h-16 bg-[#f26c0d] text-[#1c130d] transition-all cursor-pointer border-[3px] border-black dark:border-white shadow-[5px_5px_0px_0px_#000000] dark:shadow-[5px_5px_0px_0px_#ffffff] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[3px_3px_0px_0px_#000000] dark:active:shadow-[3px_3px_0px_0px_#ffffff] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm transition-all shadow-[0_1px_2px_rgba(0,0,0,0.05),0_8px_16px_-4px_rgba(234,88,12,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
               >
                 {isEmailLoading ? (
-                  <Loader2 className="h-6 w-6 animate-spin text-black" />
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="size-4 animate-spin text-white" />
+                    <span>Sending magic link...</span>
+                  </div>
                 ) : (
                   <>
-                    <span className="text-xl font-black uppercase tracking-tight">
-                      Send Magic Link
-                    </span>
-                    <ArrowRight className="h-6 w-6 transform group-hover:translate-x-1 transition-transform font-bold" />
+                    <span>Send Magic Link</span>
+                    <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" />
                   </>
                 )}
               </button>
             </form>
 
-            <div className="mt-4 text-center">
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium font-sans">
+            {/* Terms and Privacy Policy Note */}
+            <div className="text-center pt-2">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-sans">
                 By logging in, you agree to our{" "}
                 <Link
                   href="/terms"
-                  className="text-[#1c130d] dark:text-white underline decoration-2 decoration-[#f26c0d] underline-offset-4 hover:bg-[#f26c0d] hover:text-black hover:no-underline px-1 transition-all font-bold"
+                  className="text-zinc-700 dark:text-zinc-300 underline decoration-zinc-300 dark:decoration-zinc-700 underline-offset-4 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
                 >
                   Terms
                 </Link>{" "}
                 and{" "}
                 <Link
                   href="/privacy"
-                  className="text-[#1c130d] dark:text-white underline decoration-2 decoration-[#f26c0d] underline-offset-4 hover:bg-[#f26c0d] hover:text-black hover:no-underline px-1 transition-all font-bold"
+                  className="text-zinc-700 dark:text-zinc-300 underline decoration-zinc-300 dark:decoration-zinc-700 underline-offset-4 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
                 >
                   Privacy Policy
                 </Link>
@@ -202,37 +226,48 @@ export default function AuthForm() {
         ) : (
           <motion.div
             key="sent"
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center space-y-6 flex flex-col items-center"
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col items-center text-center py-2"
           >
-            <div className="w-full p-8 border-[3px] border-black dark:border-white shadow-[6px_6px_0px_0px_#f26c0d] bg-white dark:bg-slate-800 text-[#1c130d] dark:text-white flex flex-col items-center text-center">
-              <div className="flex items-center justify-center w-16 h-16 bg-[#f26c0d] border-[3px] border-black dark:border-white text-[#1c130d] shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff] mb-6 animate-pulse">
-                <Mail className="h-8 w-8 stroke-[2.5]" />
-              </div>
-              <h3 className="text-2xl font-black uppercase tracking-tight mb-2">
-                Check your inbox
-              </h3>
-              <p className="text-slate-600 dark:text-slate-300 font-medium font-sans text-base leading-relaxed max-w-sm">
-                We sent a magic link to:
-                <span className="block font-black text-[#f26c0d] break-all my-2">
-                  {email}
-                </span>
-                Click the link in the email to log in instantly.
-              </p>
+            <div className="flex items-center justify-center size-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 mb-4">
+              <Mail className="size-6" />
             </div>
+            <h3 className="text-xl font-heading font-bold text-zinc-900 dark:text-white">
+              Check your inbox
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed max-w-xs font-sans">
+              We sent a temporary magic link to:
+            </p>
+            <div className="inline-block mt-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-mono font-medium text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 break-all">
+              {email}
+            </div>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-3 max-w-xs font-sans">
+              Click the link in the email to log in instantly. It expires in 10 minutes.
+            </p>
+
             <button
-              className="text-black dark:text-white font-black uppercase text-sm tracking-widest hover:text-[#f26c0d] dark:hover:text-[#f26c0d] transition-colors border-b-2 border-black dark:border-white hover:border-[#f26c0d] dark:hover:border-[#f26c0d] cursor-pointer"
+              type="button"
               onClick={() => {
                 setIsSent(false);
                 setEmail("");
               }}
+              className="mt-6 inline-flex items-center gap-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white underline decoration-zinc-300 dark:decoration-zinc-700 underline-offset-4 cursor-pointer transition-colors"
             >
-              ← USE DIFFERENT EMAIL
+              <ArrowLeft className="size-3" />
+              <span>Use a different email</span>
             </button>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Security Guarantee Note */}
+      <div className="mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+        <ShieldCheck className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+        <span>Client-side encrypted profile vault</span>
+      </div>
     </div>
   );
 }

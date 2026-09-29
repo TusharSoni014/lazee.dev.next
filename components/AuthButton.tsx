@@ -9,7 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { User, Download } from "lucide-react";
+import { User, Download, Zap } from "lucide-react";
 import { useBrowser, type BrowserType } from "@/hooks/use-browser";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -31,7 +31,7 @@ export default function AuthButton() {
 
   if (status === "loading") {
     return (
-      <div className="h-9 w-9 animate-pulse rounded-full bg-zinc-200" />
+      <div className="h-9 w-9 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-800/60" />
     );
   }
 
@@ -41,21 +41,23 @@ export default function AuthButton() {
         <CreditsDisplay />
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
-            <button className="relative h-9 w-9 cursor-pointer group focus:outline-none">
-              <div className="relative h-full w-full overflow-hidden rounded-full transition-all duration-200 group-hover:scale-110 group-active:scale-95">
-                {session.user?.image ? (
-                  <Image
-                    src={session.user.image}
-                    alt={session.user.name || "User"}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-orange-500 text-xs font-black text-white">
-                    {session.user?.email?.[0]?.toUpperCase() || "U"}
-                  </div>
-                )}
-              </div>
+            <button
+              aria-label="User profile menu"
+              className="relative h-9 w-9 cursor-pointer rounded-full border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-zinc-100 dark:bg-zinc-800/90 overflow-hidden transition-all duration-200 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40"
+            >
+              {session.user?.image ? (
+                <Image
+                  src={session.user.image}
+                  alt={session.user.name || "User profile"}
+                  fill
+                  sizes="36px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-orange-600 text-xs font-semibold text-white">
+                  {session.user?.email?.[0]?.toUpperCase() || "U"}
+                </div>
+              )}
             </button>
           </PopoverTrigger>
           <AnimatePresence>
@@ -63,7 +65,7 @@ export default function AuthButton() {
               <PopoverContent
                 forceMount
                 align="end"
-                className="w-64 p-0 rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white data-[state=open]:animate-none data-[state=closed]:animate-none"
+                className="w-64 p-0 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xl bg-white dark:bg-zinc-900 data-[state=open]:animate-none data-[state=closed]:animate-none overflow-hidden"
               >
                 <motion.div
                   initial={{ opacity: 0, y: -8, scale: 0.96 }}
@@ -76,8 +78,8 @@ export default function AuthButton() {
                   }}
                   className="p-2 flex flex-col gap-1"
                 >
-                  <div className="px-3 py-2 border-b-[3px] border-black mb-1">
-                    <p className="text-xs font-black uppercase text-zinc-500 truncate">
+                  <div className="px-3 py-2 border-b border-zinc-100 dark:border-zinc-800 mb-1">
+                    <p className="text-xs font-medium text-zinc-500 truncate">
                       {session.user?.email}
                     </p>
                   </div>
@@ -85,10 +87,10 @@ export default function AuthButton() {
                   <Link
                     href="/profile"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-black uppercase hover:bg-orange-50 transition-colors"
+                    className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                   >
-                    <User className="size-4" />
-                    Profile Settings
+                    <User className="size-4 text-zinc-400" />
+                    Profile & Credentials
                   </Link>
 
                   <a
@@ -96,10 +98,10 @@ export default function AuthButton() {
                     target="_blank"
                     rel="noreferrer"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-black uppercase hover:bg-blue-50 transition-colors"
+                    className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 rounded-lg transition-colors"
                   >
                     <Download className="size-4" />
-                    Get {browser === "other" ? "" : browser} Ext
+                    Download Extension
                   </a>
                 </motion.div>
               </PopoverContent>
@@ -111,8 +113,12 @@ export default function AuthButton() {
   }
 
   return (
-    <Button asChild>
-      <Link href="/login">LOG IN</Link>
+    <Button
+      asChild
+      size="sm"
+      className="bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-100 dark:text-zinc-950 font-medium text-xs px-4 h-8 rounded-lg shadow-sm transition-all"
+    >
+      <Link href="/login">Sign In</Link>
     </Button>
   );
 }
@@ -125,17 +131,17 @@ function CreditsDisplay() {
 
   if (isLoading || !status) {
     return (
-      <div className="h-4 w-12 animate-pulse bg-zinc-200 rounded" />
+      <div className="h-5 w-14 animate-pulse bg-zinc-200 dark:bg-zinc-800 rounded-md" />
     );
   }
 
   return (
     <Link
       href="/profile"
-      className="text-sm font-bold uppercase tracking-wider text-zinc-700 hover:text-orange-500 transition-colors flex items-center gap-1 select-none mr-1"
+      className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:text-orange-600 transition-colors flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 mr-1"
     >
       <span>{Intl.NumberFormat("en-US").format(status.credits)}</span>
-      <span className="text-orange-500">⚡</span>
+      <Zap className="size-3 text-orange-500 fill-orange-500" />
     </Link>
   );
 }

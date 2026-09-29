@@ -43,7 +43,7 @@ export function ProjectCarousel({ screenshots }: ProjectCarouselProps) {
 
   return (
     <div
-      className="relative aspect-video w-full border-[3px] border-black bg-zinc-950 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all overflow-hidden group"
+      className="relative aspect-video w-full rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-950 overflow-hidden shadow-xs group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -67,47 +67,55 @@ export function ProjectCarousel({ screenshots }: ProjectCarouselProps) {
       </AnimatePresence>
 
       {/* Prev Button */}
-      <button
-        type="button"
-        onClick={() => paginate(-1)}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 flex items-center justify-center border-[2px] border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-orange-50 active:bg-orange-100 transition-all rounded-none cursor-pointer opacity-0 group-hover:opacity-100 duration-200"
-        aria-label="Previous slide"
-      >
-        <ChevronLeft className="w-5 h-5 text-black" strokeWidth={2.5} />
-      </button>
+      {screenshots.length > 1 && (
+        <button
+          type="button"
+          onClick={() => paginate(-1)}
+          className="absolute left-3 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-sm"
+          aria-label="Previous slide"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+      )}
 
       {/* Next Button */}
-      <button
-        type="button"
-        onClick={() => paginate(1)}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 flex items-center justify-center border-[2px] border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-orange-50 active:bg-orange-100 transition-all rounded-none cursor-pointer opacity-0 group-hover:opacity-100 duration-200"
-        aria-label="Next slide"
-      >
-        <ChevronRight className="w-5 h-5 text-black" strokeWidth={2.5} />
-      </button>
+      {screenshots.length > 1 && (
+        <button
+          type="button"
+          onClick={() => paginate(1)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-sm"
+          aria-label="Next slide"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      )}
 
       {/* Index Badge */}
-      <div className="absolute bottom-4 right-4 z-10 bg-yellow-300 text-black border-[2px] border-black px-2.5 py-0.5 font-black uppercase text-[10px] tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] select-none">
-        {imageIndex + 1} / {screenshots.length}
-      </div>
+      {screenshots.length > 1 && (
+        <div className="absolute bottom-3 right-3 z-10 bg-black/60 backdrop-blur-md text-white border border-white/10 px-2.5 py-0.5 rounded-full font-mono text-[11px] font-medium tracking-tight select-none">
+          {imageIndex + 1} / {screenshots.length}
+        </div>
+      )}
 
       {/* Dot Indicators */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-        {screenshots.map((_, idx) => (
-          <button
-            key={idx}
-            type="button"
-            onClick={() => {
-              const newDirection = idx > imageIndex ? 1 : -1;
-              setPage([page + (idx - imageIndex), newDirection]);
-            }}
-            className={`w-2.5 h-2.5 border-[2px] border-black transition-all rounded-none ${
-              idx === imageIndex ? "bg-orange-500 scale-110 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" : "bg-white"
-            }`}
-            aria-label={`Go to slide ${idx + 1}`}
-          />
-        ))}
-      </div>
+      {screenshots.length > 1 && (
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2 py-1 rounded-full border border-white/10">
+          {screenshots.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => {
+                const newDirection = idx > imageIndex ? 1 : -1;
+                setPage([page + (idx - imageIndex), newDirection]);
+              }}
+              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                idx === imageIndex ? "bg-white w-4" : "bg-white/40 hover:bg-white/70 w-1.5"
+              }`}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -93,7 +93,7 @@ export default function RootLayout({
           <SessionProvider>
             <QueryProvider>
               <SiteHeader />
-              <main className="pt-16 grow bg-[#fefaf6] text-black transition-colors">
+              <main className="pt-16 grow bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors">
                 {children}
               </main>
               <Footer />

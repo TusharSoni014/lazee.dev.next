@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useState } from "react";
+import { CheckCircle2, AlertCircle, Loader2, Info } from "lucide-react";
 
 export type ToastType = "success" | "error" | "info" | "loading";
 
@@ -92,78 +93,39 @@ export function Toaster() {
   }, []);
 
   return (
-    <div className="fixed bottom-8 right-8 z-100 flex flex-col gap-4 pointer-events-none">
+    <div className="fixed bottom-6 right-6 z-100 flex flex-col gap-2.5 pointer-events-none">
       <AnimatePresence>
         {toasts.map((t) => (
           <motion.div
             key={t.id}
-            initial={{ opacity: 0, scale: 0.5, y: 50, rotateX: 45 }}
-            animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
-            exit={{ opacity: 0, scale: 0.8, x: 100, rotateX: -45 }}
-            whileHover={{ scale: 1.05, rotate: t.type === "error" ? -2 : 2 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className={`pointer-events-auto flex items-center gap-3 border-[3px] border-black px-6 py-4 text-black font-black uppercase tracking-tight shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] cursor-pointer drop-shadow-md ${
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 10 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className={`pointer-events-auto flex items-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium shadow-lg backdrop-blur-md cursor-pointer transition-colors ${
               t.type === "success"
-                ? "bg-green-400"
+                ? "border-emerald-500/20 bg-white/95 dark:bg-zinc-900/95 text-emerald-800 dark:text-emerald-300 shadow-emerald-500/5"
                 : t.type === "error"
-                  ? "bg-red-400"
+                  ? "border-rose-500/20 bg-white/95 dark:bg-zinc-900/95 text-rose-800 dark:text-rose-300 shadow-rose-500/5"
                   : t.type === "loading"
-                    ? "bg-yellow-400"
-                    : "bg-white"
+                    ? "border-amber-500/20 bg-white/95 dark:bg-zinc-900/95 text-amber-800 dark:text-amber-300 shadow-amber-500/5"
+                    : "border-zinc-200/80 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 text-zinc-900 dark:text-zinc-100"
             }`}
             onClick={() => toast.dismiss(t.id)}
           >
             {t.type === "loading" && (
-              <svg
-                className="w-5 h-5 animate-spin"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  className="opacity-25"
-                />
-                <path
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
+              <Loader2 className="w-4 h-4 shrink-0 animate-spin text-amber-600 dark:text-amber-400" />
             )}
             {t.type === "success" && (
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="3"
-              >
-                <path
-                  strokeLinecap="square"
-                  strokeLinejoin="miter"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
             )}
             {t.type === "error" && (
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="3"
-              >
-                <path
-                  strokeLinecap="square"
-                  strokeLinejoin="miter"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
             )}
-            {t.message}
+            {t.type === "info" && (
+              <Info className="w-4 h-4 shrink-0 text-orange-600 dark:text-orange-400" />
+            )}
+            <span>{t.message}</span>
           </motion.div>
         ))}
       </AnimatePresence>

@@ -5,11 +5,14 @@ import Image from "next/image";
 import { useProfile, useProfileStatus } from "@/hooks/useProfile";
 import { useDebounceCallback } from "@/hooks/useDebounce";
 import { ResumeManager } from "./resume-manager";
+import { ResumeAutofillUpload } from "./resume-autofill-upload";
 import { updateProfile, updateExperiences, updateEducation } from "./actions";
 import { ProjectSection } from "./project-section";
 import { UsernameManager } from "./username-manager";
 import { useWindowWidth } from "@/hooks/useWindowWidth";
+import { useResumeStore } from "@/store/useResumeStore";
 import { toast } from "@/components/ui/toast";
+import Loading from "@/components/loading";
 import {
   Loader2,
   Save,
@@ -22,17 +25,11 @@ import {
   Twitter,
   Link as LinkIcon,
   CreditCard,
-  Coins,
+  Zap,
   IdCard,
   Settings,
   Send,
   Video,
-} from "lucide-react";
-import clsx from "clsx";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
-import {
   Plus,
   Trash2,
   Calendar as CalendarIcon,
@@ -41,7 +38,28 @@ import {
   Check,
   Code,
   GraduationCap,
+  ChevronDown,
 } from "lucide-react";
+import clsx from "clsx";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { format } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -86,12 +104,14 @@ const phoneOptions = phoneList.map((c) => ({
   label: (
     <span className="flex items-center gap-2">
       <span>{getFlagEmoji(c.code)}</span>
-      <span>{c.dial_code}</span>
-      <span className="text-zinc-500 font-normal">({c.name})</span>
+      <span className="font-medium">{c.dial_code}</span>
+      <span className="text-zinc-500 dark:text-zinc-400 font-normal">
+        ({c.name})
+      </span>
     </span>
   ),
   displayLabel: (
-    <span className="flex items-center gap-2">
+    <span className="flex items-center gap-1.5">
       <span>{getFlagEmoji(c.code)}</span>
       <span>{c.dial_code}</span>
     </span>
@@ -101,7 +121,7 @@ const phoneOptions = phoneList.map((c) => ({
 
 const countryOptions = phoneList.map((c) => ({
   value: c.name,
-  key: c.code,
+  key: `${c.code}-${c.name}`,
   label: (
     <span className="flex items-center gap-2">
       <span>{getFlagEmoji(c.code)}</span>
@@ -114,71 +134,63 @@ const countryOptions = phoneList.map((c) => ({
       <span>{c.name}</span>
     </span>
   ),
-  searchString: `${c.name} ${c.code}`,
+  searchString: `${c.name} ${c.code} ${c.dial_code}`,
 }));
 
-const CURRENCIES = ["USD", "EUR", "GBP", "INR", "AUD", "CAD", "JPY"];
-
 const JOB_TYPES = [
-  "Software Engineering",
-  "Frontend Development",
-  "Backend Development",
-  "Full Stack Development",
-  "Mobile Development",
-  "Web3 / Smart Contracts",
-  "Blockchain Developer",
-  "Cloud Architecture",
-  "DevOps / SRE",
-  "Cybersecurity",
-  "Data Science / Engineering",
-  "Machine Learning / AI",
-  "Game Development",
-  "Developer Relations",
-  "Product Management",
-  "Project Management",
-  "UI/UX Design",
-  "Graphic Design",
-  "Marketing",
-  "Sales",
-  "Customer Support",
-  "Human Resources",
-  "Finance / Accounting",
-  "Operations",
+  "Software Engineer",
+  "Frontend Engineer",
+  "Backend Engineer",
+  "Full Stack Engineer",
+  "Mobile Engineer (iOS/Android)",
+  "DevOps / SRE Engineer",
+  "Data Scientist / ML Engineer",
+  "Product Manager",
+  "Engineering Manager",
+  "UI/UX Designer",
+  "QA / Test Engineer",
+  "Security Engineer",
   "Other",
 ];
 
+const CURRENCIES = ["USD", "INR", "EUR", "GBP", "CAD", "AUD"];
+
 const personalSchema = z.object({
-  firstName: z.string().min(1, "First Name is required"),
+  firstName: z.string().min(1, "First name is required"),
   middleName: z.string().optional(),
-  lastName: z.string().min(1, "Last Name is required"),
-  countryCode: z.string().optional(),
-  phoneNumber: z.string().optional(),
-  country: z.string().optional(),
-  city: z.string().optional(),
+  lastName: z.string().min(1, "Last name is required"),
+  countryCode: z.string().min(1, "Country code is required"),
+  phoneNumber: z.string().min(1, "Phone number is required"),
+  country: z.string().min(1, "Country is required"),
+  city: z.string().min(1, "City is required"),
   collegeName: z.string().optional(),
-  contactEmail: z.string().email("Invalid email address").min(1, "Contact Email is required"),
-  postalCode: z.string().optional().nullable(),
-  genderSelect: z.string().optional().nullable(),
-  genderCustom: z.string().optional().nullable(),
-  veteranStatusSelect: z.string().optional().nullable(),
-  veteranStatusCustom: z.string().optional().nullable(),
-  disabilityStatusSelect: z.string().optional().nullable(),
-  disabilityStatusCustom: z.string().optional().nullable(),
+  contactEmail: z
+    .string()
+    .email("Must be a valid email")
+    .optional()
+    .or(z.literal("")),
+  postalCode: z.string().optional(),
+  genderSelect: z.string().optional(),
+  genderCustom: z.string().optional(),
+  veteranStatusSelect: z.string().optional(),
+  veteranStatusCustom: z.string().optional(),
+  disabilityStatusSelect: z.string().optional(),
+  disabilityStatusCustom: z.string().optional(),
 });
 
 const professionalSchema = z.object({
-  jobType: z.string().optional().nullable(),
-  currency: z.string().optional().nullable(),
-  currentCtc: z.string()
-    .transform((val) => (val === "" ? null : Number(val)))
-    .refine((val) => val === null || !isNaN(val), { message: "Must be a number" })
-    .nullable()
-    .optional(),
-  noticePeriod: z.string()
-    .transform((val) => (val === "" ? null : parseInt(val, 10)))
-    .refine((val) => val === null || !isNaN(val), { message: "Must be an integer" })
-    .nullable()
-    .optional(),
+  jobType: z.string().optional(),
+  currency: z.string().optional(),
+  currentCtc: z.preprocess((val) => {
+    if (val === "" || val === null || val === undefined) return null;
+    const num = Number(val);
+    return isNaN(num) ? null : num;
+  }, z.number().nullable().optional()),
+  noticePeriod: z.preprocess((val) => {
+    if (val === "" || val === null || val === undefined) return null;
+    const num = Number(val);
+    return isNaN(num) ? null : num;
+  }, z.number().nullable().optional()),
 });
 
 const socialsSchema = z.object({
@@ -208,36 +220,44 @@ interface FormInputProps {
   type?: string;
 }
 
-function FormInput({ control, name, label, placeholder, icon: Icon, className, type = "text" }: FormInputProps) {
+function FormInput({
+  control,
+  name,
+  label,
+  placeholder,
+  icon: Icon,
+  className,
+  type = "text",
+}: FormInputProps) {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={clsx("space-y-2", className)}>
-          <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+        <FormItem className={clsx("space-y-1.5", className)}>
+          <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
             {label}
           </FormLabel>
           <FormControl>
             <div className="relative group">
+              {Icon && (
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 dark:text-zinc-500">
+                  <Icon className="h-4 w-4" />
+                </div>
+              )}
               <Input
                 type={type}
                 {...field}
                 value={field.value ?? ""}
                 placeholder={placeholder}
                 className={clsx(
-                  "h-[50px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-none border-[3px] border-black text-black",
-                  Icon && "pl-14",
+                  "h-11 w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 transition-colors focus:bg-white dark:focus:bg-zinc-900 focus:border-orange-500 dark:focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 shadow-2xs",
+                  Icon && "pl-10",
                 )}
               />
-              {Icon && (
-                <div className="absolute left-0 top-0 bottom-0 w-[50px] flex items-center justify-center border-r-[3px] border-black bg-zinc-200">
-                  <Icon className="h-5 w-5 text-black" />
-                </div>
-              )}
             </div>
           </FormControl>
-          <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+          <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
         </FormItem>
       )}
     />
@@ -257,33 +277,47 @@ function getPersonalFormValues(user: any) {
     const exactMatch = phoneList.find(
       (c) =>
         c.name.toLowerCase() === initial.toLowerCase() ||
-        c.code.toLowerCase() === initial.toLowerCase()
+        c.code.toLowerCase() === initial.toLowerCase(),
     );
     return exactMatch ? exactMatch.name : initial;
   })();
 
   const standardGenders = ["Male", "Female"];
   const dbGender = user?.gender || "";
-  const initialGenderSelect = standardGenders.includes(dbGender) ? dbGender : (dbGender ? "Other" : "");
+  const initialGenderSelect = standardGenders.includes(dbGender)
+    ? dbGender
+    : dbGender
+      ? "Other"
+      : "";
   const initialGenderCustom = initialGenderSelect === "Other" ? dbGender : "";
 
   const standardVeterans = [
     "I am not a protected veteran",
     "I identify as one or more of the classifications of a protected veteran",
-    "I don't wish to answer"
+    "I don't wish to answer",
   ];
   const dbVeteran = user?.veteranStatus || "";
-  const initialVeteranSelect = standardVeterans.includes(dbVeteran) ? dbVeteran : (dbVeteran ? "Other" : "");
-  const initialVeteranCustom = initialVeteranSelect === "Other" ? dbVeteran : "";
+  const initialVeteranSelect = standardVeterans.includes(dbVeteran)
+    ? dbVeteran
+    : dbVeteran
+      ? "Other"
+      : "";
+  const initialVeteranCustom =
+    initialVeteranSelect === "Other" ? dbVeteran : "";
 
   const standardDisabilities = [
     "Yes, I have a disability, or have had one in the past",
     "No, I do not have a disability and have not had one in the past",
-    "I do not want to answer"
+    "I do not want to answer",
   ];
   const dbDisability = user?.disabilityStatus || "";
-  const initialDisabilitySelect = standardDisabilities.includes(dbDisability) ? dbDisability : (dbDisability ? "Other" : "");
-  const initialDisabilityCustom = initialDisabilitySelect === "Other" ? dbDisability : "";
+  const initialDisabilitySelect = standardDisabilities.includes(dbDisability)
+    ? dbDisability
+    : dbDisability
+      ? "Other"
+      : "";
+  const initialDisabilityCustom =
+    initialDisabilitySelect === "Other" ? dbDisability : "";
 
   return {
     firstName: user?.firstName || "",
@@ -311,8 +345,6 @@ function PersonalInformationForm({
   phoneOptions,
   countryOptions,
 }: any) {
-  const width = useWindowWidth();
-  const isMobile = width < 768;
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof personalSchema>>({
@@ -334,9 +366,18 @@ function PersonalInformationForm({
       collegeName: values.collegeName,
       contactEmail: values.contactEmail,
       postalCode: values.postalCode || null,
-      gender: values.genderSelect === "Other" ? values.genderCustom : values.genderSelect || null,
-      veteranStatus: values.veteranStatusSelect === "Other" ? values.veteranStatusCustom : values.veteranStatusSelect || null,
-      disabilityStatus: values.disabilityStatusSelect === "Other" ? values.disabilityStatusCustom : values.disabilityStatusSelect || null,
+      gender:
+        values.genderSelect === "Other"
+          ? values.genderCustom
+          : values.genderSelect || null,
+      veteranStatus:
+        values.veteranStatusSelect === "Other"
+          ? values.veteranStatusCustom
+          : values.veteranStatusSelect || null,
+      disabilityStatus:
+        values.disabilityStatusSelect === "Other"
+          ? values.disabilityStatusCustom
+          : values.disabilityStatusSelect || null,
     };
     const result = await updateProfile(payload);
     setIsSaving(false);
@@ -375,22 +416,43 @@ function PersonalInformationForm({
   }, [user, form]);
 
   return (
-    <Section title="Personal Information" icon={IdCard} hasAutoSave={true} isSaving={isSaving} isDirty={form.formState.isDirty}>
+    <Section
+      title="Personal Information"
+      icon={IdCard}
+      hasAutoSave={true}
+      isSaving={isSaving}
+      isDirty={form.formState.isDirty}
+    >
       <Form {...form}>
         <div className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-3">
-            <FormInput control={form.control} name="firstName" label="First Name" placeholder="John" />
-            <FormInput control={form.control} name="middleName" label="MiddleName" placeholder="" />
-            <FormInput control={form.control} name="lastName" label="Last Name" placeholder="Doe" />
+          <div className="grid gap-5 md:grid-cols-3">
+            <FormInput
+              control={form.control}
+              name="firstName"
+              label="First Name"
+              placeholder="John"
+            />
+            <FormInput
+              control={form.control}
+              name="middleName"
+              label="Middle Name (Optional)"
+              placeholder=""
+            />
+            <FormInput
+              control={form.control}
+              name="lastName"
+              label="Last Name"
+              placeholder="Doe"
+            />
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-3">
             <FormField
               control={form.control}
               name="phoneNumber"
               render={({ field }) => (
-                <FormItem className="space-y-2 md:col-span-1">
-                  <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="space-y-1.5 md:col-span-1">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Phone Number
                   </FormLabel>
                   <FormControl>
@@ -398,18 +460,22 @@ function PersonalInformationForm({
                       <Combobox
                         options={phoneOptions}
                         value={form.watch("countryCode") || ""}
-                        onChange={(val) => form.setValue("countryCode", val, { shouldDirty: true })}
-                        className="w-28 shrink-0"
+                        onChange={(val) =>
+                          form.setValue("countryCode", val, {
+                            shouldDirty: true,
+                          })
+                        }
+                        className="w-32 shrink-0"
                       />
                       <Input
                         {...field}
                         value={field.value ?? ""}
                         placeholder="1234567890"
-                        className="h-[50px] flex-1 bg-zinc-100 placeholder:text-zinc-400 rounded-none border-[3px] border-black text-black focus:bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                        className="h-11 flex-1 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 shadow-2xs transition-colors focus:bg-white dark:focus:bg-zinc-900 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                       />
                     </div>
                   </FormControl>
-                  <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
@@ -418,20 +484,22 @@ function PersonalInformationForm({
               control={form.control}
               name="country"
               render={() => (
-                <FormItem className="space-y-2 md:col-span-1">
-                  <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="space-y-1.5 md:col-span-1">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Country
                   </FormLabel>
                   <FormControl>
                     <Combobox
                       options={countryOptions}
                       value={form.watch("country") || ""}
-                      onChange={(val) => form.setValue("country", val, { shouldDirty: true })}
+                      onChange={(val) =>
+                        form.setValue("country", val, { shouldDirty: true })
+                      }
                       placeholder="Select Country"
                       searchPlaceholder="Search country..."
                     />
                   </FormControl>
-                  <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
@@ -445,7 +513,7 @@ function PersonalInformationForm({
             />
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-3">
             <FormInput
               control={form.control}
               name="contactEmail"
@@ -469,34 +537,39 @@ function PersonalInformationForm({
             />
           </div>
 
-          <div className="border-t-[3px] border-dashed border-black pt-6 mt-6">
-            <h4 className="text-xs font-black uppercase text-zinc-500 tracking-widest mb-4">
+          <div className="border-t border-zinc-100 dark:border-zinc-800/80 pt-6 mt-6">
+            <h4 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-4">
               Demographics / EEOC (Optional)
             </h4>
-            <div className="space-y-6">
+            <div className="space-y-5">
               {/* Gender */}
-              <div className="grid gap-6 md:grid-cols-3 items-end">
+              <div className="grid gap-5 md:grid-cols-3 items-end">
                 <FormField
                   control={form.control}
                   name="genderSelect"
                   render={({ field }) => (
-                    <FormItem className="space-y-2 md:col-span-1">
-                      <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    <FormItem className="space-y-1.5 md:col-span-1">
+                      <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                         Gender
                       </FormLabel>
                       <FormControl>
-                        <Select onValueChange={(val) => field.onChange(val)} value={field.value || undefined}>
-                          <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
+                        <Select
+                          onValueChange={(val) => field.onChange(val)}
+                          value={field.value || undefined}
+                        >
+                          <SelectTrigger>
                             <SelectValue placeholder="Select Gender" />
                           </SelectTrigger>
-                          <SelectContent className="rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                            <SelectItem value="Male" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">Male</SelectItem>
-                            <SelectItem value="Female" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">Female</SelectItem>
-                            <SelectItem value="Other" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">Other (Specify)</SelectItem>
+                          <SelectContent>
+                            <SelectItem value="Male">Male</SelectItem>
+                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="Other">
+                              Other (Specify)
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </FormControl>
-                      <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                      <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                     </FormItem>
                   )}
                 />
@@ -512,37 +585,41 @@ function PersonalInformationForm({
               </div>
 
               {/* Veteran Status */}
-              <div className="grid gap-6 md:grid-cols-3 items-end">
+              <div className="grid gap-5 md:grid-cols-3 items-end">
                 <FormField
                   control={form.control}
                   name="veteranStatusSelect"
                   render={({ field }) => (
-                    <FormItem className="space-y-2 md:col-span-2">
-                      <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    <FormItem className="space-y-1.5 md:col-span-2">
+                      <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                         Veteran Status
                       </FormLabel>
                       <FormControl>
-                        <Select onValueChange={(val) => field.onChange(val)} value={field.value || undefined}>
-                          <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
+                        <Select
+                          onValueChange={(val) => field.onChange(val)}
+                          value={field.value || undefined}
+                        >
+                          <SelectTrigger>
                             <SelectValue placeholder="Select Veteran Status" />
                           </SelectTrigger>
-                          <SelectContent className="rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] max-w-[90vw] md:max-w-[600px]">
-                            <SelectItem value="I am not a protected veteran" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                          <SelectContent>
+                            <SelectItem value="I am not a protected veteran">
                               I am not a protected veteran
                             </SelectItem>
-                            <SelectItem value="I identify as one or more of the classifications of a protected veteran" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
-                              I identify as one or more of the classifications of a protected veteran
+                            <SelectItem value="I identify as one or more of the classifications of a protected veteran">
+                              I identify as one or more of the classifications
+                              of a protected veteran
                             </SelectItem>
-                            <SelectItem value="I don't wish to answer" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                            <SelectItem value="I don't wish to answer">
                               I don&apos;t wish to answer
                             </SelectItem>
-                            <SelectItem value="Other" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                            <SelectItem value="Other">
                               Other (Specify)
                             </SelectItem>
                           </SelectContent>
                         </Select>
                       </FormControl>
-                      <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                      <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                     </FormItem>
                   )}
                 />
@@ -558,37 +635,42 @@ function PersonalInformationForm({
               </div>
 
               {/* Disability Status */}
-              <div className="grid gap-6 md:grid-cols-3 items-end">
+              <div className="grid gap-5 md:grid-cols-3 items-end">
                 <FormField
                   control={form.control}
                   name="disabilityStatusSelect"
                   render={({ field }) => (
-                    <FormItem className="space-y-2 md:col-span-2">
-                      <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                    <FormItem className="space-y-1.5 md:col-span-2">
+                      <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                         Disability Status
                       </FormLabel>
                       <FormControl>
-                        <Select onValueChange={(val) => field.onChange(val)} value={field.value || undefined}>
-                          <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
+                        <Select
+                          onValueChange={(val) => field.onChange(val)}
+                          value={field.value || undefined}
+                        >
+                          <SelectTrigger>
                             <SelectValue placeholder="Select Disability Status" />
                           </SelectTrigger>
-                          <SelectContent className="rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] max-w-[90vw] md:max-w-[600px]">
-                            <SelectItem value="Yes, I have a disability, or have had one in the past" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
-                              Yes, I have a disability, or have had one in the past
+                          <SelectContent>
+                            <SelectItem value="Yes, I have a disability, or have had one in the past">
+                              Yes, I have a disability, or have had one in the
+                              past
                             </SelectItem>
-                            <SelectItem value="No, I do not have a disability and have not had one in the past" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
-                              No, I do not have a disability and have not had one in the past
+                            <SelectItem value="No, I do not have a disability and have not had one in the past">
+                              No, I do not have a disability and have not had
+                              one in the past
                             </SelectItem>
-                            <SelectItem value="I do not want to answer" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                            <SelectItem value="I do not want to answer">
                               I do not want to answer
                             </SelectItem>
-                            <SelectItem value="Other" className="cursor-pointer font-bold focus:bg-orange-50 rounded-none">
+                            <SelectItem value="Other">
                               Other (Specify)
                             </SelectItem>
                           </SelectContent>
                         </Select>
                       </FormControl>
-                      <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                      <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                     </FormItem>
                   )}
                 />
@@ -614,14 +696,17 @@ function getProfessionalFormValues(user: any) {
   return {
     jobType: user?.jobType || "",
     currency: user?.currency || "USD",
-    currentCtc: (user?.currentCtc !== null && user?.currentCtc !== undefined ? String(user.currentCtc) : "") as any,
-    noticePeriod: (user?.noticePeriod !== null && user?.noticePeriod !== undefined ? String(user.noticePeriod) : "") as any,
+    currentCtc: (user?.currentCtc !== null && user?.currentCtc !== undefined
+      ? String(user.currentCtc)
+      : "") as any,
+    noticePeriod: (user?.noticePeriod !== null &&
+    user?.noticePeriod !== undefined
+      ? String(user.noticePeriod)
+      : "") as any,
   };
 }
 
 function ProfessionalDetailsForm({ user, refetchProfile }: any) {
-  const width = useWindowWidth();
-  const isMobile = width < 768;
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof professionalSchema>>({
@@ -638,12 +723,17 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
       refetchProfile();
       // Only reset if user hasn't typed new input during the save
       if (JSON.stringify(form.getValues()) === snapshotBefore) {
-        // Reset with string values (form inputs expect strings, but Zod transforms to numbers)
         form.reset({
           jobType: values.jobType || "",
           currency: values.currency || "USD",
-          currentCtc: (values.currentCtc !== null && values.currentCtc !== undefined ? String(values.currentCtc) : "") as any,
-          noticePeriod: (values.noticePeriod !== null && values.noticePeriod !== undefined ? String(values.noticePeriod) : "") as any,
+          currentCtc: (values.currentCtc !== null &&
+          values.currentCtc !== undefined
+            ? String(values.currentCtc)
+            : "") as any,
+          noticePeriod: (values.noticePeriod !== null &&
+          values.noticePeriod !== undefined
+            ? String(values.noticePeriod)
+            : "") as any,
         });
       }
     } else {
@@ -675,37 +765,42 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
   }, [user, form]);
 
   return (
-    <Section title="Professional Details" icon={Briefcase} hasAutoSave={true} isSaving={isSaving} isDirty={form.formState.isDirty}>
+    <Section
+      title="Professional Details"
+      icon={Briefcase}
+      hasAutoSave={true}
+      isSaving={isSaving}
+      isDirty={form.formState.isDirty}
+    >
       <Form {...form}>
         <div className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             <FormField
               control={form.control}
               name="jobType"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Looking For Role
                   </FormLabel>
                   <FormControl>
-                    <Select onValueChange={(val) => field.onChange(val)} value={field.value || undefined}>
-                      <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
+                    <Select
+                      onValueChange={(val) => field.onChange(val)}
+                      value={field.value || undefined}
+                    >
+                      <SelectTrigger>
                         <SelectValue placeholder="Select Role Type" />
                       </SelectTrigger>
-                      <SelectContent className="rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                      <SelectContent>
                         {JOB_TYPES.map((role) => (
-                          <SelectItem
-                            key={role}
-                            value={role}
-                            className="cursor-pointer font-bold focus:bg-orange-50 rounded-none"
-                          >
+                          <SelectItem key={role} value={role}>
                             {role}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
@@ -714,38 +809,34 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
               control={form.control}
               name="currentCtc"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Current CTC
                   </FormLabel>
                   <FormControl>
-                    <div className="flex gap-4">
+                    <div className="flex gap-2">
                       <div className="relative">
                         <select
                           value={form.watch("currency") || "USD"}
-                          onChange={(e) => form.setValue("currency", e.target.value, { shouldDirty: true })}
-                          className="appearance-none h-[50px] w-24 rounded-none border-[3px] border-black bg-zinc-100 px-4 py-2 text-sm font-bold text-black focus:outline-none focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                          onChange={(e) =>
+                            form.setValue("currency", e.target.value, {
+                              shouldDirty: true,
+                            })
+                          }
+                          className="appearance-none h-11 w-24 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 px-3 text-sm font-medium text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 shadow-2xs transition-colors cursor-pointer"
                         >
                           {CURRENCIES.map((c) => (
-                            <option key={c} value={c}>
+                            <option
+                              key={c}
+                              value={c}
+                              className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+                            >
                               {c}
                             </option>
                           ))}
                         </select>
-                        <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-                          <svg
-                            className="w-3 h-3 text-black"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="square"
-                              strokeLinejoin="miter"
-                              strokeWidth="3"
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
+                        <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400">
+                          <ChevronDown className="w-3.5 h-3.5" />
                         </div>
                       </div>
                       <Input
@@ -754,11 +845,11 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
                         {...field}
                         value={field.value ?? ""}
                         placeholder="100000"
-                        className="h-[50px] flex-1 bg-zinc-100 placeholder:text-zinc-400 rounded-none border-[3px] border-black text-black focus:bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                        className="h-11 flex-1 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 shadow-2xs transition-colors focus:bg-white dark:focus:bg-zinc-900 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                       />
                     </div>
                   </FormControl>
-                  <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
@@ -778,8 +869,6 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
 }
 
 function SocialLinksForm({ user, refetchProfile }: any) {
-  const width = useWindowWidth();
-  const isMobile = width < 768;
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof socialsSchema>>({
@@ -840,16 +929,58 @@ function SocialLinksForm({ user, refetchProfile }: any) {
   }, [user, form]);
 
   return (
-    <Section title="Social Links" icon={Globe} hasAutoSave={true} isSaving={isSaving} isDirty={form.formState.isDirty}>
+    <Section
+      title="Social Links"
+      icon={Globe}
+      hasAutoSave={true}
+      isSaving={isSaving}
+      isDirty={form.formState.isDirty}
+    >
       <Form {...form}>
         <div className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <FormInput control={form.control} name="linkedin" label="LinkedIn" placeholder="https://linkedin.com/in/..." icon={Linkedin} />
-            <FormInput control={form.control} name="github" label="GitHub" placeholder="https://github.com/..." icon={Github} />
-            <FormInput control={form.control} name="twitter" label="Twitter" placeholder="https://twitter.com/..." icon={Twitter} />
-            <FormInput control={form.control} name="portfolio" label="Portfolio" placeholder="https://..." icon={LinkIcon} />
-            <FormInput control={form.control} name="telegram" label="Telegram" placeholder="https://t.me/..." icon={Send} />
-            <FormInput control={form.control} name="other" label="Other Link" placeholder="https://..." icon={LinkIcon} />
+          <div className="grid gap-5 md:grid-cols-2">
+            <FormInput
+              control={form.control}
+              name="linkedin"
+              label="LinkedIn"
+              placeholder="https://linkedin.com/in/..."
+              icon={Linkedin}
+            />
+            <FormInput
+              control={form.control}
+              name="github"
+              label="GitHub"
+              placeholder="https://github.com/..."
+              icon={Github}
+            />
+            <FormInput
+              control={form.control}
+              name="twitter"
+              label="Twitter / X"
+              placeholder="https://x.com/..."
+              icon={Twitter}
+            />
+            <FormInput
+              control={form.control}
+              name="portfolio"
+              label="Portfolio"
+              placeholder="https://..."
+              icon={LinkIcon}
+            />
+            <FormInput
+              control={form.control}
+              name="telegram"
+              label="Telegram"
+              placeholder="https://t.me/..."
+              icon={Send}
+            />
+            <FormInput
+              control={form.control}
+              name="other"
+              label="Other Link"
+              placeholder="https://..."
+              icon={LinkIcon}
+            />
           </div>
         </div>
       </Form>
@@ -858,8 +989,6 @@ function SocialLinksForm({ user, refetchProfile }: any) {
 }
 
 function AiSettingsForm({ user, refetchProfile }: any) {
-  const width = useWindowWidth();
-  const isMobile = width < 768;
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof aiSettingsSchema>>({
@@ -910,27 +1039,34 @@ function AiSettingsForm({ user, refetchProfile }: any) {
   }, [user, form]);
 
   return (
-    <Section title="AI Settings" icon={Settings} hasAutoSave={true} isSaving={isSaving} isDirty={form.formState.isDirty}>
+    <Section
+      title="AI Settings"
+      icon={Settings}
+      hasAutoSave={true}
+      isSaving={isSaving}
+      isDirty={form.formState.isDirty}
+    >
       <Form {...form}>
-        <div className="space-y-6">
+        <div className="space-y-4">
           <FormField
             control={form.control}
             name="specificQuestionGuidance"
             render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+              <FormItem className="space-y-1.5">
+                <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                   Specific Question Guidance (Optional)
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     {...field}
-                    placeholder="Mention any extra and specific detail to provide for the AI..."
-                    className="min-h-[120px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4 font-bold text-black"
+                    placeholder="Mention any extra and specific detail to provide for the AI autofill engine..."
+                    className="min-h-[120px] w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 p-3.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:border-orange-500 dark:focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 shadow-2xs transition-colors"
                   />
                 </FormControl>
-                <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
-                <p className="text-xs font-bold text-zinc-500 pt-1 uppercase tracking-widest">
-                  Mention extra and specific detail to provide for the AI.
+                <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 pt-0.5 font-normal">
+                  Give custom instructions to the AI when generating answers for
+                  job application questions.
                 </p>
               </FormItem>
             )}
@@ -968,23 +1104,23 @@ function CoverLetterForm({ user, refetchProfile }: any) {
   return (
     <Section title="Cover Letter" icon={FileText}>
       <Form {...form}>
-        <div className="space-y-6">
+        <div className="space-y-4">
           <FormField
             control={form.control}
             name="coverLetter"
             render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+              <FormItem className="space-y-1.5">
+                <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                   Default Cover Letter (Optional)
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     {...field}
                     placeholder="Write your default cover letter here. This will be available in the extension's Profile tab for quick autofill on job applications..."
-                    className="min-h-[200px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4 font-bold text-black"
+                    className="min-h-[180px] w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 p-3.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:border-orange-500 dark:focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 shadow-2xs transition-colors"
                   />
                 </FormControl>
-                <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
+                <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
               </FormItem>
             )}
           />
@@ -994,16 +1130,16 @@ function CoverLetterForm({ user, refetchProfile }: any) {
               type="button"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isSaving}
-              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
+              className="w-full sm:w-auto h-10 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all flex items-center justify-center gap-2"
             >
               {isSaving ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   Saving...
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-2" />
+                  <Save className="h-3.5 w-3.5" />
                   {isMobile ? "Save" : "Save Cover Letter"}
                 </>
               )}
@@ -1022,18 +1158,20 @@ export default function ProfileForm({
   user: any;
   paymentSuccess?: boolean;
 }) {
-  const width = useWindowWidth();
-  const isMobile = width < 768;
-  const { data: user, isLoading: isLoadingProfile, refetch: refetchProfile } = useProfile(initialUser);
+  const {
+    data: user,
+    isLoading: isLoadingProfile,
+    refetch: refetchProfile,
+  } = useProfile(initialUser);
   const { data: status, refetch: refetchStatus } = useProfileStatus({
     membership: initialUser.membership,
     credits: initialUser.credits,
     dodoCustomerId: initialUser.dodoCustomerId,
   });
 
-  const displayName = 
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() || 
-    user?.name || 
+  const displayName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
+    user?.name ||
     "Anonymous User";
 
   const initials = (() => {
@@ -1077,7 +1215,6 @@ export default function ProfileForm({
   useEffect(() => {
     if (!paymentSuccess) return;
 
-    // Clean up the URL query params immediately to keep the address bar clean
     const url = new URL(window.location.href);
     let changed = false;
     for (const key of ["payment", "subscription_id", "status", "email"]) {
@@ -1109,13 +1246,17 @@ export default function ProfileForm({
     return () => clearInterval(interval);
   }, [paymentSuccess, status?.membership, refetchStatus]);
 
-  if (!user) {
+  if (!user || isLoadingProfile) {
     return (
-      <div className="flex justify-center p-12">
-        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+      <div className="flex justify-center py-12">
+        <Loading fullPage={false} message="Loading candidate profile..." />
       </div>
     );
   }
+
+  useEffect(() => {
+    useResumeStore.getState().setResumes(user?.resumes || []);
+  }, [user?.resumes]);
 
   async function handleUpgrade() {
     setIsCheckingOut(true);
@@ -1160,16 +1301,16 @@ export default function ProfileForm({
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       {/* Payment Success Banner */}
       {activating && status?.membership !== "PRO" && (
-        <div className="flex items-center gap-4 border-[3px] border-black bg-yellow-400 px-6 py-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <Loader2 className="w-5 h-5 shrink-0 animate-spin text-black" />
+        <div className="flex items-center gap-3.5 rounded-2xl border border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/15 p-4 text-amber-800 dark:text-amber-300 shadow-xs backdrop-blur-xs">
+          <Loader2 className="w-5 h-5 shrink-0 animate-spin text-amber-600 dark:text-amber-400" />
           <div>
-            <p className="font-black uppercase text-black tracking-tight">
+            <p className="font-semibold text-sm tracking-tight text-amber-950 dark:text-amber-200">
               Activating your Pro subscription...
             </p>
-            <p className="text-sm font-bold text-black/70">
+            <p className="text-xs text-amber-800/80 dark:text-amber-300/80 mt-0.5">
               Payment received. Your credits and Pro badge will appear in a
               moment — hang tight!
             </p>
@@ -1177,62 +1318,65 @@ export default function ProfileForm({
         </div>
       )}
       {activating && status?.membership === "PRO" && (
-        <div className="flex items-center gap-4 border-[3px] border-black bg-green-400 px-6 py-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <Check className="w-5 h-5 shrink-0 text-black" strokeWidth={3} />
-          <p className="font-black uppercase text-black tracking-tight">
+        <div className="flex items-center gap-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-500/15 p-4 text-emerald-800 dark:text-emerald-300 shadow-xs backdrop-blur-xs">
+          <Check className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <p className="font-semibold text-sm tracking-tight text-emerald-950 dark:text-emerald-200">
             You&apos;re now Pro! Your 10,000 credits are ready.
           </p>
         </div>
       )}
+
+      <ResumeAutofillUpload />
+
       {/* Profile Header & Credits */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* User Identity & Membership */}
-        <div className="lg:col-span-2 border-[3px] border-black bg-white p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row items-center gap-8">
-          <div className="h-32 w-32 shrink-0 rounded-none border-[3px] border-black bg-[#fefaf6] flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden relative group">
+        <div className="lg:col-span-2 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-8 shadow-xs flex flex-col md:flex-row items-center gap-6 relative overflow-hidden backdrop-blur-xs">
+          <div className="h-24 w-24 md:h-28 md:w-28 shrink-0 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center shadow-xs overflow-hidden relative group">
             {user.image ? (
               <Image
                 src={user.image}
                 alt={`${user.firstName || ""} ${user.lastName || ""}`}
-                width={128}
-                height={128}
+                width={112}
+                height={112}
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="text-5xl font-black text-black uppercase">
-                {initials || <UserIcon className="w-12 h-12" />}
+              <span className="text-3xl md:text-4xl font-semibold text-zinc-700 dark:text-zinc-300 uppercase">
+                {initials || <UserIcon className="w-10 h-10 text-zinc-400" />}
               </span>
             )}
             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
-          <div className="flex-1 text-center md:text-left space-y-4 min-w-0">
+          <div className="flex-1 text-center md:text-left space-y-3 min-w-0">
             <div className="min-w-0">
-              <h2 className="text-3xl md:text-4xl font-black uppercase font-heading text-black tracking-tighter break-words">
+              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 break-words">
                 {displayName}
               </h2>
-              <p className="text-sm font-bold text-zinc-600 uppercase tracking-widest mt-1 break-all">
+              <p className="text-xs md:text-sm text-zinc-500 dark:text-zinc-400 font-normal mt-0.5 break-all">
                 {user.email || "No Email"}
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-1">
               <div
                 className={clsx(
-                  "inline-flex items-center gap-2 border-[3px] border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border shadow-2xs",
                   status?.membership === "PRO"
-                    ? "bg-[linear-gradient(110deg,#FFD700_30%,#fffac7_50%,#FFD700_70%)] bg-[length:200%_100%] animate-shimmer"
-                    : "bg-blue-400",
+                    ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30"
+                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700",
                 )}
               >
                 <CreditCard
                   className={clsx(
-                    "w-5 h-5 text-black",
-                    status?.membership === "PRO" && "animate-pulse",
+                    "w-3.5 h-3.5",
+                    status?.membership === "PRO"
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-zinc-500 dark:text-zinc-400",
                   )}
                 />
-                <span className="font-black uppercase tracking-tight text-black flex items-center gap-2">
-                  {status?.membership} PLAN
-                </span>
+                <span className="tracking-wide">{status?.membership} PLAN</span>
               </div>
               {status?.membership === "FREE" ? (
                 <Button
@@ -1240,11 +1384,11 @@ export default function ProfileForm({
                   size="sm"
                   onClick={handleUpgrade}
                   disabled={isCheckingOut}
-                  className="bg-black text-white hover:bg-zinc-800 tracking-widest uppercase font-bold px-4 py-2 h-auto disabled:opacity-60"
+                  className="h-8 px-3.5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all disabled:opacity-60"
                 >
                   {isCheckingOut ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                       Redirecting...
                     </>
                   ) : (
@@ -1256,47 +1400,48 @@ export default function ProfileForm({
                   type="button"
                   size="icon"
                   onClick={handleManageSubscription}
-                  className="bg-white border-[3px] border-black text-black hover:bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all rounded-none h-10 w-10 flex items-center justify-center"
+                  className="h-8 w-8 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 shadow-2xs transition-colors flex items-center justify-center"
                   title="Manage Subscription"
                 >
-                  <Settings className="w-5 h-5 text-black" />
+                  <Settings className="w-4 h-4" />
                 </Button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Credits Punch Card */}
-        <div className="col-span-1 border-[3px] border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden">
-          {/* Barcode Decor */}
-          <div className="flex h-6 w-full opacity-60 space-x-1 px-6 pt-4 items-end justify-center">
-            <div className="w-2 bg-black h-full"></div>
-            <div className="w-1 bg-black h-full"></div>
-            <div className="w-4 bg-black h-full"></div>
-            <div className="w-1 bg-black h-full"></div>
-            <div className="w-2 bg-black h-[80%]"></div>
-            <div className="w-6 bg-black h-full"></div>
-            <div className="w-1 bg-black h-full"></div>
-            <div className="w-2 bg-black h-[60%]"></div>
-            <div className="w-3 bg-black h-full"></div>
-            <div className="w-1 bg-black h-full"></div>
-            <div className="w-4 bg-black h-[90%]"></div>
+        {/* Credits Bento Metric Card */}
+        <div className="col-span-1 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 shadow-xs flex flex-col justify-between relative overflow-hidden backdrop-blur-xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="size-8 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 flex items-center justify-center shadow-2xs">
+                <Zap className="w-4 h-4 fill-orange-500/20 text-orange-500" />
+              </div>
+              <h3 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                Credit Balance
+              </h3>
+            </div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              Active
+            </span>
           </div>
 
-          <div className="flex-1 p-6 flex flex-col items-center justify-center text-center mt-2 min-w-0">
-            <h3 className="text-sm font-black uppercase tracking-widest text-black/80 mb-2">
-              Credit Balance
-            </h3>
-            <div className="text-5xl sm:text-6xl md:text-7xl font-black font-heading tracking-tighter text-black flex items-center justify-center flex-wrap gap-1 break-all">
-              {Intl.NumberFormat("en-US").format(status?.credits ?? 0)}
-              <span className="text-2xl sm:text-3xl text-black">⚡</span>
+          <div className="my-6 min-w-0">
+            <div className="text-4xl sm:text-5xl font-bold font-mono tracking-tight text-zinc-900 dark:text-zinc-50 flex items-baseline gap-1.5">
+              <span>
+                {Intl.NumberFormat("en-US").format(status?.credits ?? 0)}
+              </span>
+              <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 font-sans tracking-normal">
+                credits
+              </span>
             </div>
           </div>
 
-          <div className="border-t-[3px] border-black border-dashed bg-white p-3 text-center">
-            <p className="text-[11px] font-black uppercase tracking-widest text-black">
-              2 CREDITS = 1 AI FILL
-            </p>
+          <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+            <span>2 credits = 1 AI auto-fill</span>
+            <span className="font-mono text-[11px] text-zinc-400 dark:text-zinc-500">
+              Auto-sync
+            </span>
           </div>
         </div>
       </div>
@@ -1316,13 +1461,10 @@ export default function ProfileForm({
         countryOptions={countryOptions}
       />
 
-      <ProfessionalDetailsForm
-        user={user}
-        refetchProfile={refetchProfile}
-      />
+      <ProfessionalDetailsForm user={user} refetchProfile={refetchProfile} />
 
       <div
-        className="space-y-10"
+        className="space-y-8"
         onChange={(e) => e.stopPropagation()}
         onInput={(e) => e.stopPropagation()}
       >
@@ -1356,25 +1498,13 @@ export default function ProfileForm({
         refetchProfile={refetchProfile}
       />
 
-      <SocialLinksForm
-        user={user}
-        refetchProfile={refetchProfile}
-      />
+      <SocialLinksForm user={user} refetchProfile={refetchProfile} />
 
-      <IntroVideoForm
-        user={user}
-        refetchProfile={refetchProfile}
-      />
+      <IntroVideoForm user={user} refetchProfile={refetchProfile} />
 
-      <AiSettingsForm
-        user={user}
-        refetchProfile={refetchProfile}
-      />
+      <AiSettingsForm user={user} refetchProfile={refetchProfile} />
 
-      <CoverLetterForm
-        user={user}
-        refetchProfile={refetchProfile}
-      />
+      <CoverLetterForm user={user} refetchProfile={refetchProfile} />
     </div>
   );
 }
@@ -1386,6 +1516,7 @@ function Section({
   isSaving,
   isDirty,
   hasAutoSave = false,
+  className,
 }: {
   title: string;
   icon: any;
@@ -1393,26 +1524,32 @@ function Section({
   isSaving?: boolean;
   isDirty?: boolean;
   hasAutoSave?: boolean;
+  className?: string;
 }) {
   return (
-    <div className="border-[3px] border-black bg-white p-6 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-      <div className="flex items-center gap-4 mb-8 border-b-[3px] border-black pb-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-none border-[3px] border-black bg-zinc-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-          <Icon className="w-6 h-6 text-black" />
+    <div
+      className={clsx(
+        "rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-8 shadow-xs relative backdrop-blur-xs transition-colors",
+        className,
+      )}
+    >
+      <div className="flex items-center gap-3.5 mb-6 pb-4 border-b border-zinc-100 dark:border-zinc-800/80">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 text-orange-600 dark:text-orange-400 shadow-2xs shrink-0">
+          <Icon className="w-5 h-5" />
         </div>
-        <h2 className="text-2xl font-black uppercase tracking-tighter text-black font-heading">
+        <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
           {title}
         </h2>
         {hasAutoSave && (
           <div className="ml-auto flex items-center gap-2">
             {isSaving ? (
-              <span className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-zinc-500">
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 dark:text-zinc-500">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-orange-500" />
                 Saving...
               </span>
             ) : !isDirty ? (
-              <span className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-green-600">
-                <Check className="w-3.5 h-3.5" strokeWidth={3} />
+              <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                <Check className="w-3.5 h-3.5" />
                 Saved
               </span>
             ) : null}
@@ -1426,7 +1563,7 @@ function Section({
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <label className="block text-[11px] font-black text-black mb-2 uppercase tracking-widest pl-1">
+    <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
       {children}
     </label>
   );
@@ -1437,28 +1574,41 @@ function ProfileInput({ label, icon: Icon, className, ...props }: any) {
     <div className={className}>
       <Label>{label}</Label>
       <div className="relative group">
+        {Icon && (
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 dark:text-zinc-500">
+            <Icon className="h-4 w-4" />
+          </div>
+        )}
         <Input
           className={clsx(
-            "h-[50px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]",
-            Icon && "pl-14",
+            "h-11 w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 transition-colors focus:bg-white dark:focus:bg-zinc-900 focus:border-orange-500 dark:focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 shadow-2xs",
+            Icon && "pl-10",
           )}
           {...props}
         />
-        {Icon && (
-          <div className="absolute left-0 top-0 bottom-0 w-[50px] flex items-center justify-center border-r-[3px] border-black bg-zinc-200">
-            <Icon className="h-5 w-5 text-black" />
-          </div>
-        )}
       </div>
     </div>
   );
 }
 
-function ExperienceSection({ experiences, setExperiences, refetchProfile }: any) {
+function ExperienceSection({
+  experiences,
+  setExperiences,
+  refetchProfile,
+}: any) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempExp, setTempExp] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [expToDelete, setExpToDelete] = useState<any>(null);
+
+  const width = useWindowWidth();
+  const isMobile = width < 768;
+
+  const Modal = isMobile ? Sheet : Dialog;
+  const ModalContent = isMobile ? SheetContent : DialogContent;
+  const ModalTitle = isMobile ? SheetTitle : DialogTitle;
+  const ModalDescription = isMobile ? SheetDescription : DialogDescription;
 
   const addExperience = () => {
     const newExp = {
@@ -1527,7 +1677,6 @@ function ExperienceSection({ experiences, setExperiences, refetchProfile }: any)
     if (result.success) {
       setExperiences(newExperiences);
       setEditingId(null);
-      setTempExp(null);
       toast.success("Experience saved successfully");
       refetchProfile();
     } else {
@@ -1537,7 +1686,6 @@ function ExperienceSection({ experiences, setExperiences, refetchProfile }: any)
 
   const cancelEdit = () => {
     setEditingId(null);
-    setTempExp(null);
   };
 
   const editExperience = (exp: any) => {
@@ -1561,41 +1709,34 @@ function ExperienceSection({ experiences, setExperiences, refetchProfile }: any)
 
   return (
     <Section title="Experience" icon={Briefcase}>
-      <div className="space-y-8">
+      <div className="space-y-4">
         {sortedExperiences.map((exp: any, index: number) => {
-          if (editingId === exp.id && tempExp) {
-            return (
-              <ExperienceForm
-                key={tempExp.id}
-                exp={tempExp}
-                onConfirm={confirmExperience}
-                onCancel={cancelEdit}
-                isLoading={isSaving}
-              />
-            );
-          }
-
           return (
             <div
               key={exp.id || index}
-              className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-2 min-w-0"
+              className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/60 p-5 md:p-6 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative group min-w-0 shadow-2xs"
             >
               <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 min-w-0">
                 <div className="space-y-1 md:pr-24 min-w-0 flex-1">
-                  <h3 className="text-lg sm:text-xl font-black text-black uppercase break-words">
+                  <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 break-words">
                     {exp.companyName || "Untitled Company"}
                   </h3>
+                  {exp.role && (
+                    <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      {exp.role}
+                    </p>
+                  )}
                   {exp.companyWebsite && (
                     <a
                       href={exp.companyWebsite}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs sm:text-sm text-blue-600 underline font-bold uppercase tracking-widest block w-fit break-all"
+                      className="text-xs text-orange-600 dark:text-orange-400 hover:underline font-medium block w-fit break-all"
                     >
                       {exp.companyWebsite}
                     </a>
                   )}
-                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
                     {exp.startDate
                       ? format(new Date(exp.startDate), "MMM yyyy")
                       : "N/A"}{" "}
@@ -1605,40 +1746,49 @@ function ExperienceSection({ experiences, setExperiences, refetchProfile }: any)
                       : exp.endDate
                         ? format(new Date(exp.endDate), "MMM yyyy")
                         : "N/A"}
+                    {exp.location && ` • ${exp.location}`}
                   </p>
                 </div>
 
-                <div className={clsx(
-                  "flex gap-2 shrink-0 self-end md:self-start transition-opacity z-10",
-                  "md:absolute md:right-4 md:top-4",
-                  deletingId === exp.id ? "opacity-100" : "md:opacity-0 md:group-hover:opacity-100"
-                )}>
+                <div
+                  className={clsx(
+                    "flex gap-1.5 shrink-0 self-end md:self-start transition-opacity z-10",
+                    "md:absolute md:right-4 md:top-4",
+                    deletingId === exp.id
+                      ? "opacity-100"
+                      : "md:opacity-0 md:group-hover:opacity-100",
+                  )}
+                >
                   <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => editExperience(exp)}
                     disabled={deletingId === exp.id}
-                    className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
+                    className="h-8 w-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 shadow-2xs transition-colors disabled:opacity-50"
                     title="Edit Experience"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="w-3.5 h-3.5" />
                   </Button>
                   <Button
                     type="button"
-                    onClick={() => removeExperience(exp.id)}
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setExpToDelete(exp)}
                     disabled={!!deletingId}
-                    className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
+                    className="h-8 w-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-200 dark:hover:border-rose-900/40 shadow-2xs transition-colors disabled:opacity-50"
                     title="Remove Experience"
                   >
                     {deletingId === exp.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : (
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     )}
                   </Button>
                 </div>
               </div>
               {exp.description && (
-                <p className="text-sm text-zinc-700 mt-4 whitespace-pre-wrap font-medium break-words">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-3 whitespace-pre-wrap font-normal leading-relaxed break-words">
                   {exp.description}
                 </p>
               )}
@@ -1646,27 +1796,102 @@ function ExperienceSection({ experiences, setExperiences, refetchProfile }: any)
           );
         })}
 
-        {editingId &&
-          !experiences.find((e: any) => e.id === editingId) &&
-          tempExp && (
-            <ExperienceForm
-              exp={tempExp}
-              onConfirm={confirmExperience}
-              onCancel={cancelEdit}
-              isLoading={isSaving}
-            />
-          )}
+        <Button
+          type="button"
+          onClick={addExperience}
+          className="w-full h-11 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 hover:border-orange-500/50 dark:hover:border-orange-500/50 bg-zinc-50/50 dark:bg-zinc-900/30 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 text-zinc-600 dark:text-zinc-400 hover:text-orange-600 dark:hover:text-orange-400 text-xs font-medium transition-all flex items-center justify-center gap-2 mt-4 cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          Add Experience
+        </Button>
 
-        {!editingId && (
-          <Button
-            type="button"
-            onClick={addExperience}
-            className="w-full h-14 bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all rounded-none font-black uppercase tracking-widest flex items-center justify-center gap-2 text-lg mt-6"
+        <Modal
+          open={Boolean(editingId && tempExp)}
+          onOpenChange={(open) => {
+            if (!open && !isSaving) cancelEdit();
+          }}
+        >
+          <ModalContent
+            className={
+              isMobile
+                ? "p-0 max-h-[90dvh] flex flex-col rounded-t-3xl border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden"
+                : "sm:max-w-xl max-h-[85dvh] p-0 sm:p-0 gap-0 flex flex-col rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-2xl"
+            }
           >
-            <Plus className="w-6 h-6" />
-            Add Experience
-          </Button>
-        )}
+            <div className="px-4 py-3 sm:py-3.5 border-b border-zinc-200 dark:border-zinc-800 shrink-0">
+              <ModalTitle className="text-lg font-heading font-semibold text-zinc-900 dark:text-white tracking-tight">
+                {tempExp?.companyName ? `Edit Experience` : "Add Experience"}
+              </ModalTitle>
+              <ModalDescription className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                {tempExp?.companyName
+                  ? `Update role details and achievements for ${tempExp.companyName}`
+                  : "Add your work history, company details, and responsibilities."}
+              </ModalDescription>
+            </div>
+
+            {tempExp && (
+              <ExperienceForm
+                key={tempExp.id}
+                exp={tempExp}
+                onConfirm={confirmExperience}
+                onCancel={cancelEdit}
+                isLoading={isSaving}
+              />
+            )}
+          </ModalContent>
+        </Modal>
+
+        <Modal
+          open={Boolean(expToDelete)}
+          onOpenChange={(open) => {
+            if (!open && !deletingId) setExpToDelete(null);
+          }}
+        >
+          <ModalContent
+            className={
+              isMobile
+                ? "p-6 flex flex-col rounded-t-3xl border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900"
+                : "sm:max-w-md p-6 flex flex-col rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xl"
+            }
+          >
+            <ModalTitle className="text-lg font-heading font-semibold text-zinc-900 dark:text-white tracking-tight">
+              Delete Experience
+            </ModalTitle>
+            <ModalDescription className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
+              Are you sure you want to delete &quot;{expToDelete?.companyName}&quot;? This action cannot be undone.
+            </ModalDescription>
+            <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setExpToDelete(null)}
+                disabled={!!deletingId}
+                className="w-full sm:w-auto border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  if (expToDelete) {
+                    await removeExperience(expToDelete.id);
+                    setExpToDelete(null);
+                  }
+                }}
+                disabled={!!deletingId}
+                className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
+              >
+                {deletingId ? (
+                  <>
+                    <Loader2 className="size-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete Experience"
+                )}
+              </Button>
+            </div>
+          </ModalContent>
+        </Modal>
       </div>
     </Section>
   );
@@ -1688,6 +1913,15 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
   const [tempEdu, setTempEdu] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [eduToDelete, setEduToDelete] = useState<any>(null);
+
+  const width = useWindowWidth();
+  const isMobile = width < 768;
+
+  const Modal = isMobile ? Sheet : Dialog;
+  const ModalContent = isMobile ? SheetContent : DialogContent;
+  const ModalTitle = isMobile ? SheetTitle : DialogTitle;
+  const ModalDescription = isMobile ? SheetDescription : DialogDescription;
 
   const addEducation = () => {
     const newEdu = {
@@ -1729,9 +1963,7 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
     let newEducations;
     const exists = educations.find((e: any) => e.id === data.id);
     if (exists) {
-      newEducations = educations.map((e: any) =>
-        e.id === data.id ? data : e,
-      );
+      newEducations = educations.map((e: any) => (e.id === data.id ? data : e));
     } else {
       newEducations = [data, ...educations];
     }
@@ -1757,7 +1989,6 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
     if (result.success) {
       setEducations(newEducations);
       setEditingId(null);
-      setTempEdu(null);
       toast.success("Education saved successfully");
       refetchProfile();
     } else {
@@ -1767,7 +1998,6 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
 
   const cancelEdit = () => {
     setEditingId(null);
-    setTempEdu(null);
   };
 
   const editEducation = (edu: any) => {
@@ -1791,36 +2021,25 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
 
   return (
     <Section title="Education" icon={GraduationCap}>
-      <div className="space-y-8">
+      <div className="space-y-4">
         {sortedEducations.map((edu: any, index: number) => {
-          if (editingId === edu.id && tempEdu) {
-            return (
-              <EducationForm
-                key={tempEdu.id}
-                edu={tempEdu}
-                onConfirm={confirmEducation}
-                onCancel={cancelEdit}
-                isLoading={isSaving}
-              />
-            );
-          }
-
           return (
             <div
               key={edu.id || index}
-              className="border-[3px] border-black p-6 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-2 min-w-0"
+              className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/60 p-5 md:p-6 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative group min-w-0 shadow-2xs"
             >
               <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 min-w-0">
                 <div className="space-y-1 md:pr-24 min-w-0 flex-1">
-                  <h3 className="text-lg sm:text-xl font-black text-black uppercase break-words">
+                  <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 break-words">
                     {edu.schoolName || "Untitled Institution"}
                   </h3>
                   {edu.degree && (
-                    <p className="text-xs sm:text-sm font-bold text-black uppercase tracking-wider break-words">
-                      {edu.degree}{edu.fieldOfStudy ? ` in ${edu.fieldOfStudy}` : ""}
+                    <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 break-words">
+                      {edu.degree}
+                      {edu.fieldOfStudy ? ` in ${edu.fieldOfStudy}` : ""}
                     </p>
                   )}
-                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
                     {edu.startDate
                       ? format(new Date(edu.startDate), "MMM yyyy")
                       : "N/A"}{" "}
@@ -1833,37 +2052,45 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
                   </p>
                 </div>
 
-                <div className={clsx(
-                  "flex gap-2 shrink-0 self-end md:self-start transition-opacity z-10",
-                  "md:absolute md:right-4 md:top-4",
-                  deletingId === edu.id ? "opacity-100" : "md:opacity-0 md:group-hover:opacity-100"
-                )}>
+                <div
+                  className={clsx(
+                    "flex gap-1.5 shrink-0 self-end md:self-start transition-opacity z-10",
+                    "md:absolute md:right-4 md:top-4",
+                    deletingId === edu.id
+                      ? "opacity-100"
+                      : "md:opacity-0 md:group-hover:opacity-100",
+                  )}
+                >
                   <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => editEducation(edu)}
                     disabled={deletingId === edu.id}
-                    className="bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
+                    className="h-8 w-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 shadow-2xs transition-colors disabled:opacity-50"
                     title="Edit Education"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="w-3.5 h-3.5" />
                   </Button>
                   <Button
                     type="button"
-                    onClick={() => removeEducation(edu.id)}
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setEduToDelete(edu)}
                     disabled={!!deletingId}
-                    className="bg-white border-[3px] border-black text-red-500 hover:text-red-600 hover:bg-red-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-10 w-10 p-0 rounded-none transition-all disabled:opacity-50"
+                    className="h-8 w-8 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-200 dark:hover:border-rose-900/40 shadow-2xs transition-colors disabled:opacity-50"
                     title="Remove Education"
                   >
                     {deletingId === edu.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : (
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     )}
                   </Button>
                 </div>
               </div>
               {edu.description && (
-                <p className="text-sm text-zinc-700 mt-4 whitespace-pre-wrap font-medium break-words">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-3 whitespace-pre-wrap font-normal leading-relaxed break-words">
                   {edu.description}
                 </p>
               )}
@@ -1871,27 +2098,102 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
           );
         })}
 
-        {editingId &&
-          !educations.find((e: any) => e.id === editingId) &&
-          tempEdu && (
-            <EducationForm
-              edu={tempEdu}
-              onConfirm={confirmEducation}
-              onCancel={cancelEdit}
-              isLoading={isSaving}
-            />
-          )}
+        <Button
+          type="button"
+          onClick={addEducation}
+          className="w-full h-11 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 hover:border-orange-500/50 dark:hover:border-orange-500/50 bg-zinc-50/50 dark:bg-zinc-900/30 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 text-zinc-600 dark:text-zinc-400 hover:text-orange-600 dark:hover:text-orange-400 text-xs font-medium transition-all flex items-center justify-center gap-2 mt-4 cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          Add Education
+        </Button>
 
-        {!editingId && (
-          <Button
-            type="button"
-            onClick={addEducation}
-            className="w-full h-14 bg-white border-[3px] border-black text-black hover:bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all rounded-none font-black uppercase tracking-widest flex items-center justify-center gap-2 text-lg mt-6"
+        <Modal
+          open={Boolean(editingId && tempEdu)}
+          onOpenChange={(open) => {
+            if (!open && !isSaving) cancelEdit();
+          }}
+        >
+          <ModalContent
+            className={
+              isMobile
+                ? "p-0 max-h-[90dvh] flex flex-col rounded-t-3xl border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden"
+                : "sm:max-w-xl max-h-[85dvh] p-0 sm:p-0 gap-0 flex flex-col rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-2xl"
+            }
           >
-            <Plus className="w-6 h-6" />
-            Add Education
-          </Button>
-        )}
+            <div className="px-4 py-3 sm:py-3.5 border-b border-zinc-200 dark:border-zinc-800 shrink-0">
+              <ModalTitle className="text-lg font-heading font-semibold text-zinc-900 dark:text-white tracking-tight">
+                {tempEdu?.schoolName ? `Edit Education` : "Add Education"}
+              </ModalTitle>
+              <ModalDescription className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                {tempEdu?.schoolName
+                  ? `Update academic details for ${tempEdu.schoolName}`
+                  : "Add your degree, school or university, field of study, and years."}
+              </ModalDescription>
+            </div>
+
+            {tempEdu && (
+              <EducationForm
+                key={tempEdu.id}
+                edu={tempEdu}
+                onConfirm={confirmEducation}
+                onCancel={cancelEdit}
+                isLoading={isSaving}
+              />
+            )}
+          </ModalContent>
+        </Modal>
+
+        <Modal
+          open={Boolean(eduToDelete)}
+          onOpenChange={(open) => {
+            if (!open && !deletingId) setEduToDelete(null);
+          }}
+        >
+          <ModalContent
+            className={
+              isMobile
+                ? "p-6 flex flex-col rounded-t-3xl border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900"
+                : "sm:max-w-md p-6 flex flex-col rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xl"
+            }
+          >
+            <ModalTitle className="text-lg font-heading font-semibold text-zinc-900 dark:text-white tracking-tight">
+              Delete Education
+            </ModalTitle>
+            <ModalDescription className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
+              Are you sure you want to delete &quot;{eduToDelete?.schoolName}&quot;? This action cannot be undone.
+            </ModalDescription>
+            <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setEduToDelete(null)}
+                disabled={!!deletingId}
+                className="w-full sm:w-auto border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  if (eduToDelete) {
+                    await removeEducation(eduToDelete.id);
+                    setEduToDelete(null);
+                  }
+                }}
+                disabled={!!deletingId}
+                className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
+              >
+                {deletingId ? (
+                  <>
+                    <Loader2 className="size-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete Education"
+                )}
+              </Button>
+            </div>
+          </ModalContent>
+        </Modal>
       </div>
     </Section>
   );
@@ -1919,31 +2221,25 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
   };
 
   return (
-    <div className="border-[3px] border-black p-6 md:p-8 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
-      <div className="flex border-b-[3px] border-black pb-4 mb-6">
-        <h3 className="text-lg font-black uppercase tracking-widest">
-          {edu.schoolName ? `Editing: ${edu.schoolName}` : "New Education"}
-        </h3>
-      </div>
-      <Form {...form}>
-        <div className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 mt-2">
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col flex-1 min-h-0 overflow-hidden"
+      >
+        <div className="px-4 py-3.5 sm:py-4 space-y-3.5 flex-1 overflow-y-auto">
+          <div className="grid gap-3.5 md:grid-cols-2">
             <FormField
               control={form.control}
               name="schoolName"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     School / College Name *
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Stanford University"
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                    />
+                    <Input {...field} placeholder="Stanford University" />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
@@ -1951,49 +2247,41 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
               control={form.control}
               name="degree"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Degree / Certification
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Bachelor of Science"
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                    />
+                    <Input {...field} placeholder="Bachelor of Science" />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 mt-4">
+          <div className="grid gap-3.5 md:grid-cols-2">
             <FormField
               control={form.control}
               name="fieldOfStudy"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Field of Study
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Computer Science"
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                    />
+                    <Input {...field} placeholder="Computer Science" />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
-            <div className="flex items-end h-[50px] pb-3 pl-2">
+            <div className="flex items-end h-11 pb-2">
               <FormField
                 control={form.control}
                 name="isCurrent"
                 render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormItem className="flex items-center gap-2.5 space-y-0">
                     <FormControl>
                       <Checkbox
                         checked={field.value}
@@ -2003,10 +2291,10 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
                             form.setValue("endDate", undefined);
                           }
                         }}
-                        className="h-6 w-6 rounded-none border-[3px] border-black data-[state=checked]:bg-orange-500 data-[state=checked]:text-black"
+                        className="data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
                       />
                     </FormControl>
-                    <FormLabel className="text-xs font-black uppercase text-black tracking-widest select-none cursor-pointer">
+                    <FormLabel className="text-xs font-medium text-zinc-700 dark:text-zinc-300 select-none cursor-pointer">
                       Currently Studying Here
                     </FormLabel>
                   </FormItem>
@@ -2015,13 +2303,13 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
             </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 mt-4">
+          <div className="grid gap-3.5 md:grid-cols-2">
             <FormField
               control={form.control}
               name="startDate"
               render={({ field }) => (
-                <FormItem className="space-y-2 flex flex-col">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="space-y-1.5 flex flex-col">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Start Date
                   </FormLabel>
                   <Popover>
@@ -2030,11 +2318,11 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
                         <Button
                           variant="outline"
                           className={clsx(
-                            "h-[50px] w-full justify-start text-left font-bold rounded-none border-[3px] border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-                            !field.value && "text-zinc-400"
+                            "h-11 w-full justify-start text-left font-normal rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 text-sm shadow-2xs hover:bg-zinc-50 dark:hover:bg-zinc-800/60",
+                            !field.value && "text-zinc-400 dark:text-zinc-500",
                           )}
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4 shrink-0 text-black" />
+                          <CalendarIcon className="mr-2 h-4 w-4 shrink-0 text-zinc-400" />
                           {field.value ? (
                             format(field.value, "MMM yyyy")
                           ) : (
@@ -2043,14 +2331,14 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <PopoverContent className="w-auto p-0 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-lg">
                       <MonthYearPicker
                         value={field.value}
                         onChange={field.onChange}
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormMessage />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
@@ -2060,8 +2348,8 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
                 control={form.control}
                 name="endDate"
                 render={({ field }) => (
-                  <FormItem className="space-y-2 flex flex-col">
-                    <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                  <FormItem className="space-y-1.5 flex flex-col">
+                    <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                       End Date
                     </FormLabel>
                     <Popover>
@@ -2070,11 +2358,11 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
                           <Button
                             variant="outline"
                             className={clsx(
-                              "h-[50px] w-full justify-start text-left font-bold rounded-none border-[3px] border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-                              !field.value && "text-zinc-400"
+                              "h-11 w-full justify-start text-left font-normal rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 text-sm shadow-2xs hover:bg-zinc-50 dark:hover:bg-zinc-800/60",
+                              !field.value && "text-zinc-400 dark:text-zinc-500",
                             )}
                           >
-                            <CalendarIcon className="mr-2 h-4 w-4 shrink-0 text-black" />
+                            <CalendarIcon className="mr-2 h-4 w-4 shrink-0 text-zinc-400" />
                             {field.value ? (
                               format(field.value, "MMM yyyy")
                             ) : (
@@ -2083,14 +2371,14 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                      <PopoverContent className="w-auto p-0 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-lg">
                         <MonthYearPicker
                           value={field.value}
                           onChange={field.onChange}
                         />
                       </PopoverContent>
                     </Popover>
-                    <FormMessage />
+                    <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                   </FormItem>
                 )}
               />
@@ -2101,68 +2389,68 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
             control={form.control}
             name="description"
             render={({ field }) => (
-              <FormItem className="space-y-2 mt-4">
-                <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
-                  Description / Details
+              <FormItem className="space-y-1.5">
+                <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  Description / Details (Optional)
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     {...field}
                     placeholder="Relevant coursework, achievements, or activities..."
-                    className="min-h-[100px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4 font-bold text-black"
+                    className="min-h-[90px] w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 shadow-2xs"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
               </FormItem>
             )}
           />
-
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 pt-2 w-full">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isLoading}
-              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-white hover:bg-zinc-100 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={form.handleSubmit(onSubmit)}
-              disabled={isLoading}
-              className="w-full sm:w-auto px-6 py-4 tracking-wider bg-orange-500 hover:bg-orange-600 border-[3px] border-black text-black font-black uppercase text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all rounded-none"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Check className="h-4 w-4 mr-2" />
-                  {isMobile ? "Save" : "Confirm Education"}
-                </>
-              )}
-            </Button>
-          </div>
         </div>
-      </Form>
-    </div>
+
+        <div className="bg-zinc-50/50 dark:bg-zinc-900/50 border-t border-zinc-200 dark:border-zinc-800 px-4 py-2.5 sm:py-2.5 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+            className="w-full sm:w-auto h-9 px-4 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-medium"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full sm:w-auto h-9 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="size-3.5 mr-1.5 animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Check className="size-3.5 mr-1" />
+                <span>{isMobile ? "Save" : "Save Education"}</span>
+              </>
+            )}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }
 
 const videoHelpers = {
   getYoutubeId: (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp =
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    return match && match[2].length === 11 ? match[2] : null;
   },
   getLoomId: (url: string) => {
     const regExp = /loom\.com\/(share|embed)\/([a-zA-Z0-9]+)/;
     const match = url.match(regExp);
     return match ? match[2] : null;
-  }
+  },
 };
 
 const introVideoSchema = z.object({
@@ -2172,15 +2460,15 @@ const introVideoSchema = z.object({
     .refine(
       (val) => {
         if (!val) return true;
-        return !!videoHelpers.getYoutubeId(val) || !!videoHelpers.getLoomId(val);
+        return (
+          !!videoHelpers.getYoutubeId(val) || !!videoHelpers.getLoomId(val)
+        );
       },
-      { message: "Must be a valid YouTube or Loom video link" }
+      { message: "Must be a valid YouTube or Loom video link" },
     ),
 });
 
 function IntroVideoForm({ user, refetchProfile }: any) {
-  const width = useWindowWidth();
-  const isMobile = width < 768;
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof introVideoSchema>>({
@@ -2220,7 +2508,13 @@ function IntroVideoForm({ user, refetchProfile }: any) {
     if (form.formState.isDirty && form.formState.isValid && !isSaving) {
       debouncedSubmit();
     }
-  }, [watchedValues, form.formState.isDirty, form.formState.isValid, debouncedSubmit, isSaving]);
+  }, [
+    watchedValues,
+    form.formState.isDirty,
+    form.formState.isValid,
+    debouncedSubmit,
+    isSaving,
+  ]);
 
   useEffect(() => {
     if (user && !form.formState.isDirty) {
@@ -2233,43 +2527,51 @@ function IntroVideoForm({ user, refetchProfile }: any) {
   const introVideoVal = form.watch("introVideo") || "";
   const ytId = videoHelpers.getYoutubeId(introVideoVal);
   const lId = videoHelpers.getLoomId(introVideoVal);
-  const embedUrl = ytId 
-    ? `https://www.youtube.com/embed/${ytId}` 
-    : lId 
-      ? `https://www.loom.com/embed/${lId}` 
+  const embedUrl = ytId
+    ? `https://www.youtube.com/embed/${ytId}`
+    : lId
+      ? `https://www.loom.com/embed/${lId}`
       : null;
 
   return (
-    <Section title="Intro Video" icon={Video} hasAutoSave={true} isSaving={isSaving} isDirty={form.formState.isDirty}>
+    <Section
+      title="Intro Video"
+      icon={Video}
+      hasAutoSave={true}
+      isSaving={isSaving}
+      isDirty={form.formState.isDirty}
+    >
       <Form {...form}>
-        <div className="space-y-6">
+        <div className="space-y-4">
           <FormField
             control={form.control}
             name="introVideo"
             render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className="block text-[11px] font-black text-black uppercase tracking-widest pl-1">
+              <FormItem className="space-y-1.5">
+                <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                   Intro Video Link (YouTube or Loom)
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="https://www.youtube.com/watch?v=... or https://www.loom.com/share/..."
-                    className="h-[50px] w-full bg-zinc-100 placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none px-4 font-bold text-black"
                   />
                 </FormControl>
-                <FormMessage className="text-[10px] font-black text-red-500 uppercase pl-1 mt-1" />
-                <p className="text-xs font-bold text-zinc-500 pt-1 uppercase tracking-widest">
-                  Provide a YouTube link or Loom link to introduce yourself.
+                <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 pt-0.5 font-normal">
+                  Provide a YouTube link or Loom link to introduce yourself to
+                  hiring managers.
                 </p>
               </FormItem>
             )}
           />
 
           {embedUrl ? (
-            <div className="mt-6">
-              <p className="text-[11px] font-black text-black uppercase tracking-widest mb-2 pl-1">Video Preview:</p>
-              <div className="aspect-video w-full max-w-2xl border-[3px] border-black bg-zinc-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+            <div className="mt-4">
+              <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                Video Preview:
+              </p>
+              <div className="aspect-video w-full max-w-2xl rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-900 shadow-sm relative overflow-hidden">
                 <iframe
                   src={embedUrl}
                   className="absolute inset-0 w-full h-full"
@@ -2280,9 +2582,10 @@ function IntroVideoForm({ user, refetchProfile }: any) {
             </div>
           ) : (
             introVideoVal && (
-              <div className="mt-6 border-[3px] border-dashed border-red-400 bg-red-50 p-4 text-center">
-                <p className="text-xs font-bold text-red-500 uppercase tracking-wider">
-                  Please enter a valid YouTube (watch / youtu.be) or Loom (share) link.
+              <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-center">
+                <p className="text-xs font-medium text-amber-700 dark:text-amber-300">
+                  Please enter a valid YouTube (watch / youtu.be) or Loom
+                  (share) link.
                 </p>
               </div>
             )
@@ -2332,31 +2635,25 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
   };
 
   return (
-    <div className="border-[3px] border-black p-6 md:p-8 bg-zinc-50 relative group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
-      <div className="flex border-b-[3px] border-black pb-4 mb-6">
-        <h3 className="text-lg font-black uppercase tracking-widest">
-          {exp.companyName ? `Editing: ${exp.companyName}` : "New Experience"}
-        </h3>
-      </div>
-      <Form {...form}>
-        <div className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 mt-2">
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col flex-1 min-h-0 overflow-hidden"
+      >
+        <div className="px-4 py-3.5 sm:py-4 space-y-3.5 flex-1 overflow-y-auto">
+          <div className="grid gap-3.5 md:grid-cols-2">
             <FormField
               control={form.control}
               name="companyName"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Company Name *
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Google"
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                    />
+                    <Input {...field} placeholder="Google" />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
@@ -2364,30 +2661,26 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
               control={form.control}
               name="role"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Job Title / Role *
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Senior Full Stack Engineer"
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
-                    />
+                    <Input {...field} placeholder="Senior Full Stack Engineer" />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 mt-4">
+          <div className="grid gap-3.5 md:grid-cols-2">
             <FormField
               control={form.control}
               name="location"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Location
                   </FormLabel>
                   <FormControl>
@@ -2395,10 +2688,9 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                       {...field}
                       value={field.value || ""}
                       placeholder="Remote / San Francisco"
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
@@ -2406,8 +2698,8 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
               control={form.control}
               name="companyWebsite"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Company Website
                   </FormLabel>
                   <FormControl>
@@ -2415,45 +2707,44 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                       {...field}
                       value={field.value || ""}
                       placeholder="https://..."
-                      className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-3.5 md:grid-cols-2">
             <FormField
               control={form.control}
               name="startDate"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1 mb-2">
+                <FormItem className="space-y-1.5 flex flex-col">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Start Date
                   </FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={"outline"}
+                          variant="outline"
                           className={clsx(
-                            "h-[50px] w-full pl-3 text-left font-bold rounded-none border-[3px] border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-                            !field.value && "text-zinc-500",
+                            "h-11 w-full justify-start text-left font-normal rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 text-sm shadow-2xs hover:bg-zinc-50 dark:hover:bg-zinc-800/60",
+                            !field.value && "text-zinc-400 dark:text-zinc-500",
                           )}
                         >
+                          <CalendarIcon className="mr-2 h-4 w-4 shrink-0 text-zinc-400" />
                           {field.value ? (
                             format(field.value, "MMM yyyy")
                           ) : (
                             <span>Select month</span>
                           )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent
-                      className="w-auto p-0 rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                      className="w-auto p-0 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-lg"
                       align="start"
                     >
                       <MonthYearPicker
@@ -2462,7 +2753,7 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormMessage />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
@@ -2470,21 +2761,22 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
               control={form.control}
               name="endDate"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1 mb-2">
+                <FormItem className="space-y-1.5 flex flex-col">
+                  <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     End Date
                   </FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={"outline"}
+                          variant="outline"
                           disabled={form.watch("isCurrent")}
                           className={clsx(
-                            "h-[50px] w-full pl-3 text-left font-bold rounded-none border-[3px] border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-                            !field.value && "text-zinc-500",
+                            "h-11 w-full justify-start text-left font-normal rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 text-sm shadow-2xs hover:bg-zinc-50 dark:hover:bg-zinc-800/60",
+                            !field.value && "text-zinc-400 dark:text-zinc-500",
                           )}
                         >
+                          <CalendarIcon className="mr-2 h-4 w-4 shrink-0 text-zinc-400" />
                           {field.value ? (
                             format(field.value, "MMM yyyy")
                           ) : (
@@ -2494,12 +2786,11 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                                 : "Select month"}
                             </span>
                           )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent
-                      className="w-auto p-0 rounded-none border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                      className="w-auto p-0 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-lg"
                       align="start"
                     >
                       <MonthYearPicker
@@ -2508,7 +2799,7 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormMessage />
+                  <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
                 </FormItem>
               )}
             />
@@ -2518,7 +2809,7 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
             control={form.control}
             name="isCurrent"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center gap-3 space-x-0 space-y-0 rounded-none border-[3px] border-black p-4 bg-orange-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <FormItem className="flex items-center gap-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-3 shadow-2xs">
                 <FormControl>
                   <Checkbox
                     checked={field.value}
@@ -2526,14 +2817,12 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                       field.onChange(checked);
                       if (checked) form.setValue("endDate", undefined);
                     }}
-                    className="border-[3px] border-black w-6 h-6 rounded-none data-[state=checked]:bg-black data-[state=checked]:text-white"
+                    className="data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
                   />
                 </FormControl>
-                <div className="space-y-1">
-                  <FormLabel className="text-sm font-black text-black uppercase tracking-widest leading-none cursor-pointer">
-                    I currently work here
-                  </FormLabel>
-                </div>
+                <FormLabel className="text-xs font-medium text-zinc-700 dark:text-zinc-300 select-none cursor-pointer">
+                  I currently work here
+                </FormLabel>
               </FormItem>
             )}
           />
@@ -2542,49 +2831,53 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
             control={form.control}
             name="description"
             render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className="text-[11px] font-black text-black uppercase tracking-widest pl-1">
-                  Job Description
+              <FormItem className="space-y-1.5">
+                <FormLabel className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  Job Description (Optional)
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     {...field}
                     placeholder="Describe your role, responsibilities, and achievements..."
-                    className="min-h-[120px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
+                    className="min-h-[100px] w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 shadow-2xs"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs font-medium text-rose-500 dark:text-rose-400 mt-1" />
               </FormItem>
             )}
           />
-
-          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 mt-8 pt-6 border-t-[3px] border-black border-dashed w-full">
-            <Button
-              type="button"
-              onClick={form.handleSubmit(onSubmit)}
-              disabled={isLoading}
-              className="w-full sm:flex-1 h-12 text-lg disabled:opacity-50"
-            >
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              ) : (
-                <Check className="w-5 h-5 mr-2" />
-              )}
-              {isLoading ? "Saving..." : isMobile ? "Save" : "Confirm"}
-            </Button>
-            <Button
-              type="button"
-              onClick={onCancel}
-              variant="outline"
-              className="w-full sm:flex-1 h-12 text-lg"
-            >
-              <X className="w-5 h-5" />
-              Cancel
-            </Button>
-          </div>
         </div>
-      </Form>
-    </div>
+
+        <div className="bg-zinc-50/50 dark:bg-zinc-900/50 border-t border-zinc-200 dark:border-zinc-800 px-4 py-2.5 sm:py-2.5 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+            className="w-full sm:w-auto h-9 px-4 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-medium"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full sm:w-auto h-9 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="size-3.5 mr-1.5 animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Check className="size-3.5 mr-1" />
+                <span>{isMobile ? "Save" : "Save Experience"}</span>
+              </>
+            )}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }
 
@@ -2654,8 +2947,6 @@ function SkillsSection({
   skills: string[];
   refetchProfile: () => Promise<any>;
 }) {
-  const width = useWindowWidth();
-  const isMobile = width < 768;
   const [selected, setSelected] = useState<Set<string>>(new Set(initialSkills));
   const [skillInput, setSkillInput] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -2669,7 +2960,10 @@ function SkillsSection({
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
@@ -2686,7 +2980,7 @@ function SkillsSection({
       } else {
         await refetchProfile();
       }
-    } catch (err) {
+    } catch {
       toast.error("Failed to save skills.");
     } finally {
       setIsSaving(false);
@@ -2695,8 +2989,9 @@ function SkillsSection({
 
   const hasMounted = useRef(false);
 
-  const isDirty = selected.size !== initialSkills.length || 
-    Array.from(selected).some(skill => !initialSkills.includes(skill));
+  const isDirty =
+    selected.size !== initialSkills.length ||
+    Array.from(selected).some((skill) => !initialSkills.includes(skill));
 
   useEffect(() => {
     if (!hasMounted.current) {
@@ -2721,14 +3016,23 @@ function SkillsSection({
   };
 
   const filteredSuggestions = AVAILABLE_SKILLS.filter((skill) => {
-    const matchesSearch = skill.toLowerCase().includes(skillInput.toLowerCase());
-    const isAlreadySelected = Array.from(selected).some(s => s.toLowerCase() === skill.toLowerCase());
+    const matchesSearch = skill
+      .toLowerCase()
+      .includes(skillInput.toLowerCase());
+    const isAlreadySelected = Array.from(selected).some(
+      (s) => s.toLowerCase() === skill.toLowerCase(),
+    );
     return matchesSearch && !isAlreadySelected;
   });
 
-  const showAddCustom = skillInput.trim() && 
-    !AVAILABLE_SKILLS.some(s => s.toLowerCase() === skillInput.trim().toLowerCase()) && 
-    !Array.from(selected).some(s => s.toLowerCase() === skillInput.trim().toLowerCase());
+  const showAddCustom =
+    skillInput.trim() &&
+    !AVAILABLE_SKILLS.some(
+      (s) => s.toLowerCase() === skillInput.trim().toLowerCase(),
+    ) &&
+    !Array.from(selected).some(
+      (s) => s.toLowerCase() === skillInput.trim().toLowerCase(),
+    );
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -2740,15 +3044,22 @@ function SkillsSection({
   };
 
   return (
-    <Section title="Technical Skills" icon={Code} hasAutoSave={true} isSaving={isSaving} isDirty={isDirty}>
-      <div className="space-y-6">
+    <Section
+      title="Technical Skills"
+      icon={Code}
+      hasAutoSave={true}
+      isSaving={isSaving}
+      isDirty={isDirty}
+      className={isDropdownOpen ? "z-20" : "z-10"}
+    >
+      <div className="space-y-4">
         {/* Selected skills tags */}
-        <div className="w-full min-h-[80px] border-[3px] border-black p-4 bg-zinc-50 flex flex-wrap gap-2 items-center shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05)]">
+        <div className="w-full min-h-[72px] rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 p-3 flex flex-wrap gap-2 items-center">
           {selected.size > 0 ? (
-            Array.from(selected).map((skill) => (
+            Array.from(selected).map((skill, idx) => (
               <span
-                key={skill}
-                className="inline-flex items-center gap-1 bg-yellow-300 border-[2px] border-black px-2.5 py-1 text-xs font-black uppercase text-black"
+                key={`${skill}-${idx}`}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700/80 shadow-2xs transition-colors"
               >
                 {skill}
                 <button
@@ -2758,21 +3069,21 @@ function SkillsSection({
                     next.delete(skill);
                     setSelected(next);
                   }}
-                  className="ml-1 hover:bg-black hover:text-white rounded-full p-[1px] transition-colors inline-flex items-center justify-center"
+                  className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 rounded-sm transition-colors inline-flex items-center justify-center"
                 >
                   <X className="h-3 w-3" />
                 </button>
               </span>
             ))
           ) : (
-            <span className="text-zinc-500 font-bold uppercase tracking-widest text-xs py-2 pl-1">
+            <span className="text-zinc-400 dark:text-zinc-500 text-xs py-2 pl-1 font-normal">
               No skills selected. Type below to add skills.
             </span>
           )}
         </div>
 
         {/* Input & suggestions dropdown */}
-        <div ref={dropdownRef} className="relative">
+        <div ref={dropdownRef} className="relative z-30">
           <Input
             placeholder="Type a skill (e.g. React, Docker) and select or press Enter to add"
             value={skillInput}
@@ -2782,42 +3093,43 @@ function SkillsSection({
             }}
             onFocus={() => setIsDropdownOpen(true)}
             onKeyDown={handleInputKeyDown}
-            className="h-[50px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none px-4 font-bold text-black"
+            className="h-11 w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 shadow-2xs"
           />
 
           {/* Suggestions dropdown */}
-          {isDropdownOpen && (skillInput.trim() || filteredSuggestions.length > 0) && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-50 max-h-[220px] overflow-y-auto rounded-none">
-              {filteredSuggestions.map((skill) => (
-                <button
-                  key={skill}
-                  type="button"
-                  onClick={() => addSkill(skill)}
-                  className="w-full text-left px-4 py-2.5 text-sm font-bold text-black hover:bg-orange-100 transition-colors border-b border-zinc-100 last:border-0 uppercase tracking-wide cursor-pointer"
-                >
-                  {skill}
-                </button>
-              ))}
-              {showAddCustom && (
-                <button
-                  type="button"
-                  onClick={() => addSkill(skillInput)}
-                  className="w-full text-left px-4 py-2.5 text-sm font-black text-orange-600 hover:bg-orange-100 transition-colors border-b border-zinc-100 last:border-0 uppercase tracking-wide cursor-pointer flex items-center gap-1.5"
-                >
-                  <Plus className="w-4.5 h-4.5 border-2 border-orange-600 bg-orange-100" />
-                  Add custom &quot;{skillInput.trim()}&quot;
-                </button>
-              )}
-              {filteredSuggestions.length === 0 && !showAddCustom && (
-                <p className="text-zinc-500 font-bold uppercase text-xs text-center py-3">
-                  No matching skills
-                </p>
-              )}
-            </div>
-          )}
+          {isDropdownOpen &&
+            (skillInput.trim() || filteredSuggestions.length > 0) && (
+              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-lg z-50 max-h-[220px] overflow-y-auto rounded-xl p-1.5 space-y-0.5">
+                {filteredSuggestions.map((skill, idx) => (
+                  <button
+                    key={`${skill}-${idx}`}
+                    type="button"
+                    onClick={() => addSkill(skill)}
+                    className="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-orange-50 dark:hover:bg-orange-950/30 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer"
+                  >
+                    {skill}
+                  </button>
+                ))}
+                {showAddCustom && (
+                  <button
+                    type="button"
+                    onClick={() => addSkill(skillInput)}
+                    className="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-colors cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Add custom &quot;{skillInput.trim()}&quot;
+                  </button>
+                )}
+                {filteredSuggestions.length === 0 && !showAddCustom && (
+                  <p className="text-zinc-400 dark:text-zinc-500 text-xs text-center py-3">
+                    No matching skills
+                  </p>
+                )}
+              </div>
+            )}
         </div>
 
-        <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 font-normal">
           Select from suggestions or type and press Enter to add a custom skill.
         </p>
       </div>

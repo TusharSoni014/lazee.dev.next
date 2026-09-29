@@ -99,7 +99,7 @@ ${message}
     </tr>
     <tr>
       <td style="font-weight: bold; border-bottom: 1px solid #eee;">Email:</td>
-      <td style="border-bottom: 1px solid #eee;"><a href="mailto:${email || "anonymous@lazee.dev"}">${email || "anonymous@lazee.dev"}</a></td>
+      <td style="border-bottom: 1px solid #eee;"><a href="mailto:${email || "no-reply@lazee.dev"}">${email || "no-reply@lazee.dev"}</a></td>
     </tr>
     <tr style="background: #f9f9f9;">
       <td style="font-weight: bold; border-bottom: 1px solid #eee;">Type:</td>

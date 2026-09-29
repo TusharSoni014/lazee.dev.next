@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useTransition } from "react";
 import { toast } from "@/components/ui/toast";
+import { Sparkles, ArrowRight, Loader2, Users } from "lucide-react";
 
 import {
   Form,
@@ -56,47 +57,66 @@ export function EarlyAccessForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="relative w-full border-[4px] border-black bg-white p-5 sm:p-10 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-6"
+        className="relative w-full rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md p-6 sm:p-8 shadow-sm flex flex-col gap-5"
       >
-        {/* Badge */}
-        <div className="absolute -top-5 -right-2 sm:-top-6 sm:-right-6 bg-[#ff6b00] text-white px-5 py-2 text-sm sm:text-base font-black tracking-widest border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-3 uppercase">
-          Get Early Access
+        <div className="flex items-center justify-between">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-orange-500/20 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs font-medium">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Priority Waitlist</span>
+          </div>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
+            Limited slots
+          </span>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+            Get Early Access
+          </h3>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+            Be the first to experience automated job applications and AI autofill.
+          </p>
         </div>
 
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="space-y-1">
               <FormControl>
                 <Input
-                  placeholder="Enter your email..."
-                  className="h-16 px-4 text-lg sm:text-xl font-bold border-[3px] border-black rounded-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-[#f4f4f5] text-black placeholder:text-gray-500"
+                  type="email"
+                  placeholder="name@example.com"
+                  className="h-11 px-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus-visible:ring-1 focus-visible:ring-orange-500 shadow-none"
                   {...field}
                 />
               </FormControl>
-              <FormMessage className="text-red-500 font-bold text-sm mt-1" />
+              <FormMessage className="text-red-500 text-xs mt-1" />
             </FormItem>
           )}
         />
 
         <Button
           type="submit"
-          variant="default"
-          className="text-white py-6"
+          className="w-full h-11 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm transition-all shadow-[0_1px_2px_rgba(0,0,0,0.05),0_8px_16px_-4px_rgba(234,88,12,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none cursor-pointer flex items-center justify-center gap-2"
           disabled={isPending || !form.formState.isValid}
         >
-          {isPending ? "JOINING..." : "JOIN WAITLIST"}
+          {isPending ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Joining waitlist...</span>
+            </>
+          ) : (
+            <>
+              <span>Join Waitlist</span>
+              <ArrowRight className="w-4 h-4" />
+            </>
+          )}
         </Button>
 
-        <p className="text-center text-[#4b5563] font-bold text-base sm:text-lg mt-2 flex items-center justify-center gap-2">
-          <svg
-            className="w-4 h-4 text-[#4b5563] fill-current"
-            viewBox="0 0 24 24"
-          >
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-          </svg>
-          Join 2,000+ developers waiting
+        <p className="text-center text-xs text-zinc-500 dark:text-zinc-400 flex items-center justify-center gap-1.5 pt-1">
+          <Users className="w-3.5 h-3.5 text-zinc-400" />
+          <span>Join 2,000+ developers already waiting</span>
         </p>
       </form>
     </Form>

@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: [
+    "@firecrawl/pdf-inspector",
+    "@firecrawl/pdf-inspector-win32-x64-msvc",
+    "@firecrawl/pdf-inspector-linux-x64-gnu",
+    "@firecrawl/pdf-inspector-darwin-arm64",
+  ],
   images: {
     remotePatterns: [
       {

@@ -2,49 +2,49 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, Check, CheckCircle2 } from "lucide-react";
+import { Check, ShieldCheck, Cpu, Sparkles, Terminal } from "lucide-react";
 
 export function HeroDemo() {
   const [step, setStep] = useState(0);
   const [typedText, setTypedText] = useState("");
   const fullText =
-    "I am excited about this opportunity because it aligns perfectly with my passion for building scalable web applications and solving real-world problems...";
+    "Architected high-throughput ingestion pipeline handling 140k req/sec with P99 < 14ms across multi-region Kubernetes clusters...";
 
   useEffect(() => {
     let active = true;
     const runAnimation = async () => {
       while (active) {
-        // Step 0: Idle/Empty
+        // Step 0: Initial ATS page detected
         setStep(0);
         setTypedText("");
-        await new Promise((r) => setTimeout(r, 1000));
-        if (!active) break;
-
-        // Step 1: Mouse cursor moves in and hovers/clicks "Fill with AI"
-        setStep(1);
         await new Promise((r) => setTimeout(r, 1200));
         if (!active) break;
 
-        // Step 2: Generating AI response (Typewriter effect)
+        // Step 1: Mapping schema fields
+        setStep(1);
+        await new Promise((r) => setTimeout(r, 1000));
+        if (!active) break;
+
+        // Step 2: Auto-filling core identity & resume
         setStep(2);
+        await new Promise((r) => setTimeout(r, 1400));
+        if (!active) break;
+
+        // Step 3: Context-aware AI synthesis (Typewriter)
+        setStep(3);
         let currentText = "";
         for (let i = 0; i < fullText.length; i += 2) {
           if (!active) break;
           currentText += fullText.slice(i, i + 2);
           setTypedText(currentText);
-          await new Promise((r) => setTimeout(r, 15));
+          await new Promise((r) => setTimeout(r, 18));
         }
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 800));
         if (!active) break;
 
-        // Step 3: Stagger filling the left-side fields
-        setStep(3);
-        await new Promise((r) => setTimeout(r, 2000));
-        if (!active) break;
-
-        // Step 4: Done state (Hold)
+        // Step 4: Verification complete
         setStep(4);
-        await new Promise((r) => setTimeout(r, 3500));
+        await new Promise((r) => setTimeout(r, 3800));
       }
     };
     runAnimation();
@@ -54,235 +54,208 @@ export function HeroDemo() {
   }, []);
 
   const formFields = [
-    { label: "Personal Information", value: "Tushar Soni" },
-    { label: "Email", value: "tushar@lazee.dev" },
-    { label: "Phone", value: "+1 (555) 019-2834" },
-    { label: "LinkedIn", value: "linkedin.com/in/tushar" },
-    { label: "Resume", value: "Resume_Tushar_Soni.pdf" },
+    { label: "Full Name", value: "Devin Zhao", tag: "Profile Record" },
+    { label: "Email Address", value: "devin@alumni.cmu.edu", tag: "Verified" },
+    { label: "Primary Repository", value: "github.com/devinzhao", tag: "Source" },
+    { label: "Active Resume File", value: "Resume_Staff_Platform_2026.pdf", tag: "Matched" },
   ];
 
   return (
-    <div className="relative w-full max-w-lg mx-auto h-[370px] xs:h-[410px] sm:h-auto sm:aspect-[1.15] bg-white border-[3px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-none overflow-hidden flex flex-col z-10">
-      {/* Browser Bar */}
-      <div className="h-8 sm:h-10 border-b-[3px] border-black bg-zinc-100 flex items-center px-2 sm:px-4 gap-1.5 sm:gap-2 shrink-0">
-        <div className="flex gap-1 sm:gap-1.5">
-          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-400 rounded-none border border-red-500" />
-          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-yellow-400 rounded-none border border-yellow-500" />
-          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-none border border-green-500" />
+    <div className="relative w-full max-w-lg lg:max-w-xl mx-auto rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.12)] overflow-hidden flex flex-col font-sans transition-all">
+      {/* Top Browser Bar */}
+      <div className="h-11 border-b border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/90 dark:bg-zinc-900/90 px-4 flex items-center justify-between shrink-0 backdrop-blur-sm">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+          <div className="w-2.5 h-2.5 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+          <div className="w-2.5 h-2.5 rounded-full bg-zinc-300 dark:bg-zinc-700" />
         </div>
-        <div className="ml-2 sm:ml-4 bg-white border-[2px] border-black rounded-none h-5 sm:h-6 flex-1 px-1.5 sm:px-3 flex items-center">
-          <span className="text-[8px] sm:text-[10px] font-black text-zinc-500 truncate">
-            workday.com/careers/apply
-          </span>
+
+        <div className="flex items-center gap-2 bg-white dark:bg-zinc-950 border border-zinc-200/70 dark:border-zinc-800/80 rounded-md px-3 py-1 text-[11px] text-zinc-600 dark:text-zinc-400 font-mono tracking-tight shadow-2xs max-w-[280px] w-full mx-2 justify-center">
+          <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" />
+          <span className="truncate">boards.greenhouse.io/stripe/jobs/platform-lead</span>
+        </div>
+
+        <div className="flex items-center gap-1 text-[10px] font-mono font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/50 px-2 py-0.5 rounded">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span>ATS Active</span>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-row overflow-hidden relative bg-[#fafafa]">
-        <div className="w-[52%] border-r-[3px] border-black p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 overflow-hidden bg-white">
-          <div className="flex flex-col gap-0.5 sm:gap-1 border-b border-zinc-100 pb-1.5 sm:pb-2">
-            <span className="text-[7.5px] sm:text-[9px] font-black text-zinc-400 uppercase tracking-wider leading-none">
-              Job Application
-            </span>
-            <h4 className="text-[9px] sm:text-xs font-black text-black leading-tight truncate">
-              Senior Frontend Developer
-            </h4>
-            <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 sm:mt-1">
-              <div className="flex-1 h-1 sm:h-1.5 bg-zinc-100 border border-black/10 rounded-none overflow-hidden">
-                <motion.div
-                  animate={step >= 3 ? { width: "80%" } : { width: "40%" }}
-                  className="h-full bg-orange-500"
-                />
-              </div>
-              <span className="text-[6.5px] sm:text-[8px] font-black text-zinc-400 uppercase tracking-widest shrink-0 leading-none">
-                Step 2 of 3
+      {/* Main Terminal / App Body */}
+      <div className="flex flex-col sm:flex-row min-h-[380px] sm:h-[420px] bg-zinc-50/40 dark:bg-zinc-900/30">
+        {/* Left Sub-Panel: ATS Application Form */}
+        <div className="sm:w-[56%] p-4 sm:p-5 flex flex-col justify-between border-b sm:border-b-0 sm:border-r border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 font-semibold">
+                Application Schema
               </span>
+              <span className="text-[10px] font-mono text-zinc-500">
+                {step >= 2 ? "4 of 4 mapped" : step === 1 ? "Mapping fields..." : "Detected"}
+              </span>
+            </div>
+
+            <div className="pb-3 border-b border-zinc-100 dark:border-zinc-800/80 mb-3">
+              <h4 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
+                Staff Platform Engineer
+              </h4>
+              <p className="text-[10px] text-zinc-500 mt-0.5">
+                Core Systems • San Francisco, CA (Hybrid)
+              </p>
+            </div>
+
+            {/* Field Matrix */}
+            <div className="space-y-2">
+              {formFields.map((field, idx) => {
+                const isFilled = step >= 2;
+                return (
+                  <div key={idx} className="flex flex-col gap-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
+                        {field.label}
+                      </span>
+                      {isFilled && (
+                        <span className="text-[9px] font-mono text-zinc-400">
+                          {field.tag}
+                        </span>
+                      )}
+                    </div>
+                    <div className="h-7 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/40 px-2.5 flex items-center justify-between text-xs relative overflow-hidden">
+                      <AnimatePresence>
+                        {isFilled && (
+                          <motion.span
+                            initial={{ opacity: 0, x: -6 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.08, duration: 0.2 }}
+                            className="text-[11px] font-medium text-zinc-800 dark:text-zinc-200 truncate pr-2"
+                          >
+                            {field.value}
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+
+                      <AnimatePresence>
+                        {isFilled && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{
+                              delay: idx * 0.08 + 0.05,
+                              type: "spring",
+                              stiffness: 400,
+                              damping: 20,
+                            }}
+                            className="size-3.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30"
+                          >
+                            <Check className="size-2.5" strokeWidth={2.5} />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* Form Fields Stack */}
-          <div className="flex flex-col gap-1.5 sm:gap-2">
-            {formFields.map((field, idx) => {
-              const isFilled = step >= 3;
-              return (
-                <div key={idx} className="flex flex-col gap-0.5 sm:gap-1 relative">
-                  <span className="text-[7px] sm:text-[8px] font-black uppercase text-zinc-500 leading-none truncate">
-                    {field.label}
-                  </span>
-                  <div className="h-[22px] sm:h-7 border-2 border-black rounded-none bg-zinc-50 flex items-center justify-between px-1.5 sm:px-2.5 relative overflow-hidden">
-                    <AnimatePresence>
-                      {isFilled && (
-                        <motion.span
-                          initial={{ opacity: 0, x: -5 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: idx * 0.15, duration: 0.2 }}
-                          className="font-bold text-[8px] sm:text-[9px] text-zinc-950 truncate max-w-[75%] sm:max-w-[85%]"
-                        >
-                          {field.value}
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-
-                    {/* Staggered green tick marks */}
-                    <AnimatePresence>
-                      {isFilled && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{
-                            delay: idx * 0.15 + 0.1,
-                            type: "spring",
-                            stiffness: 300,
-                          }}
-                          className="w-3 h-3 sm:w-3.5 sm:h-3.5 bg-green-500 rounded-none border border-black flex items-center justify-center shrink-0"
-                        >
-                          <Check
-                            className="w-2 sm:w-2.5 h-2 sm:h-2.5 text-white"
-                            strokeWidth={4}
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    {/* Filling flash effect */}
-                    <AnimatePresence>
-                      {step === 3 && (
-                        <motion.div
-                          initial={{ x: "-100%", opacity: 0.4 }}
-                          animate={{ x: "100%", opacity: 0 }}
-                          transition={{
-                            delay: idx * 0.15,
-                            duration: 0.4,
-                            ease: "easeOut",
-                          }}
-                          className="absolute inset-0 bg-yellow-300 pointer-events-none"
-                        />
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-400">
+            <span className="font-mono">ATS: Greenhouse API</span>
+            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+              <span className="size-1.5 rounded-full bg-emerald-500" /> Verified Match
+            </span>
           </div>
         </div>
 
-        {/* Right Side: AI Assistant Side Panel */}
-        <div className="flex-1 p-2 sm:p-3.5 bg-orange-50/50 flex flex-col justify-between overflow-hidden relative">
-          {/* AI Panel Header */}
-          <div className="bg-white border-2 border-black rounded-none p-1.5 sm:p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-orange-500 border border-black flex items-center justify-center text-white rounded-none shrink-0">
-              <Sparkles size={10} className="fill-white sm:hidden" />
-              <Sparkles size={12} className="fill-white hidden sm:block" />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-[7.5px] sm:text-[9px] font-black text-black leading-none truncate">
-                AI Assistant
-              </span>
-              <span className="text-[6.5px] sm:text-[8px] font-bold text-orange-500 mt-0.5 sm:mt-1 leading-none truncate">
-                Writing answer...
-              </span>
-            </div>
-          </div>
-
-          {/* AI Answer Editor Card */}
-          <div className="flex-1 my-2 sm:my-3 bg-white border-2 border-black rounded-none p-1.5 sm:p-2.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-1 sm:gap-1.5 overflow-hidden">
-            <span className="text-[7px] sm:text-[8px] font-black uppercase text-zinc-400 leading-none truncate">
-              Why do you want this role?
-            </span>
-            <div className="flex-1 bg-zinc-50 border border-zinc-200 rounded-none p-1 sm:p-2 text-[7px] sm:text-[8px] font-bold text-zinc-650 leading-normal sm:leading-relaxed overflow-y-auto font-sans relative">
-              {typedText}
-              <motion.span
-                animate={{ opacity: [1, 0] }}
-                transition={{ repeat: Infinity, duration: 0.6 }}
-                className="inline-block w-0.5 sm:w-1 h-2 sm:h-3 bg-orange-500 ml-0.5"
-              />
-            </div>
-
-            {/* Live Progress loading bar */}
-            <div className="shrink-0 flex items-center justify-between text-[6.5px] sm:text-[8px] font-bold text-zinc-400 mt-0.5 sm:mt-1">
-              <span>
-                {step === 2
-                  ? "Generating suggestion..."
-                  : step > 2
-                    ? "Generated!"
-                    : "Ready"}
-              </span>
-              {step === 2 && (
-                <div className="w-10 sm:w-16 h-0.5 sm:h-1 bg-zinc-100 rounded-none overflow-hidden border border-zinc-200/50">
-                  <motion.div
-                    animate={{ width: ["0%", "100%"] }}
-                    transition={{ duration: 2, ease: "easeInOut" }}
-                    className="h-full bg-orange-500"
-                  />
+        {/* Right Sub-Panel: Lazee Autopilot Engine */}
+        <div className="sm:w-[44%] p-4 sm:p-5 flex flex-col justify-between bg-zinc-50/80 dark:bg-zinc-900/60">
+          <div>
+            {/* Header pill */}
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200/80 dark:border-zinc-800 mb-3">
+              <div className="flex items-center gap-1.5">
+                <div className="size-5 rounded-md bg-orange-600/10 border border-orange-500/30 flex items-center justify-center text-orange-600">
+                  <Cpu className="size-3" />
                 </div>
-              )}
+                <span className="text-[11px] font-semibold text-zinc-900 dark:text-zinc-100">
+                  Lazee Engine
+                </span>
+              </div>
+              <span className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded bg-zinc-200/70 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
+                v2.4
+              </span>
+            </div>
+
+            {/* AI Synthesizer View */}
+            <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 shadow-xs flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-medium text-zinc-500 truncate">
+                  Role Question Synthesis
+                </span>
+                <span className="text-[9px] font-mono text-orange-600 dark:text-orange-400 font-medium">
+                  {step >= 3 ? "Generating" : "Waiting"}
+                </span>
+              </div>
+
+              <div className="p-2 rounded bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 text-[10px] text-zinc-700 dark:text-zinc-300 font-mono leading-relaxed min-h-[92px]">
+                {step >= 3 ? (
+                  <>
+                    <span>{typedText}</span>
+                    <motion.span
+                      animate={{ opacity: [1, 0] }}
+                      transition={{ repeat: Infinity, duration: 0.6 }}
+                      className="inline-block w-1 h-2.5 bg-orange-600 ml-0.5 align-middle"
+                    />
+                  </>
+                ) : (
+                  <span className="text-zinc-400 italic">
+                    Awaiting form trigger...
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between text-[9px] text-zinc-400 font-mono pt-1">
+                <span>Context Match: 99.4%</span>
+                <span>Latency: 1.2s</span>
+              </div>
             </div>
           </div>
 
-          {/* Fill with AI Button */}
-          <div className="shrink-0 w-full">
+          {/* Action Trigger Button */}
+          <div className="mt-3">
             <button
-              className={`w-full py-1.5 sm:py-2.5 border-2 border-black text-white text-[8px] sm:text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] sm:shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer ${
-                step >= 2
-                  ? "bg-orange-600 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] translate-x-[1px] translate-y-[1px]"
-                  : "bg-orange-500 hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-[3.5px_3.5px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+              className={`w-full py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm ${
+                step >= 3
+                  ? "bg-emerald-600 text-white shadow-emerald-500/20"
+                  : "bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-950"
               }`}
             >
-              <Sparkles size={9} className="fill-white sm:hidden" />
-              <Sparkles size={11} className="fill-white hidden sm:block" />
-              <span>Fill with AI</span>
+              {step >= 4 ? (
+                <>
+                  <Check className="size-3.5" />
+                  <span>Fields Dispatched</span>
+                </>
+              ) : step >= 3 ? (
+                <>
+                  <Sparkles className="size-3.5" />
+                  <span>Synthesizing Tailored Profile</span>
+                </>
+              ) : (
+                <>
+                  <Terminal className="size-3.5 text-zinc-400" />
+                  <span>1-Click Autofill</span>
+                </>
+              )}
             </button>
           </div>
         </div>
-
-        {/* Animated Hand Cursor */}
-        <motion.div
-          animate={
-            step === 0
-              ? { x: "85%", y: "90%", opacity: 0, scale: 0.9 }
-              : step === 1
-                ? { x: "75%", y: "88%", opacity: 1, scale: 1 } // Moving over "Fill with AI"
-                : step === 2
-                  ? { x: "75%", y: "89%", opacity: 1, scale: 0.92 } // Click press down
-                  : { x: "85%", y: "90%", opacity: 0, scale: 0.9 } // Return home offscreen
-          }
-          transition={{
-            type: "spring",
-            stiffness: 100,
-            damping: 15,
-            mass: 0.5,
-          }}
-          className="absolute z-50 pointer-events-none"
-          style={{ left: 0, top: 0 }}
-        >
-          <svg
-            className="w-6 h-6 text-black fill-white drop-shadow-md"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 01.35-.15h6.42c.45 0 .67-.54.35-.85L6.35 3.32a.5.5 0 00-.85.35z"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            />
-          </svg>
-        </motion.div>
       </div>
 
-      {/* Decorative arrow helper below the mock browser */}
-      <div className="absolute -bottom-8 right-12 text-zinc-500 font-heading text-xs font-black italic transform rotate-6 select-none flex items-center gap-1.5 hidden md:flex pointer-events-none">
-        <svg
-          className="w-8 h-8 text-zinc-400 rotate-180"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 10h10a4 4 0 014 4v1m0 0l-3-3m3 3l3-3"
-          />
-        </svg>
-        <span>AI fills everything for you ✨</span>
+      {/* Footer Status Bar */}
+      <div className="h-7 border-t border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 flex items-center justify-between text-[10px] text-zinc-500 font-mono">
+        <span className="flex items-center gap-1.5">
+          <span className="size-1.5 rounded-full bg-emerald-500" />
+          <span>Ambient DOM Listener Active</span>
+        </span>
+        <span className="text-zinc-400">Zero data retention</span>
       </div>
     </div>
   );

@@ -79,79 +79,77 @@ export default function FeedbackPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
-      <div className="mb-8">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
+      <div className="mb-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-tight hover:translate-x-[-4px] transition-transform"
+          className="inline-flex items-center gap-2 text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-3.5 h-3.5" />
           Back to Home
         </Link>
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="border-[3px] border-black bg-white p-5 sm:p-8 md:p-12 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] sm:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]"
+        className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 sm:p-10 shadow-xs backdrop-blur-xs"
       >
-        <div className="flex items-center gap-4 mb-8">
-          <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-none border-[3px] border-black bg-yellow-400 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] shrink-0">
-            <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-black" />
+        <div className="flex items-center gap-3.5 mb-8 pb-6 border-b border-zinc-100 dark:border-zinc-800">
+          <div className="size-11 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 flex items-center justify-center shrink-0 shadow-2xs">
+            <MessageSquare className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tighter text-black font-heading leading-none">
-              Feedback
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Share Feedback
             </h1>
-            <p className="text-zinc-600 font-bold uppercase tracking-widest text-[9px] sm:text-xs mt-2">
-              Help us make Lazee.dev even better
+            <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-normal mt-0.5">
+              Help us improve Lazee.dev for thousands of job seekers
             </p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="space-y-1.5">
               <Label
                 htmlFor="name"
-                className="text-[11px] font-black uppercase tracking-widest pl-1"
+                className="text-xs font-medium text-zinc-700 dark:text-zinc-300"
               >
-                Name
+                Your Name
               </Label>
               <Input
                 id="name"
-                placeholder="John Doe"
+                placeholder="Alex Morgan"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="bg-white"
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label
                 htmlFor="email"
-                className="text-[11px] font-black uppercase tracking-widest pl-1"
+                className="text-xs font-medium text-zinc-700 dark:text-zinc-300"
               >
-                Email
+                Email Address
               </Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="john@example.com"
+                placeholder="alex@example.com"
                 value={formData.email}
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="bg-white"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label
               htmlFor="type"
-              className="text-[11px] font-black uppercase tracking-widest pl-1"
+              className="text-xs font-medium text-zinc-700 dark:text-zinc-300"
             >
               Feedback Type
             </Label>
@@ -159,16 +157,12 @@ export default function FeedbackPage() {
               value={formData.type}
               onValueChange={(val) => setFormData({ ...formData, type: val })}
             >
-              <SelectTrigger className="h-[50px] w-full rounded-none border-[3px] border-black bg-white px-4 py-2 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:bg-orange-50 transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] data-[state=open]:bg-orange-50">
+              <SelectTrigger>
                 <SelectValue placeholder="Select Feedback Type" />
               </SelectTrigger>
-              <SelectContent className="rounded-none border-[3px] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <SelectContent>
                 {FEEDBACK_TYPES.map((type) => (
-                  <SelectItem
-                    key={type.value}
-                    value={type.value}
-                    className="cursor-pointer font-bold focus:bg-orange-50 rounded-none"
-                  >
+                  <SelectItem key={type.value} value={type.value}>
                     {type.label}
                   </SelectItem>
                 ))}
@@ -176,39 +170,39 @@ export default function FeedbackPage() {
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label
               htmlFor="message"
-              className="text-[11px] font-black uppercase tracking-widest pl-1"
+              className="text-xs font-medium text-zinc-700 dark:text-zinc-300"
             >
-              Message
+              Your Message
             </Label>
             <Textarea
               id="message"
               required
-              placeholder="Tell us what you think..."
+              placeholder="What can we improve, add, or fix? Be as specific as you like..."
               value={formData.message}
               onChange={(e) =>
                 setFormData({ ...formData, message: e.target.value })
               }
-              className="min-h-[200px] w-full bg-white placeholder:text-zinc-400 focus:bg-orange-50 transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] sm:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black rounded-none p-4"
+              className="min-h-[160px] rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 p-3.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 shadow-2xs transition-colors"
             />
           </div>
 
-          <div className="pt-4">
+          <div className="pt-2">
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-14 sm:h-16 bg-black text-white hover:bg-zinc-800 border-[3px] border-black font-black uppercase text-lg sm:text-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] sm:hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all flex items-center justify-center gap-3 cursor-pointer"
+              className="w-full h-11 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm shadow-xs shadow-orange-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Sending...
                 </>
               ) : (
                 <>
-                  <Send className="h-5 w-5" />
+                  <Send className="h-4 w-4" />
                   Submit Feedback
                 </>
               )}

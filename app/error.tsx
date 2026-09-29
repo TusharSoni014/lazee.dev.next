@@ -16,56 +16,49 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-[#fefaf6] selection:bg-orange-500 selection:text-white flex items-center justify-center relative">
-      {/* Background Pattern */}
-      <div
-        className="absolute inset-0 z-0 opacity-[0.06]"
-        style={{
-          backgroundImage: `linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)`,
-          backgroundSize: "40px 40px",
-        }}
-      />
+    <div className="min-h-[calc(100vh-4rem)] bg-zinc-50/50 dark:bg-zinc-950 selection:bg-orange-500 selection:text-white flex items-center justify-center relative px-4 py-12">
+      {/* Ambient background glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-500/5 via-transparent to-transparent pointer-events-none" />
 
-      <div className="relative z-10 flex flex-col items-center text-center px-4 py-12 max-w-lg mx-auto">
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md p-6 sm:p-8 shadow-xs text-center flex flex-col items-center">
         {/* Error Icon */}
-        <div className="mb-8 w-24 h-24 bg-red-500 border-[4px] border-black rounded-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
-          <AlertTriangle className="w-12 h-12 text-white" />
+        <div className="w-12 h-12 rounded-2xl border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center mb-5">
+          <AlertTriangle className="w-6 h-6" />
         </div>
 
-        {/* Message */}
-        <div className="bg-white border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 sm:p-8 mb-8 w-full">
-          <div className="inline-block bg-red-500 border-[3px] border-black px-4 py-1 mb-4 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-            <span className="text-white text-sm font-black uppercase tracking-widest">
-              Error
-            </span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black uppercase text-black mb-3 tracking-tight font-heading">
-            Something Went Wrong
-          </h2>
-          <p className="text-base font-bold text-black/70 leading-relaxed">
-            Don&apos;t worry, it&apos;s not you — our code just got a
-            little too{" "}
-            <span className="bg-[#00bcd4] px-2 py-0.5 text-black border-2 border-black inline-block transform rotate-1">
-              lazee
-            </span>
-            .
-          </p>
+        {/* Badge */}
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-mono tracking-wide mb-3">
+          Application Error
         </div>
+
+        {/* Heading & Subtitle */}
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-2">
+          Something went wrong
+        </h1>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6">
+          An unexpected error occurred. Don&apos;t worry, you can retry the action or return to the home page.
+        </p>
+
+        {error.digest && (
+          <div className="w-full mb-6 p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-[11px] font-mono text-zinc-500 dark:text-zinc-400 select-all overflow-x-auto text-left">
+            Digest: {error.digest}
+          </div>
+        )}
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 w-full">
+        <div className="flex flex-col sm:flex-row gap-3 w-full">
           <button
             onClick={reset}
-            className="flex-1 flex items-center justify-center gap-3 bg-[#ff6b00] text-black border-[3px] border-black px-6 py-4 font-black uppercase text-sm tracking-widest shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all cursor-pointer"
+            className="flex-1 h-11 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm transition-all shadow-[0_1px_2px_rgba(0,0,0,0.05),0_8px_16px_-4px_rgba(234,88,12,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
           >
-            <RefreshCw className="w-5 h-5" />
+            <RefreshCw className="w-4 h-4" />
             Try Again
           </button>
           <Link
             href="/"
-            className="flex-1 flex items-center justify-center gap-3 bg-white text-black border-[3px] border-black px-6 py-4 font-black uppercase text-sm tracking-widest shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
+            className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 text-zinc-700 dark:text-zinc-300 font-medium text-sm transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] flex items-center justify-center gap-2"
           >
-            <Home className="w-5 h-5" />
+            <Home className="w-4 h-4" />
             Go Home
           </Link>
         </div>

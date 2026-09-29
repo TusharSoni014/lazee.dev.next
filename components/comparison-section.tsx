@@ -1,153 +1,127 @@
 "use client";
 
 import { motion } from "motion/react";
-import Image from "next/image";
-import { X, Check, ArrowRight } from "lucide-react";
+import { X, Check, AlertTriangle, Zap } from "lucide-react";
 
 export function ComparisonSection() {
-  const painPoints = [
-    "Fill basic details",
-    "Re-upload resume",
-    "Answer questions",
-    "Write cover letters",
-    "Repeat everything",
+  const manualFrictions = [
+    "Retyping employment history that ATS parsers constantly mangle",
+    "Manually re-entering phone, links, notice period, and compensation numbers",
+    "Drafting repetitive 'Why our company?' answers from an empty text box",
+    "Switching between folder tabs to locate the correct tailored resume PDF",
+    "Application fatigue reducing submissions to under 2 per day",
   ];
 
-  const benefits = [
-    "One click apply",
-    "AI fills everything",
-    "Smart answers",
-    "Tailored responses",
-    "Focus on what matters",
+  const automatedBenefits = [
+    "Deterministic DOM schema mapping across Greenhouse, Lever, Ashby & Workday",
+    "1-click verification of contact details, links, and employment record",
+    "Context-aware AI synthesis for open-ended questions using your real experience",
+    "Instant resume version switching directly inside the browser popup",
+    "Sub-30-second completion enabling consistent, high-volume pipeline execution",
   ];
 
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className="w-full mb-24"
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="w-full my-12 sm:my-20"
     >
-      <div className="w-full bg-[#0d0d12] border-[3px] border-black rounded-none p-4 sm:p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden">
-        {/* Decorative background glow */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
-
-        <h2 className="text-3xl md:text-4xl font-heading font-black text-center uppercase tracking-tight mb-12">
-          Save hours on every application
+      <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-mono font-medium mb-3">
+          <span>Workflow Telemetry</span>
+        </div>
+        <h2 className="text-3xl sm:text-4xl font-heading font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          The Engineering Application Benchmark
         </h2>
+        <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 mt-3 leading-relaxed">
+          Comparing the cognitive drag of repetitive portal reentry against verified, automated schema dispatch.
+        </p>
+      </div>
 
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-4 relative z-10">
-          {/* Without Lazee Card */}
-          <div className="flex-1 w-full bg-white text-black border-[3px] border-black rounded-none p-4 sm:p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
-            <div className="w-32 h-32 relative shrink-0">
-              <Image
-                src="/sad-dev.png"
-                alt="Tired developer without Lazee"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <div className="flex-1 flex flex-col gap-4 w-full">
-              <div className="flex items-center gap-2 border-b-2 border-zinc-100 pb-2">
-                <span className="text-xs font-black uppercase bg-zinc-100 px-2.5 py-1 text-zinc-500 rounded-none">
-                  Without Lazee
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch max-w-5xl mx-auto">
+        {/* Left Column: Manual Portal Tax */}
+        <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-950 p-6 sm:p-8 flex flex-col justify-between shadow-xs">
+          <div>
+            <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-900 mb-6">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-wider text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-1.5">
+                  <AlertTriangle className="size-3.5" />
+                  Manual Portal Friction
                 </span>
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mt-1">
+                  Repetitive Form Grunt Work
+                </h3>
               </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-bold text-zinc-500">
-                  Apply to 10 jobs
+              <div className="text-right">
+                <span className="text-2xl sm:text-3xl font-mono font-bold text-rose-600 dark:text-rose-500">
+                  ~22m
                 </span>
-                <span className="text-4xl font-black text-red-500 tracking-tight">
-                  40 <span className="text-lg font-bold">minutes</span>
-                </span>
+                <span className="block text-[11px] text-zinc-400 font-mono">per application</span>
               </div>
-              <ul className="flex flex-col gap-2.5">
-                {painPoints.map((point, i) => (
-                  <motion.li
-                    key={i}
-                    animate={{
-                      opacity: [0, 0, 1, 1, 0, 0],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      times: [0, i * 0.12, i * 0.12 + 0.08, 0.8, 0.9, 1],
-                    }}
-                    className="flex items-center gap-3"
-                  >
-                    <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-red-50 border-2 border-red-200">
-                      <X className="w-3.5 h-3.5 text-red-500" strokeWidth={3} />
-                    </div>
-                    <span className="font-bold text-sm text-zinc-600">
-                      {point}
-                    </span>
-                  </motion.li>
-                ))}
-              </ul>
             </div>
+
+            <ul className="space-y-3.5">
+              {manualFrictions.map((point, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <div className="size-4 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 mt-0.5 border border-rose-200 dark:border-rose-900">
+                    <X className="size-2.5" strokeWidth={3} />
+                  </div>
+                  <span className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-normal">
+                    {point}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Central Arrow Separator */}
-          <div className="flex shrink-0 items-center justify-center w-12 h-12 bg-orange-500 border-[3px] border-black rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white transform rotate-90 lg:rotate-0 my-2 lg:my-0">
-            <ArrowRight className="w-6 h-6 animate-pulse" strokeWidth={3} />
+          <div className="mt-8 pt-4 border-t border-zinc-100 dark:border-zinc-900 flex items-center justify-between text-xs text-zinc-500 font-mono">
+            <span>Result: Candidate fatigue & slow pipeline</span>
+            <span className="text-rose-600 font-semibold">1-3 jobs/day</span>
+          </div>
+        </div>
+
+        {/* Right Column: With Lazee */}
+        <div className="rounded-2xl border border-orange-500/30 dark:border-orange-500/20 bg-gradient-to-b from-orange-500/[0.03] to-transparent dark:from-orange-500/[0.04] p-6 sm:p-8 flex flex-col justify-between shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10">
+            <div className="flex items-center justify-between pb-4 border-b border-zinc-200/80 dark:border-zinc-800 mb-6">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-wider text-orange-600 dark:text-orange-400 font-semibold flex items-center gap-1.5">
+                  <Zap className="size-3.5" />
+                  Lazee Engine
+                </span>
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mt-1">
+                  Deterministic Schema Automation
+                </h3>
+              </div>
+              <div className="text-right">
+                <span className="text-2xl sm:text-3xl font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                  &lt;30s
+                </span>
+                <span className="block text-[11px] text-zinc-400 font-mono">verify & submit</span>
+              </div>
+            </div>
+
+            <ul className="space-y-3.5">
+              {automatedBenefits.map((benefit, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <div className="size-4 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-200 dark:border-emerald-800">
+                    <Check className="size-2.5" strokeWidth={3} />
+                  </div>
+                  <span className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 font-medium leading-normal">
+                    {benefit}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* With Lazee Card */}
-          <div className="flex-1 w-full bg-white text-black border-[3px] border-black rounded-none p-4 sm:p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
-            {/* Sparkles visual decoration */}
-            <div className="w-32 h-32 relative shrink-0">
-              <Image
-                src="/happy-dev.png"
-                alt="Excited developer with Lazee"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <div className="flex-1 flex flex-col gap-4 w-full">
-              <div className="flex items-center gap-2 border-b-2 border-zinc-100 pb-2">
-                <span className="text-xs font-black uppercase bg-orange-50 px-2.5 py-1 text-orange-500 rounded-none">
-                  With Lazee
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-bold text-orange-500">
-                  Apply to 10 jobs
-                </span>
-                <span className="text-4xl font-black text-orange-500 tracking-tight">
-                  4 <span className="text-lg font-bold">minutes</span>
-                </span>
-              </div>
-              <ul className="flex flex-col gap-2.5">
-                {benefits.map((benefit, i) => (
-                  <motion.li
-                    key={i}
-                    animate={{
-                      opacity: [0, 0, 1, 1, 0, 0],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      times: [0, i * 0.12, i * 0.12 + 0.08, 0.8, 0.9, 1],
-                    }}
-                    className="flex items-center gap-3"
-                  >
-                    <div className="flex size-5 shrink-0 items-center justify-center rounded-none bg-green-50 border-2 border-green-200">
-                      <Check
-                        className="w-3.5 h-3.5 text-green-600"
-                        strokeWidth={3}
-                      />
-                    </div>
-                    <span className="font-bold text-sm text-zinc-700">
-                      {benefit}
-                    </span>
-                  </motion.li>
-                ))}
-              </ul>
-            </div>
+          <div className="mt-8 pt-4 border-t border-zinc-200/80 dark:border-zinc-800 flex items-center justify-between text-xs text-zinc-500 font-mono relative z-10">
+            <span>Result: Effortless job hunt velocity</span>
+            <span className="text-emerald-600 font-semibold">15-30 jobs/day</span>
           </div>
         </div>
       </div>

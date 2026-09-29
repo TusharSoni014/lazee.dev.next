@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "motion/react";
-import Image from "next/image";
 import { InstallModal } from "./install-modal";
 import { useBrowser } from "@/hooks/use-browser";
 import { FaChrome, FaFirefox } from "react-icons/fa";
@@ -14,49 +13,72 @@ export function FooterCtaSection() {
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className="w-full mb-12"
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="w-full my-12 sm:my-20"
     >
-      <div className="w-full bg-[#1c0f08] bg-gradient-to-br from-[#170a04] via-[#2c1305] to-[#0e0501] border-[3px] border-black rounded-none p-6 sm:p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
-        {/* Glow decoration */}
-        <div className="absolute top-0 left-0 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="w-full rounded-3xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-950 text-white p-8 sm:p-12 lg:p-16 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl">
+        {/* Ambient Warm Glow */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-orange-600/15 rounded-full blur-3xl pointer-events-none" />
 
         {/* Content (Left) */}
         <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4 relative z-10">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-black uppercase tracking-tight leading-none">
-            Ready to stop <br className="hidden sm:inline" />
-            filling forms?
+          <span className="text-xs font-mono font-medium px-2.5 py-1 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20">
+            Start in 30 Seconds
+          </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold tracking-tight text-white leading-[1.12]">
+            Reclaim your focus. <br className="hidden sm:inline" />
+            Stop retyping the same resume 50 times.
           </h2>
-          <p className="text-zinc-300 text-base sm:text-lg font-bold leading-relaxed max-w-md">
-            Join 2,000+ developers saving hours every week. Let AI do the grinding.
+          <p className="text-zinc-400 text-sm sm:text-base leading-relaxed max-w-xl">
+            Join 2,400+ software engineers automating tedious ATS form reentry. Native schema mapping, contextual answer synthesis, and 100% candidate control.
           </p>
-          <div className="flex flex-col items-center md:items-start gap-2 mt-4 w-full">
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 mt-4 w-full sm:w-auto">
             <InstallModal>
-              <button className="flex h-14 w-full max-w-[320px] items-center justify-center border-2 border-black bg-[#ff6b00] hover:bg-[#ff8533] px-6 text-sm sm:text-base font-black uppercase text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer gap-2">
+              <button className="h-12 w-full sm:w-auto min-w-[240px] px-6 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm shadow-[0_1px_2px_rgba(0,0,0,0.05),0_8px_16px_-4px_rgba(234,88,12,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer">
                 {isFirefox ? (
-                  <FaFirefox size={18} className="text-white shrink-0" />
+                  <FaFirefox className="size-4 shrink-0" />
                 ) : (
-                  <FaChrome size={18} className="text-white shrink-0" />
+                  <FaChrome className="size-4 shrink-0" />
                 )}
-                <span>Add to {isFirefox ? "Firefox" : "Chrome"} — It's Free</span>
+                <span>Add to {isFirefox ? "Firefox" : "Chrome"} — It&apos;s Free</span>
               </button>
             </InstallModal>
-            <span className="text-[10px] sm:text-xs font-bold text-zinc-400 tracking-wider">
+
+            <span className="text-xs text-zinc-500 font-mono sm:ml-2">
               No credit card required
             </span>
           </div>
         </div>
 
-        {/* Mascot (Right) */}
-        <div className="w-48 h-48 sm:w-60 sm:h-60 relative shrink-0 z-10 flex items-center justify-center">
-          <div className="absolute inset-0 bg-orange-500/10 rounded-full blur-2xl -z-10" />
-          <Image
-            src="/ready-to-stop.png"
-            alt="Relaxed developer mascot"
-            fill
-            className="object-contain transform scale-110"
-          />
+        {/* Right Status Card */}
+        <div className="w-full md:w-72 rounded-2xl border border-zinc-800 bg-zinc-900/80 p-5 shrink-0 z-10 font-mono text-xs space-y-3">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+            <span className="text-zinc-400">Extension Engine</span>
+            <span className="flex items-center gap-1.5 text-emerald-400 text-[11px]">
+              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Active
+            </span>
+          </div>
+          <div className="space-y-2 text-zinc-300 text-[11px]">
+            <div className="flex justify-between">
+              <span className="text-zinc-500">Greenhouse:</span>
+              <span className="text-emerald-400">Supported</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-zinc-500">Lever / Ashby:</span>
+              <span className="text-emerald-400">Supported</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-zinc-500">Workday ATS:</span>
+              <span className="text-emerald-400">Supported</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-zinc-500">Free Credits:</span>
+              <span className="text-orange-400 font-semibold">200 / Month</span>
+            </div>
+          </div>
         </div>
       </div>
     </motion.section>
