@@ -59,8 +59,8 @@ const MONTH =
   "(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)";
 
 const DATE_RANGE_RE = new RegExp(
-  `(${MONTH}\\.?\\s+\\d{4})\\s*[–—\\-to]+\\s*(${MONTH}\\.?\\s+\\d{4}|Present|Current|Now)`,
-  "gi",
+  `((?:${MONTH}\\.?\\s+)?\\d{4})\\s*[–—\\-to]+\\s*((?:${MONTH}\\.?\\s+)?\\d{4}|Present|Current|Now)`,
+  "i",
 );
 
 const EMAIL_RE = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g;
@@ -300,30 +300,25 @@ function parseSkills(section: string): ParsedField<string[]> | undefined {
 }
 
 function parseMonthYear(value: string): string | undefined {
-  const match = value.match(
+  const matchWithMonth = value.match(
     new RegExp(`(${MONTH})\\.?\\s+(\\d{4})`, "i"),
   );
-  if (!match) return undefined;
+  if (matchWithMonth) {
+    const monthName = matchWithMonth[1].slice(0, 3).toLowerCase();
+    const monthMap: Record<string, string> = {
+      jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
+      jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12",
+    };
+    const month = monthMap[monthName.slice(0, 3)];
+    if (month) return `${matchWithMonth[2]}-${month}-01`;
+  }
+  
+  const yearMatch = value.match(/\b(\d{4})\b/);
+  if (yearMatch) {
+    return `${yearMatch[1]}-01-01`;
+  }
 
-  const monthName = match[1].slice(0, 3).toLowerCase();
-  const monthMap: Record<string, string> = {
-    jan: "01",
-    feb: "02",
-    mar: "03",
-    apr: "04",
-    may: "05",
-    jun: "06",
-    jul: "07",
-    aug: "08",
-    sep: "09",
-    oct: "10",
-    nov: "11",
-    dec: "12",
-  };
-
-  const month = monthMap[monthName.slice(0, 3)];
-  if (!month) return undefined;
-  return `${match[2]}-${month}-01`;
+  return undefined;
 }
 
 function parseDateRange(rangeText: string): {
@@ -331,12 +326,7 @@ function parseDateRange(rangeText: string): {
   endDate?: string;
   isCurrent?: boolean;
 } {
-  const match = rangeText.match(
-    new RegExp(
-      `(${MONTH}\\.?\\s+\\d{4})\\s*[–—\\-to]+\\s*(${MONTH}\\.?\\s+\\d{4}|Present|Current|Now)`,
-      "i",
-    ),
-  );
+  const match = rangeText.match(DATE_RANGE_RE);
   if (!match) return {};
 
   const startDate = parseMonthYear(match[1]);
@@ -345,24 +335,6 @@ function parseDateRange(rangeText: string): {
   const endDate = isCurrent ? undefined : parseMonthYear(endRaw);
 
   return { startDate, endDate, isCurrent };
-}
-
-function splitByDateRanges(section: string): Array<{ body: string; range: string }> {
-  const chunks: Array<{ body: string; range: string }> = [];
-  let lastIndex = 0;
-
-  for (const match of section.matchAll(DATE_RANGE_RE)) {
-    const index = match.index ?? 0;
-    const range = match[0];
-    const body = section.slice(lastIndex, index).trim();
-    if (body) chunks.push({ body, range });
-    lastIndex = index + range.length;
-  }
-
-  const tail = section.slice(lastIndex).trim();
-  if (tail) chunks.push({ body: tail, range: "" });
-
-  return chunks;
 }
 
 function parseRoleCompany(body: string): Pick<ParsedExperience, "companyName" | "role"> {
@@ -475,10 +447,29 @@ function parseProjects(section: string): ParsedField<ParsedProject[]> | undefine
   let currentDesc: string[] = [];
 
   for (let line of lines) {
-    const cleanedLine = line.replace(/\*+/g, "").trim();
+    let extractedBullet = "";
+    let processedLine = line;
+
+    if (/^[-•*]/.test(processedLine.trim()) && processedLine.includes("|")) {
+      const pipeIndex = processedLine.indexOf("|");
+      const beforePipe = processedLine.slice(0, pipeIndex);
+      let splitPoint = beforePipe.lastIndexOf(". ");
+      if (splitPoint === -1) splitPoint = beforePipe.lastIndexOf("  ");
+
+      if (splitPoint !== -1) {
+        extractedBullet = processedLine.slice(0, splitPoint + 1);
+        processedLine = processedLine.slice(splitPoint + 1).trim();
+      }
+    }
+
+    if (extractedBullet) {
+      currentDesc.push(extractedBullet.trim());
+    }
+
+    const cleanedLine = processedLine.replace(/\*+/g, "").trim();
     const isHeader =
       cleanedLine.includes("|") &&
-      !/^[-•*]/.test(line.trim()) &&
+      !/^[-•*]/.test(processedLine.trim()) &&
       cleanedLine.length < 150;
 
     if (isHeader) {
@@ -488,7 +479,7 @@ function parseProjects(section: string): ParsedField<ParsedProject[]> | undefine
       }
 
       const titleMatch = cleanedLine.match(/^(.+?)\s*\|\s*(.+?)(?:$|\n|\|)/);
-      const urls = extractUrls(line);
+      const urls = extractUrls(processedLine);
 
       if (titleMatch) {
         currentProject = {
@@ -508,9 +499,9 @@ function parseProjects(section: string): ParsedField<ParsedProject[]> | undefine
       currentDesc = [];
     } else {
       if (currentProject) {
-        currentDesc.push(line);
-      } else if (!/^[-•*]/.test(line.trim()) && currentDesc.length === 0) {
-        const urls = extractUrls(line);
+        currentDesc.push(processedLine);
+      } else if (!/^[-•*]/.test(processedLine.trim()) && currentDesc.length === 0) {
+        const urls = extractUrls(processedLine);
         currentProject = {
           name: cleanedLine,
           activeLink: urls[0] || undefined,
@@ -532,34 +523,88 @@ function parseProjects(section: string): ParsedField<ParsedProject[]> | undefine
 function parseEducations(section: string): ParsedField<ParsedEducation[]> | undefined {
   if (!section.trim()) return undefined;
 
-  const chunks = splitByDateRanges(section);
-  const educations: ParsedEducation[] = [];
+  const lines = section.split("\n");
+  const entries: ParsedEducation[] = [];
+  let currentEdu: ParsedEducation | null = null;
+  let currentDesc: string[] = [];
 
-  for (const chunk of chunks) {
-    const dateInfo = chunk.range ? parseDateRange(chunk.range) : {};
-    const body = chunk.body.replace(/\*+/g, "").trim();
-    if (!body) continue;
+  for (let line of lines) {
+    const match = line.match(DATE_RANGE_RE);
+    if (match) {
+      if (currentEdu) {
+        if (currentDesc.length > 0 && currentDesc[0].includes("|")) {
+          const degreeLine = currentDesc.shift()!;
+          const pipeParts = degreeLine.split("|");
+          currentEdu.degree = pipeParts[0].trim();
+          currentEdu.fieldOfStudy = pipeParts[1]?.trim() || undefined;
+        }
+        currentEdu.description = currentDesc.join("\n").trim();
+        entries.push(currentEdu);
+      }
 
-    const degreeMatch = body.match(/^(.+?),\s*(.+)$/);
-    educations.push({
-      schoolName: degreeMatch?.[2]?.trim() || body,
-      degree: degreeMatch?.[1]?.trim(),
-      ...dateInfo,
-    });
-  }
+      const dateStr = match[0];
+      const withoutDate = line.replace(DATE_RANGE_RE, "").trim();
+      let schoolNameFromPrevLine = "";
 
-  if (educations.length === 0) {
-    const lines = section
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-    for (const line of lines) {
-      educations.push({ schoolName: line.replace(/\*+/g, "").trim() });
+      if (currentDesc.length > 0) {
+        const prevLine = currentDesc[currentDesc.length - 1].trim();
+        if (!/^[-•*]/.test(prevLine) && prevLine.length < 80 && !withoutDate.includes("|")) {
+          schoolNameFromPrevLine = currentDesc.pop()!;
+        }
+      }
+
+      const fullHeader = schoolNameFromPrevLine
+        ? schoolNameFromPrevLine + " | " + withoutDate
+        : withoutDate;
+
+      let schoolName = fullHeader;
+      let degree: string | undefined = undefined;
+      let fieldOfStudy: string | undefined = undefined;
+
+      const pipeParts = fullHeader.split("|").map((s) => s.trim()).filter(Boolean);
+      if (pipeParts.length >= 2) {
+        schoolName = pipeParts[0];
+        degree = pipeParts.slice(1).join(" | ");
+      } else {
+        const commaParts = fullHeader.split(",").map((s) => s.trim()).filter(Boolean);
+        if (commaParts.length >= 2) {
+          degree = commaParts[0];
+          schoolName = commaParts.slice(1).join(", ");
+        }
+      }
+
+      currentEdu = {
+        schoolName: schoolName.replace(/^[-•*\s]+/, "").trim(),
+        degree,
+        fieldOfStudy,
+        ...parseDateRange(dateStr),
+      };
+      currentDesc = [];
+    } else {
+      if (currentEdu) {
+        currentDesc.push(line);
+      } else {
+        currentDesc.push(line);
+      }
     }
   }
 
-  if (educations.length === 0) return undefined;
-  return { value: educations, confidence: "medium" };
+  if (currentEdu) {
+    if (currentDesc.length > 0 && currentDesc[0].includes("|")) {
+      const degreeLine = currentDesc.shift()!;
+      const pipeParts = degreeLine.split("|");
+      currentEdu.degree = pipeParts[0].trim();
+      currentEdu.fieldOfStudy = pipeParts[1]?.trim() || undefined;
+    }
+    currentEdu.description = currentDesc.join("\n").trim();
+    entries.push(currentEdu);
+  }
+
+  if (entries.length === 0) return undefined;
+  return {
+    value: entries,
+    confidence: "medium",
+  };
 }
 
 export function parseResumeFromInspection(
