@@ -437,10 +437,10 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
         <Button
           type="button"
           onClick={addProject}
-          className="w-full h-11 bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400 rounded-xl font-medium text-sm flex items-center justify-center gap-2 mt-4 transition-all cursor-pointer shadow-none"
+          className="w-full h-11 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 hover:border-orange-500/50 dark:hover:border-orange-500/50 bg-zinc-50/50 dark:bg-zinc-900/30 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 text-zinc-600 dark:text-zinc-400 hover:text-orange-600 dark:hover:text-orange-400 text-xs font-medium transition-all flex items-center justify-center gap-2 mt-4 cursor-pointer"
         >
-          <Plus className="size-4" />
-          <span>Add Project</span>
+          <Plus className="w-4 h-4" />
+          Add Project
         </Button>
 
         <Modal

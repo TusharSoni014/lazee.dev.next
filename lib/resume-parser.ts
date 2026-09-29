@@ -366,145 +366,163 @@ function splitByDateRanges(section: string): Array<{ body: string; range: string
 }
 
 function parseRoleCompany(body: string): Pick<ParsedExperience, "companyName" | "role"> {
-  const pipeMatch = body.match(/(.+?)\*\|\s*(.+?)\*/);
-  if (pipeMatch) {
-    return {
-      companyName: pipeMatch[1].replace(/\*+/g, "").trim(),
-      role: pipeMatch[2].replace(/\*+/g, "").trim(),
-    };
-  }
-
-  const dashMatch = body.match(/^(.+?)\s*[—–-]\s*(.+)$/);
-  if (dashMatch) {
-    return {
-      companyName: dashMatch[1].replace(/\*+/g, "").trim(),
-      role: dashMatch[2].replace(/\*+/g, "").trim(),
-    };
-  }
-
-  const atMatch = body.match(/^(.+?)\s+at\s+(.+)$/i);
-  if (atMatch) {
-    return {
-      role: atMatch[1].replace(/\*+/g, "").trim(),
-      companyName: atMatch[2].replace(/\*+/g, "").trim(),
-    };
-  }
-
   const cleaned = body.replace(/\*+/g, "").trim();
-  return { companyName: cleaned };
+  let companyName = cleaned;
+  let role: string | undefined = undefined;
+
+  const pipeParts = cleaned.split("|").map((s) => s.trim()).filter(Boolean);
+  if (pipeParts.length >= 2) {
+    companyName = pipeParts[0];
+    role = pipeParts[1];
+  } else {
+    const dashMatch = cleaned.match(/^(.+?)\s*[—–-]\s*(.+?)(?:$|\n)/);
+    if (dashMatch) {
+      companyName = dashMatch[1];
+      role = dashMatch[2];
+    } else {
+      const atMatch = cleaned.match(/^(.+?)\s+at\s+(.+?)(?:$|\n)/i);
+      if (atMatch) {
+        role = atMatch[1];
+        companyName = atMatch[2];
+      }
+    }
+  }
+
+  if (companyName && companyName.length > 50) {
+    const sentences = companyName.split(". ");
+    const lastPart = sentences[sentences.length - 1].trim();
+    if (lastPart) {
+      companyName = lastPart;
+    } else {
+      const doubleSpace = companyName.split("  ");
+      const lastDoubleSpace = doubleSpace[doubleSpace.length - 1].trim();
+      if (lastDoubleSpace) {
+        companyName = lastDoubleSpace;
+      }
+    }
+  }
+
+  companyName = companyName.replace(/^[-•*\s]+/, "").trim();
+
+  return { companyName, role };
 }
 
 function parseExperiences(section: string): ParsedField<ParsedExperience[]> | undefined {
   if (!section.trim()) return undefined;
 
+  const lines = section.split("\n");
   const entries: ParsedExperience[] = [];
-  const chunks = splitByDateRanges(section);
+  let currentExp: ParsedExperience | null = null;
+  let currentDesc: string[] = [];
 
-  for (const chunk of chunks) {
-    const dateInfo = chunk.range ? parseDateRange(chunk.range) : {};
-    let body = chunk.body.trim();
+  for (let line of lines) {
+    const match = line.match(DATE_RANGE_RE);
+    if (match) {
+      if (currentExp) {
+        currentExp.description = currentDesc.join("\n").trim();
+        entries.push(currentExp);
+      }
 
-    const bulletLines: string[] = [];
-    const bodyLines = body.split("\n");
-    while (bodyLines.length > 0 && /^[-•*]/.test(bodyLines[0].trim())) {
-      bulletLines.push(
-        bodyLines.shift()!.replace(/^[-•*]\s*/, "").replace(/\*+/g, "").trim(),
-      );
+      const dateStr = match[0];
+      const withoutDate = line.replace(DATE_RANGE_RE, "").trim();
+
+      let companyNameFromPrevLine = "";
+      if (currentDesc.length > 0) {
+        const prevLine = currentDesc[currentDesc.length - 1].trim();
+        if (!/^[-•*]/.test(prevLine) && prevLine.length < 80 && !withoutDate.includes("|")) {
+          companyNameFromPrevLine = currentDesc.pop()!;
+        }
+      }
+
+      const fullHeader = companyNameFromPrevLine
+        ? companyNameFromPrevLine + " | " + withoutDate
+        : withoutDate;
+
+      const { companyName, role } = parseRoleCompany(fullHeader);
+      currentExp = {
+        companyName: companyName || fullHeader,
+        role,
+        ...parseDateRange(dateStr),
+      };
+      currentDesc = [];
+    } else {
+      if (currentExp) {
+        currentDesc.push(line);
+      } else {
+        currentDesc.push(line);
+      }
     }
-    body = bodyLines.join("\n").trim();
-
-    const { companyName, role } = parseRoleCompany(body);
-    if (!companyName || companyName.length < 2) continue;
-
-    const inlineBullets = body
-      .split("\n")
-      .filter((line) => line.trim().startsWith("-") || line.trim().startsWith("•"))
-      .map((line) => line.replace(/^[-•*]\s*/, "").replace(/\*+/g, "").trim())
-      .filter(Boolean);
-
-    const description = [...bulletLines, ...inlineBullets].filter(Boolean).join("\n");
-
-    const entry: ParsedExperience = {
-      companyName,
-      role,
-      ...dateInfo,
-      description: description || undefined,
-    };
-
-    if (
-      bulletLines.length > 0 &&
-      entries.length > 0 &&
-      !entries[entries.length - 1].description
-    ) {
-      entries[entries.length - 1].description = bulletLines.join("\n");
-    }
-
-    entries.push(entry);
   }
 
-  if (entries.length === 0) {
-    const fallbackLines = section
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-
-    for (const line of fallbackLines) {
-      const dateInfo = parseDateRange(line);
-      if (!dateInfo.startDate && !dateInfo.isCurrent) continue;
-      const withoutDates = line.replace(DATE_RANGE_RE, "").trim();
-      const { companyName, role } = parseRoleCompany(withoutDates);
-      if (companyName) entries.push({ companyName, role, ...dateInfo });
-    }
+  if (currentExp) {
+    currentExp.description = currentDesc.join("\n").trim();
+    entries.push(currentExp);
   }
 
   if (entries.length === 0) return undefined;
   return {
     value: entries,
-    confidence: entries.length > 1 ? "medium" : "low",
+    confidence: "medium",
   };
 }
 
 function parseProjects(section: string): ParsedField<ParsedProject[]> | undefined {
   if (!section.trim()) return undefined;
 
-  const blocks = section
-    .split(/\n(?=[A-Z0-9][^\n]{2,40}\s*\*\|)/)
-    .map((block) => block.trim())
-    .filter(Boolean);
-
+  const lines = section.split("\n");
   const projects: ParsedProject[] = [];
+  let currentProject: ParsedProject | null = null;
+  let currentDesc: string[] = [];
 
-  for (const block of blocks) {
-    const titleMatch = block.match(/^(.+?)\s*\*\|\s*(.+?)\*(?:\s|$)/);
-    const urls = extractUrls(block);
-    const description = block
-      .split("\n")
-      .slice(1)
-      .join("\n")
-      .replace(/\*+/g, "")
-      .trim();
+  for (let line of lines) {
+    const cleanedLine = line.replace(/\*+/g, "").trim();
+    const isHeader =
+      cleanedLine.includes("|") &&
+      !/^[-•*]/.test(line.trim()) &&
+      cleanedLine.length < 150;
 
-    if (titleMatch) {
-      projects.push({
-        name: titleMatch[1].replace(/\*+/g, "").trim(),
-        stacks: titleMatch[2]
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
-        activeLink: urls[0],
-        description: description || undefined,
-      });
-      continue;
+    if (isHeader) {
+      if (currentProject) {
+        currentProject.description = currentDesc.join("\n").trim();
+        projects.push(currentProject);
+      }
+
+      const titleMatch = cleanedLine.match(/^(.+?)\s*\|\s*(.+?)(?:$|\n|\|)/);
+      const urls = extractUrls(line);
+
+      if (titleMatch) {
+        currentProject = {
+          name: titleMatch[1].trim(),
+          stacks: titleMatch[2]
+            .split(",")
+            .map((i) => i.trim())
+            .filter(Boolean),
+          activeLink: urls[0] || undefined,
+        };
+      } else {
+        currentProject = {
+          name: cleanedLine,
+          activeLink: urls[0] || undefined,
+        };
+      }
+      currentDesc = [];
+    } else {
+      if (currentProject) {
+        currentDesc.push(line);
+      } else if (!/^[-•*]/.test(line.trim()) && currentDesc.length === 0) {
+        const urls = extractUrls(line);
+        currentProject = {
+          name: cleanedLine,
+          activeLink: urls[0] || undefined,
+        };
+        currentDesc = [];
+      }
     }
+  }
 
-    const firstLine = block.split("\n")[0]?.trim();
-    if (firstLine) {
-      projects.push({
-        name: firstLine.replace(/\*+/g, "").trim(),
-        activeLink: urls[0],
-        description: description || undefined,
-      });
-    }
+  if (currentProject) {
+    currentProject.description = currentDesc.join("\n").trim();
+    projects.push(currentProject);
   }
 
   if (projects.length === 0) return undefined;
