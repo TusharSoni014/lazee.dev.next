@@ -4,7 +4,8 @@ import { Check } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Sign In",
-  description: "Sign in to Lazee.dev to sync your profile and browser extension.",
+  description:
+    "Sign in to Lazee.dev to sync your profile and browser extension.",
 };
 
 export default function LoginPage() {
@@ -27,7 +28,9 @@ export default function LoginPage() {
           </h1>
 
           <p className="mt-4 text-zinc-400 text-sm sm:text-base leading-relaxed font-sans">
-            Sync your profile once. Lazee automatically maps your engineering background, custom resumes, and project metrics across Greenhouse, Lever, Ashby, and Workday.
+            Sync your profile once. Lazee automatically maps your engineering
+            background, custom resumes, and project metrics across Greenhouse,
+            Lever, Ashby, and Workday.
           </p>
 
           <div className="mt-8 space-y-3.5">
@@ -43,19 +46,14 @@ export default function LoginPage() {
               </div>
               <span>Multiple tailored resumes and project answers</span>
             </div>
-            <div className="flex items-center gap-3 text-sm text-zinc-300">
-              <div className="size-5 rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center shrink-0">
-                <Check className="size-3" />
-              </div>
-              <span>Encrypted profile vault with local client-side storage</span>
-            </div>
           </div>
         </div>
 
         {/* Quiet Testimonial */}
         <div className="relative z-10 pt-8 border-t border-zinc-800/80 max-w-lg">
           <p className="text-sm text-zinc-300 leading-relaxed italic">
-            &ldquo;Lazee cut down my application time from 25 minutes per job to literally 10 seconds. Landed 4 interviews in my first week.&rdquo;
+            &ldquo;Lazee cut down my application time from 25 minutes per job to
+            literally 10 seconds. Landed 4 interviews in my first week.&rdquo;
           </p>
           <div className="mt-3 text-xs text-zinc-400">
             <span className="font-medium text-zinc-200">Alex Chen</span>

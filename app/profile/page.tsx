@@ -3,7 +3,14 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import ProfileForm from "./profile-form";
 import { SignOutButton } from "@/components/SignOutButton";
-import { Lock, FileText, Sparkles, Globe, ArrowRight, UserCheck } from "lucide-react";
+import {
+  Lock,
+  FileText,
+  Sparkles,
+  Globe,
+  ArrowRight,
+  UserCheck,
+} from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -11,7 +18,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Candidate Profile",
-  description: "Manage your credentials, resumes, and extension sync settings on Lazee.dev.",
+  description:
+    "Manage your credentials, resumes, and extension sync settings on Lazee.dev.",
 };
 
 export default async function ProfilePage({
@@ -65,7 +73,8 @@ export default async function ProfilePage({
                         Personal Details & Experience
                       </p>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                        Securely store your contact info, employment history, and education for 1-click autofill.
+                        Securely store your contact info, employment history,
+                        and education for 1-click autofill.
                       </p>
                     </div>
                   </div>
@@ -79,7 +88,8 @@ export default async function ProfilePage({
                         Resume Vault
                       </p>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                        Upload and manage multiple tailored resumes. Choose the active one during autofills.
+                        Upload and manage multiple tailored resumes. Choose the
+                        active one during autofills.
                       </p>
                     </div>
                   </div>
@@ -93,7 +103,11 @@ export default async function ProfilePage({
                         Shareable Public Profile
                       </p>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                        Claim a custom <span className="font-mono text-orange-600 dark:text-orange-400">/u/username</span> link to showcase your portfolio to hiring managers.
+                        Claim a custom{" "}
+                        <span className="font-mono text-orange-600 dark:text-orange-400">
+                          /u/username
+                        </span>{" "}
+                        link to showcase your portfolio to hiring managers.
                       </p>
                     </div>
                   </div>
@@ -107,7 +121,8 @@ export default async function ProfilePage({
                         Custom AI Guidance
                       </p>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                        Define personal directives on how AI answers open-ended screening questions.
+                        Define personal directives on how AI answers open-ended
+                        screening questions.
                       </p>
                     </div>
                   </div>
@@ -146,9 +161,12 @@ export default async function ProfilePage({
       break; // Success, exit retry loop
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code;
-      const isTransient = code === "ECONNRESET" || code === "ETIMEDOUT" || code === "EPIPE";
+      const isTransient =
+        code === "ECONNRESET" || code === "ETIMEDOUT" || code === "EPIPE";
       if (isTransient && attempt < maxRetries) {
-        console.warn(`Profile DB query failed (attempt ${attempt}/${maxRetries}): ${code}. Retrying...`);
+        console.warn(
+          `Profile DB query failed (attempt ${attempt}/${maxRetries}): ${code}. Retrying...`,
+        );
         await new Promise((r) => setTimeout(r, 500 * attempt));
         continue;
       }
@@ -171,13 +189,14 @@ export default async function ProfilePage({
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-400 text-xs font-medium mb-3">
             <span>Candidate Workspace</span>
             <span className="text-zinc-300 dark:text-zinc-700">•</span>
-            <span>Profile Vault</span>
+            <span>Profile</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-heading font-bold tracking-tight text-zinc-900 dark:text-white">
             Profile &amp; Preferences
           </h1>
           <p className="mt-2 max-w-xl text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans">
-            Manage your credentials, master resumes, work experience, and extension synchronization settings.
+            Manage your credentials, master resumes, work experience, and
+            extension synchronization settings.
           </p>
         </div>
 

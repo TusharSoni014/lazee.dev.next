@@ -20,7 +20,9 @@ export function DashboardPreviewSection() {
   const [activeTab, setActiveTab] = useState<
     "profile" | "resumes" | "ai-notes" | "settings"
   >("profile");
-  const [selectedResume, setSelectedResume] = useState<"platform" | "fullstack">("platform");
+  const [selectedResume, setSelectedResume] = useState<
+    "platform" | "fullstack"
+  >("platform");
 
   const tabs = [
     { id: "profile", label: "Profile", icon: User },
@@ -63,7 +65,7 @@ export function DashboardPreviewSection() {
         <div className="flex-1 flex flex-col items-start gap-4 sm:gap-5 order-1 lg:order-2 w-full">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20 text-xs font-mono font-medium">
             <span className="size-1.5 rounded-full bg-orange-500" />
-            <span>Candidate Record Vault</span>
+            <span>Candidate Record</span>
           </div>
           <h3 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-bold leading-[1.15] text-white tracking-tight">
             All your career credentials. <br className="hidden sm:inline" />
@@ -72,7 +74,7 @@ export function DashboardPreviewSection() {
           <p className="text-zinc-400 text-xs sm:text-sm sm:leading-relaxed max-w-lg">
             No more fragmented documents or copying between multiple text files.
             Store your verified work history, custom resumes, and prompt
-            instructions once in your encrypted vault.
+            instructions once in your profile.
           </p>
 
           <ul className="space-y-2.5 sm:space-y-3 w-full mt-1 sm:mt-2">
@@ -97,7 +99,7 @@ export function DashboardPreviewSection() {
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-orange-500 animate-pulse" />
               <span className="text-xs font-bold font-mono tracking-tight text-white">
-                Vault Console
+                Profile Console
               </span>
             </div>
             <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 font-mono">
@@ -122,7 +124,9 @@ export function DashboardPreviewSection() {
                   }`}
                 >
                   <Icon size={14} className="shrink-0" />
-                  <span className="truncate max-w-full text-[10px]">{item.label}</span>
+                  <span className="truncate max-w-full text-[10px]">
+                    {item.label}
+                  </span>
                 </button>
               );
             })}
@@ -134,7 +138,7 @@ export function DashboardPreviewSection() {
               <div className="flex items-center gap-1.5 mb-5 pb-3 border-b border-zinc-800/60">
                 <span className="size-2 rounded-full bg-orange-500" />
                 <span className="text-[11px] font-bold tracking-tight text-white">
-                  Vault Console
+                  Profile Details
                 </span>
               </div>
               <div className="flex flex-col gap-1">
@@ -342,7 +346,10 @@ export function DashboardPreviewSection() {
                         <span className="text-orange-400 font-mono truncate">
                           lazee.dev/u/devin
                         </span>
-                        <ExternalLink size={12} className="text-zinc-500 shrink-0" />
+                        <ExternalLink
+                          size={12}
+                          className="text-zinc-500 shrink-0"
+                        />
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -370,7 +377,7 @@ export function DashboardPreviewSection() {
                 onClick={handleAction}
                 className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium transition-all shadow-xs cursor-pointer shrink-0"
               >
-                Open Vault
+                Visit Profile
               </button>
             </div>
           </div>

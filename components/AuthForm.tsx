@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { Loader2, ArrowRight, ArrowLeft, Mail, Sparkles, ShieldCheck } from "lucide-react";
+import {
+  Loader2,
+  ArrowRight,
+  ArrowLeft,
+  Mail,
+  Sparkles,
+  ShieldCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
@@ -173,12 +180,17 @@ export default function AuthForm() {
                     className="w-full h-11 pl-10 pr-3.5 bg-zinc-50/60 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-900 dark:text-white placeholder:text-zinc-400 text-sm font-medium transition-all focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
-                {email && isEmailValid && !email.toLowerCase().endsWith("@gmail.com") && (
-                  <div className="flex items-start gap-2 mt-2 p-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-400 text-xs">
-                    <Sparkles className="size-3.5 shrink-0 mt-0.5" />
-                    <span>Note: Only @gmail.com accounts are eligible for free signup credits.</span>
-                  </div>
-                )}
+                {email &&
+                  isEmailValid &&
+                  !email.toLowerCase().endsWith("@gmail.com") && (
+                    <div className="flex items-start gap-2 mt-2 p-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-400 text-xs">
+                      <Sparkles className="size-3.5 shrink-0 mt-0.5" />
+                      <span>
+                        Note: Only @gmail.com accounts are eligible for free
+                        signup credits.
+                      </span>
+                    </div>
+                  )}
               </div>
 
               {/* Submit Button */}
@@ -245,7 +257,8 @@ export default function AuthForm() {
               {email}
             </div>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-3 max-w-xs font-sans">
-              Click the link in the email to log in instantly. It expires in 10 minutes.
+              Click the link in the email to log in instantly. It expires in 10
+              minutes.
             </p>
 
             <button
@@ -266,7 +279,7 @@ export default function AuthForm() {
       {/* Security Guarantee Note */}
       <div className="mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400">
         <ShieldCheck className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-        <span>Client-side encrypted profile vault</span>
+        <span>Client-side encrypted profile</span>
       </div>
     </div>
   );

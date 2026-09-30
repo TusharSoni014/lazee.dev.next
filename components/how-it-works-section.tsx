@@ -10,18 +10,22 @@ export function HowItWorksSection() {
       title: "Establish Your Candidate Record",
       badge: "Single Source of Truth",
       description:
-        "Input your work history, skills, links, and multiple resume variants once in the local-first profile vault.",
+        "Input your work history, skills, links, and multiple resume variants once in profile.",
       icon: Database,
       preview: (
         <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/60 p-3.5 space-y-2 font-mono text-[11px]">
           <div className="flex items-center justify-between pb-2 border-b border-zinc-200/80 dark:border-zinc-800 text-zinc-400">
             <span>profile_schema.json</span>
-            <span className="text-emerald-600 dark:text-emerald-400 font-medium">Valid</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+              Valid
+            </span>
           </div>
           <div className="space-y-1 text-zinc-600 dark:text-zinc-300">
             <div className="flex justify-between">
               <span className="text-zinc-400">ident:</span>
-              <span className="text-zinc-800 dark:text-zinc-200">Marcus Vance</span>
+              <span className="text-zinc-800 dark:text-zinc-200">
+                Marcus Vance
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-zinc-400">role:</span>
@@ -29,7 +33,9 @@ export function HowItWorksSection() {
             </div>
             <div className="flex justify-between">
               <span className="text-zinc-400">resumes:</span>
-              <span className="text-orange-600 font-medium">3 variants loaded</span>
+              <span className="text-orange-600 font-medium">
+                3 variants loaded
+              </span>
             </div>
           </div>
         </div>
@@ -46,7 +52,9 @@ export function HowItWorksSection() {
         <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/60 p-3.5 space-y-2 font-mono text-[11px]">
           <div className="flex items-center justify-between pb-2 border-b border-zinc-200/80 dark:border-zinc-800 text-zinc-400">
             <span>ats_scanner</span>
-            <span className="text-emerald-600 dark:text-emerald-400 font-medium">Ashby Detected</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+              Ashby Detected
+            </span>
           </div>
           <div className="space-y-1 text-zinc-600 dark:text-zinc-300">
             <div className="flex justify-between items-center">
@@ -55,7 +63,9 @@ export function HowItWorksSection() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-zinc-400">input#resume:</span>
-              <span className="text-emerald-600 text-[10px]">Auto-attached</span>
+              <span className="text-emerald-600 text-[10px]">
+                Auto-attached
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-zinc-400">textarea#open:</span>
@@ -76,7 +86,9 @@ export function HowItWorksSection() {
         <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/60 p-3.5 space-y-2 font-mono text-[11px]">
           <div className="flex items-center justify-between pb-2 border-b border-zinc-200/80 dark:border-zinc-800 text-zinc-400">
             <span>submission_pipeline</span>
-            <span className="text-emerald-600 dark:text-emerald-400 font-medium">Verified</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+              Verified
+            </span>
           </div>
           <div className="space-y-1.5 text-zinc-600 dark:text-zinc-300">
             <div className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded p-1.5 text-emerald-700 dark:text-emerald-400 flex items-center justify-between text-[10px]">
@@ -85,7 +97,9 @@ export function HowItWorksSection() {
             </div>
             <div className="flex justify-between text-[10px] text-zinc-400 pt-0.5">
               <span>Time saved: 21m 40s</span>
-              <span className="text-orange-600 font-semibold">Ready to Submit</span>
+              <span className="text-orange-600 font-semibold">
+                Ready to Submit
+              </span>
             </div>
           </div>
         </div>
@@ -110,7 +124,8 @@ export function HowItWorksSection() {
           How Lazee Dispatches Applications
         </h2>
         <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 mt-3 leading-relaxed">
-          A deterministic 3-stage process built for engineering workflows. No background bots spamming generic applications.
+          A deterministic 3-stage process built for engineering workflows. No
+          background bots spamming generic applications.
         </p>
       </div>
 
@@ -143,9 +158,7 @@ export function HowItWorksSection() {
                 </p>
               </div>
 
-              <div className="mt-auto pt-2">
-                {item.preview}
-              </div>
+              <div className="mt-auto pt-2">{item.preview}</div>
             </div>
           );
         })}

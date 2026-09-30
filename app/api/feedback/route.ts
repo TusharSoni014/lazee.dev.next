@@ -12,7 +12,7 @@ const DATABASE_ID = process.env.NOTION_FEEDBACK_DATABASE_ID;
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    const { name, email, type, message } = data;
+    const { name, email, type, message, source } = data;
 
     if (!message || !type) {
       return NextResponse.json(
@@ -28,6 +28,10 @@ export async function POST(req: NextRequest) {
         { status: 500 },
       );
     }
+
+    const descriptionContent = source
+      ? `[Source: ${source}]\n\n${message}`
+      : message;
 
     await notion.pages.create({
       parent: { database_id: DATABASE_ID },
@@ -53,7 +57,7 @@ export async function POST(req: NextRequest) {
           rich_text: [
             {
               text: {
-                content: message,
+                content: descriptionContent,
               },
             },
           ],
@@ -80,12 +84,12 @@ export async function POST(req: NextRequest) {
         await transporter.sendMail({
           from,
           to: "tusharsoni014@gmail.com",
-          subject: `New Feedback: [${type}] from ${name || "Anonymous"}`,
+          subject: `New Feedback: [${type}] from ${name || "Anonymous"}${source ? ` (${source})` : ""}`,
           text: `
 Name: ${name || "Anonymous"}
 Email: ${email || "anonymous@lazee.dev"}
 Feedback Type: ${type}
-
+${source ? `Source: ${source}\n` : ""}
 Description:
 ${message}
           `,
@@ -105,6 +109,14 @@ ${message}
       <td style="font-weight: bold; border-bottom: 1px solid #eee;">Type:</td>
       <td style="border-bottom: 1px solid #eee;"><span style="background: #e2e8f0; padding: 2px 6px; border-radius: 3px; font-size: 12px; font-weight: bold;">${type}</span></td>
     </tr>
+    ${
+      source
+        ? `<tr>
+      <td style="font-weight: bold; border-bottom: 1px solid #eee;">Source:</td>
+      <td style="border-bottom: 1px solid #eee;"><span style="background: #fed7aa; color: #9a3412; padding: 2px 6px; border-radius: 3px; font-size: 12px; font-weight: bold;">${source}</span></td>
+    </tr>`
+        : ""
+    }
   </table>
   <h3 style="border-bottom: 1px solid #eee; padding-bottom: 5px;">Description:</h3>
   <p style="white-space: pre-wrap; line-height: 1.5; background: #fdfdfd; padding: 15px; border: 1px solid #f0f0f0;">${message}</p>
