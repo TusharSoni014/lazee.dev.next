@@ -76,9 +76,9 @@ export function ComparisonSection() {
             </ul>
           </div>
 
-          <div className="mt-8 pt-4 border-t border-zinc-100 dark:border-zinc-900 flex items-center justify-between text-xs text-zinc-500 font-mono">
+          <div className="mt-8 pt-4 border-t border-zinc-100 dark:border-zinc-900 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500 font-mono">
             <span>Result: Candidate fatigue & slow pipeline</span>
-            <span className="text-rose-600 font-semibold">1-3 jobs/day</span>
+            <span className="text-rose-600 font-semibold shrink-0">1-3 jobs/day</span>
           </div>
         </div>
 
@@ -119,9 +119,9 @@ export function ComparisonSection() {
             </ul>
           </div>
 
-          <div className="mt-8 pt-4 border-t border-zinc-200/80 dark:border-zinc-800 flex items-center justify-between text-xs text-zinc-500 font-mono relative z-10">
+          <div className="mt-8 pt-4 border-t border-zinc-200/80 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500 font-mono relative z-10">
             <span>Result: Effortless job hunt velocity</span>
-            <span className="text-emerald-600 font-semibold">15-30 jobs/day</span>
+            <span className="text-emerald-600 font-semibold shrink-0">15-30 jobs/day</span>
           </div>
         </div>
       </div>

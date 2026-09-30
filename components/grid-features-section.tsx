@@ -348,9 +348,9 @@ export function GridFeaturesSection() {
           </div>
 
           <div className="mt-6 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-900/50 p-3.5 space-y-2 font-mono text-xs">
-            <div className="flex items-center justify-between pb-2 border-b border-zinc-200/60 dark:border-zinc-800 text-[11px] text-zinc-500">
-              <span className="text-zinc-800 dark:text-zinc-200 font-medium">To: hiring-team@stripe.com</span>
-              <span className="text-orange-600 dark:text-orange-400 font-medium">Staff Platform Candidate</span>
+            <div className="flex flex-wrap items-center justify-between gap-1.5 pb-2 border-b border-zinc-200/60 dark:border-zinc-800 text-[11px] text-zinc-500">
+              <span className="text-zinc-800 dark:text-zinc-200 font-medium truncate">To: hiring-team@stripe.com</span>
+              <span className="text-orange-600 dark:text-orange-400 font-medium shrink-0">Staff Platform Candidate</span>
             </div>
             <p className="text-zinc-600 dark:text-zinc-300 text-[11px] leading-relaxed">
               &quot;Hi Alex, saw your opening for Staff Platform Engineer. In my current role I scaled our Raft consensus cluster to 180k req/sec with P99 &lt; 14ms. Would love to connect regarding infrastructure scaling.&quot;

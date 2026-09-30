@@ -10,7 +10,7 @@ export function VideoSection() {
           Product Walkthrough
         </span>
         <h3 className="text-xl sm:text-2xl font-heading font-bold text-zinc-900 dark:text-zinc-100 tracking-tight mt-2">
-          Watch 60 Seconds of Ambient Form Automation
+          Watch the Lazee.dev Launch Video 2026
         </h3>
       </div>
 

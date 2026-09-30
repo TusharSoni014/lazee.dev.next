@@ -36,6 +36,7 @@ import {
   Edit2,
   X,
   Check,
+  Copy,
   Code,
   GraduationCap,
   ChevronDown,
@@ -1081,6 +1082,7 @@ function CoverLetterForm({ user, refetchProfile }: any) {
   const width = useWindowWidth();
   const isMobile = width < 768;
   const [isSaving, setIsSaving] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const form = useForm<z.infer<typeof coverLetterSchema>>({
     resolver: zodResolver(coverLetterSchema),
@@ -1088,6 +1090,36 @@ function CoverLetterForm({ user, refetchProfile }: any) {
       coverLetter: user.coverLetter || "",
     },
   });
+
+  const handleCopy = async () => {
+    const text = form.getValues("coverLetter") || "";
+    if (!text.trim()) {
+      toast.error("No cover letter to copy.");
+      return;
+    }
+
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        textArea.remove();
+      }
+      setCopied(true);
+      toast.success("Cover letter copied to clipboard!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Failed to copy cover letter.");
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof coverLetterSchema>) => {
     setIsSaving(true);
@@ -1125,12 +1157,31 @@ function CoverLetterForm({ user, refetchProfile }: any) {
             )}
           />
 
-          <div className="flex justify-end pt-2 w-full">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 w-full">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCopy}
+              className="h-10 px-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-medium transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+            >
+              {copied ? (
+                <>
+                  <Check className="h-3.5 w-3.5 text-emerald-500" />
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">Copied to Clipboard</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3.5 w-3.5" />
+                  <span>Copy Cover Letter</span>
+                </>
+              )}
+            </Button>
+
             <Button
               type="button"
               onClick={form.handleSubmit(onSubmit)}
               disabled={isSaving}
-              className="w-full sm:w-auto h-10 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all flex items-center justify-center gap-2"
+              className="h-10 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isSaving ? (
                 <>

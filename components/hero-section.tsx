@@ -27,7 +27,7 @@ export function HeroSection() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
           </span>
-          <span className="font-mono text-[11px]">v2.4 Released</span>
+          <span className="font-mono text-[11px]">v2.0 Released</span>
           <span className="text-zinc-300 dark:text-zinc-700">•</span>
           <span>Now with Ashby & Workday auto-mapping</span>
         </div>
@@ -35,12 +35,17 @@ export function HeroSection() {
         {/* Title */}
         <h1 className="max-w-2xl text-4xl sm:text-5xl lg:text-6xl font-heading font-bold tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.08]">
           Eliminate repetitive job applications.{" "}
-          <span className="text-orange-600 dark:text-orange-500">Apply in seconds,</span> not hours.
+          <span className="text-orange-600 dark:text-orange-500">
+            Apply in seconds,
+          </span>{" "}
+          not hours.
         </h1>
 
         {/* Subtitle / Paragraph */}
         <p className="max-w-xl text-base sm:text-lg text-zinc-600 dark:text-zinc-400 font-normal leading-relaxed mt-5">
-          Lazee is the developer-focused browser extension that deterministically maps your engineering record, multiple tailored resumes, and project metrics into any hiring portal.
+          Lazee is the developer-focused browser extension that
+          deterministically maps your engineering record, multiple tailored
+          resumes, and project metrics into any hiring portal.
         </p>
 
         {/* CTA Group */}
@@ -71,12 +76,16 @@ export function HeroSection() {
             <Check className="size-3.5 text-emerald-600 dark:text-emerald-400" />
             200 free monthly AI credits
           </span>
-          <span className="hidden sm:inline text-zinc-300 dark:text-zinc-700">•</span>
+          <span className="hidden sm:inline text-zinc-300 dark:text-zinc-700">
+            •
+          </span>
           <span className="flex items-center gap-1.5">
             <Check className="size-3.5 text-emerald-600 dark:text-emerald-400" />
             Works on 100+ career portals
           </span>
-          <span className="hidden sm:inline text-zinc-300 dark:text-zinc-700">•</span>
+          <span className="hidden sm:inline text-zinc-300 dark:text-zinc-700">
+            •
+          </span>
           <span className="flex items-center gap-1.5">
             <ShieldCheck className="size-3.5 text-emerald-600 dark:text-emerald-400" />
             Local-first privacy
@@ -98,12 +107,20 @@ export function HeroSection() {
             </div>
             <div className="flex items-center gap-0.5 text-amber-500 ml-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} size={12} className="fill-amber-500 text-amber-500" />
+                <Star
+                  key={i}
+                  size={12}
+                  className="fill-amber-500 text-amber-500"
+                />
               ))}
             </div>
           </div>
           <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-normal text-center sm:text-left">
-            Trusted by <span className="font-semibold text-zinc-900 dark:text-zinc-100">2,400+ software engineers</span> saving an average of 18 hours per search.
+            Trusted by{" "}
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+              2,400+ software engineers
+            </span>{" "}
+            saving an average of 18 hours per search.
           </p>
         </div>
       </motion.div>

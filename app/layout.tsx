@@ -87,9 +87,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="scroll-smooth">
       <body
+        suppressHydrationWarning
         className={`${inter.variable} ${outfit.variable} antialiased flex flex-col min-h-screen`}
       >
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <SessionProvider>
             <QueryProvider>
               <SiteHeader />
