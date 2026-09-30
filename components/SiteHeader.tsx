@@ -18,9 +18,9 @@ export function SiteHeader() {
         <div className="flex items-center gap-8">
           <Link
             href="/"
-            className="flex items-center gap-2.5 text-lg font-bold tracking-tight text-zinc-900 dark:text-white font-heading group"
+            className="flex items-center gap-2.5 text-lg font-bold tracking-tight text-zinc-900 dark:text-white font-heading"
           >
-            <div className="relative w-7 h-7 flex-shrink-0 transition-transform group-hover:scale-105">
+            <div className="relative w-7 h-7 flex-shrink-0">
               <Image
                 src={LOGO_URL}
                 alt="Lazee.dev Logo"
