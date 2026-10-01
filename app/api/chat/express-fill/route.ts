@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { buildSystemPrompt } from "@/lib/prompt";
 import { getCorsHeaders } from "@/lib/cors";
+import { lazeeChat } from "@/lib/lazee-model";
 
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get("origin");
@@ -81,8 +82,7 @@ export async function POST(request: NextRequest) {
         prompt += `\nContext/Placeholder: "${field.placeholder}"`;
       }
 
-      const requestBody = {
-        model: process.env.AI_MODEL || "nvidia/nemotron-3-nano-30b-a3b:free",
+      const answer = await lazeeChat({
         messages: [
           { role: "system", content: systemContent },
           {
@@ -93,36 +93,8 @@ export async function POST(request: NextRequest) {
         temperature: 1,
         top_p: 0.5,
         top_k: 15,
-        stream: false,
-      };
-
-      const response = await fetch(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
-          method: "POST",
-          body: JSON.stringify(requestBody),
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-            "HTTP-Referer": "https://lazee.dev",
-            "X-Title": "Lazee Dev",
-          },
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error?.message || `Error generating AI response for field ${field.label}`
-        );
-      }
-
-      const data = await response.json();
-      if (!data.choices || data.choices.length === 0) {
-        throw new Error(`No response from AI model for field ${field.label}`);
-      }
-
-      return data.choices[0].message.content.trim();
+      });
+      return answer.trim();
     };
 
     const responses: Record<string, string> = {};

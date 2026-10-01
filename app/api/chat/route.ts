@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { buildSystemPrompt } from "@/lib/prompt";
 import { checkAndRefreshCredits } from "@/lib/credits";
 import { getCorsHeaders } from "@/lib/cors";
+import { lazeeChat } from "@/lib/lazee-model";
 
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get("origin");
@@ -61,41 +62,21 @@ export async function POST(request: NextRequest) {
       systemContent += `\n\nCURRENT USER CONTEXT:\nName: ${userProfile.name || "Unknown"}\nEmail: ${userProfile.email || "Unknown"}\n`;
     }
 
-    const requestBody = {
-      model: process.env.AI_MODEL || "nvidia/nemotron-3-nano-30b-a3b:free",
-      messages: [{ role: "system", content: systemContent }, ...messages],
-      temperature: 1,
-      top_p: 0.5,
-      top_k: 15,
-      stream: false,
-    };
-
-    const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "HTTP-Referer": "https://lazee.dev",
-          "X-Title": "Lazee Dev",
-        },
-      },
-    );
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("OpenRouter API Error:", errorData);
+    let responseText: string;
+    try {
+      responseText = await lazeeChat({
+        messages: [{ role: "system", content: systemContent }, ...messages],
+        temperature: 1,
+        top_p: 0.5,
+        top_k: 15,
+      });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Error generating AI response";
+      console.error("OpenRouter API Error:", message);
       return NextResponse.json(
-        { error: errorData.error?.message || "Error generating AI response" },
-        { status: response.status, headers: corsHeaders },
-      );
-    }
-    const data = await response.json();
-    if (!data.choices || data.choices.length === 0) {
-      return NextResponse.json(
-        { error: "No response from AI model" },
-        { status: 500, headers: corsHeaders },
+        { error: message },
+        { status: 502, headers: corsHeaders },
       );
     }
 
@@ -109,7 +90,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const responseText = data.choices[0].message.content;
     return NextResponse.json(
       { text: responseText, systemContent },
       { headers: corsHeaders },

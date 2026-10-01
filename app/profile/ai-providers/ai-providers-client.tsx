@@ -93,6 +93,46 @@ export function AiProvidersClient({
     version?: string;
   } | null>(null);
   const [staleHint, setStaleHint] = useState(false);
+  const [lazeeModels, setLazeeModels] = useState<{
+    active: string;
+    models: { id: string; name: string }[];
+  } | null>(null);
+  const [savingModel, setSavingModel] = useState<string | null>(null);
+
+  const selectLazeeModel = async (id: string) => {
+    if (!lazeeModels || id === lazeeModels.active || savingModel) return;
+    setSavingModel(id);
+    try {
+      const res = await fetch("/api/ai/lazee-model", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.active) {
+        throw new Error(data?.error || "Could not switch model.");
+      }
+      setLazeeModels(data);
+      toast.success("Lazee AI model updated");
+    } catch (err) {
+      toast.error(errorMessage(err));
+    } finally {
+      setSavingModel(null);
+    }
+  };
+
+  useEffect(() => {
+    let cancel = false;
+    fetch("/api/ai/lazee-model")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancel && data?.models) setLazeeModels(data);
+      })
+      .catch(() => {});
+    return () => {
+      cancel = true;
+    };
+  }, []);
 
   const connecting = useRef(false);
   const connect = useCallback(async () => {
@@ -390,12 +430,13 @@ export function AiProvidersClient({
             {/* Lazee AI */}
             <div
               className={clsx(
-                "rounded-2xl border bg-white dark:bg-zinc-900/90 p-5 shadow-xs flex flex-wrap items-center justify-between gap-4 transition-colors",
+                "rounded-2xl border bg-white dark:bg-zinc-900/90 p-5 shadow-xs flex flex-col gap-4 transition-colors",
                 active === "lazee"
                   ? "border-orange-500/40"
                   : "border-zinc-200/80 dark:border-zinc-800",
               )}
             >
+              <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3.5 min-w-0">
                 <div className="size-10 shrink-0 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center">
                   <Sparkles className="size-5" />
@@ -427,6 +468,49 @@ export function AiProvidersClient({
                 >
                   Use Lazee AI
                 </Button>
+              )}
+              </div>
+              {lazeeModels && lazeeModels.models.length > 0 && (
+                <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/40 p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                    Free text models
+                  </p>
+                  <ul className="mt-2 max-h-40 overflow-y-auto space-y-1">
+                    {lazeeModels.models.map((model) => {
+                      const selected = model.id === lazeeModels.active;
+                      return (
+                        <li key={model.id}>
+                          <button
+                            type="button"
+                            disabled={selected || savingModel !== null}
+                            onClick={() => selectLazeeModel(model.id)}
+                            className={clsx(
+                              "flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1 text-left text-xs transition-colors",
+                              selected
+                                ? "bg-orange-500/10 text-orange-700 dark:text-orange-300"
+                                : "text-zinc-600 hover:bg-zinc-100 disabled:hover:bg-transparent dark:text-zinc-400 dark:hover:bg-zinc-800/80",
+                            )}
+                          >
+                            <span className="min-w-0 truncate">{model.name}</span>
+                            <span className="shrink-0 font-mono text-[10px] text-zinc-400 dark:text-zinc-500">
+                              {savingModel === model.id
+                                ? "saving"
+                                : selected
+                                  ? "active"
+                                  : "use"}
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <p className="mt-2 text-[11px] leading-relaxed text-zinc-400 dark:text-zinc-500">
+                    Click a model to use it. Lazee AI is on{" "}
+                    <span className="font-mono">{lazeeModels.active}</span>. If
+                    that model stops answering, the next free text model is
+                    selected and saved automatically.
+                  </p>
+                </div>
               )}
             </div>
 

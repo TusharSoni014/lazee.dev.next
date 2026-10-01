@@ -165,6 +165,14 @@ model Experience {
   updatedAt      DateTime  @updatedAt
 }
 
+// Global key/value settings. `openrouter_model` is the free OpenRouter model
+// Lazee AI is currently using.
+model AppSetting {
+  key       String   @id
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}
+
 model Education {
   id           String    @id @default(cuid())
   userId       String
