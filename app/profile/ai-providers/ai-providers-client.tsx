@@ -569,12 +569,54 @@ function ActiveBadge() {
   );
 }
 
-const AVATAR: Record<ByokProviderId, { text: string; className: string }> = {
-  openai: { text: "GPT", className: "bg-emerald-600" },
-  anthropic: { text: "Cl", className: "bg-[#c15f3c]" },
-  gemini: { text: "Ge", className: "bg-blue-600" },
-  xai: { text: "𝕏", className: "bg-zinc-900 dark:bg-zinc-700" },
-  custom: { text: "</>", className: "bg-violet-600" },
+const AVATAR: Record<
+  ByokProviderId,
+  { className: string; icon: React.ReactNode }
+> = {
+  openai: {
+    className: "bg-[#10a37f]",
+    icon: (
+      <img
+        src="/openai.svg"
+        alt="OpenAI"
+        className="size-5.5 brightness-0 invert select-none"
+      />
+    ),
+  },
+  anthropic: {
+    className: "bg-[#d97757]",
+    icon: (
+      <img
+        src="/claude.svg"
+        alt="Claude"
+        className="size-5.5 brightness-0 invert select-none"
+      />
+    ),
+  },
+  gemini: {
+    className: "bg-white border border-zinc-200/80 shadow-xs",
+    icon: (
+      <img
+        src="/gemini.svg"
+        alt="Gemini"
+        className="size-6 select-none object-contain block m-auto"
+      />
+    ),
+  },
+  xai: {
+    className: "bg-black dark:bg-zinc-950 border border-zinc-800",
+    icon: (
+      <img
+        src="/grok.svg"
+        alt="Grok"
+        className="size-5 brightness-0 invert select-none"
+      />
+    ),
+  },
+  custom: {
+    className: "bg-violet-600 text-white font-mono text-xs font-bold",
+    icon: "</>",
+  },
 };
 
 function ProviderCard({
@@ -756,11 +798,11 @@ function ProviderCard({
       >
         <div
           className={clsx(
-            "size-10 shrink-0 rounded-xl text-white text-xs font-bold flex items-center justify-center",
+            "size-10 shrink-0 rounded-xl flex items-center justify-center shadow-xs overflow-hidden",
             avatar.className,
           )}
         >
-          {avatar.text}
+          {avatar.icon}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
