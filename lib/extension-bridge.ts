@@ -97,6 +97,101 @@ function call<T>(
   });
 }
 
+/** An extension build announced itself but has no AI bridge (old version). */
+export class ExtensionOutdatedError extends Error {
+  constructor(
+    public extensionId?: string,
+    public version?: string,
+  ) {
+    super("Lazee extension is out of date");
+    this.name = "ExtensionOutdatedError";
+  }
+}
+
+/** The up-to-date content script is here but the background never answered. */
+export class ExtensionNotRespondingError extends Error {
+  constructor() {
+    super(
+      "The Lazee extension is on this page but its background isn't answering. Reload the extension from your browser's extensions page, then refresh this tab.",
+    );
+    this.name = "ExtensionNotRespondingError";
+  }
+}
+
+/**
+ * Fast handshake: asks for settings right away and re-asks the moment the
+ * content script announces itself, so it resolves as soon as the extension
+ * is reachable instead of waiting out fixed timeouts.
+ */
+function connect(): Promise<PublicAiSettings> {
+  return new Promise((resolve, reject) => {
+    const requestId = `ai-${Date.now()}-${++counter}`;
+    let bridgeSeen = false;
+    let oldBuild: { extensionId?: string; version?: string } | null = null;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    const send = () =>
+      window.postMessage(
+        { type: "LAZEE_AI_REQUEST", requestId, action: "getSettings" },
+        window.location.origin,
+      );
+
+    const finish = (fn: () => void) => {
+      window.removeEventListener("message", onMessage);
+      timers.forEach(clearTimeout);
+      fn();
+    };
+
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const data = event.data;
+      if (!data) return;
+      if (data.type === "LAZEE_EXTENSION_READY") {
+        if (data.aiBridge) {
+          if (!bridgeSeen) {
+            bridgeSeen = true;
+            send();
+          }
+        } else {
+          oldBuild = { extensionId: data.extensionId, version: data.version };
+        }
+        return;
+      }
+      if (data.type !== "LAZEE_AI_RESPONSE" || data.requestId !== requestId) {
+        return;
+      }
+      const response = data as BridgeResponse<PublicAiSettings>;
+      finish(() =>
+        response.ok
+          ? resolve(response.data as PublicAiSettings)
+          : reject(new Error(response.error || "Something went wrong.")),
+      );
+    };
+
+    window.addEventListener("message", onMessage);
+    send();
+    window.postMessage({ type: "LAZEE_PING" }, window.location.origin);
+
+    // Nothing up to date announced itself: the extension isn't running here.
+    timers.push(
+      setTimeout(() => {
+        if (bridgeSeen) return;
+        finish(() =>
+          reject(
+            oldBuild
+              ? new ExtensionOutdatedError(oldBuild.extensionId, oldBuild.version)
+              : new ExtensionNotFoundError(),
+          ),
+        );
+      }, 1_500),
+    );
+    // Content script is here; allow a cold background (service worker) start.
+    timers.push(
+      setTimeout(() => finish(() => reject(new ExtensionNotRespondingError())), 10_000),
+    );
+  });
+}
+
 export interface SaveProviderPayload {
   providerId: ByokProviderId;
   /** undefined = keep saved key, "" = remove it */
@@ -108,8 +203,12 @@ export interface SaveProviderPayload {
 }
 
 export const extensionAi = {
-  /** Rejects with ExtensionNotFoundError when the extension isn't there. */
-  getSettings: () => call<PublicAiSettings>("getSettings", undefined, 4_000),
+  /**
+   * Resolves as soon as the extension answers. Rejects with
+   * ExtensionNotFoundError / ExtensionOutdatedError /
+   * ExtensionNotRespondingError otherwise.
+   */
+  getSettings: connect,
   saveProvider: (payload: SaveProviderPayload) =>
     call<PublicAiSettings>("saveProvider", payload),
   removeProvider: (providerId: ByokProviderId) =>

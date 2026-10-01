@@ -47,6 +47,7 @@ import {
 } from "@/lib/ai-provider-meta";
 import {
   ExtensionNotFoundError,
+  ExtensionOutdatedError,
   extensionAi,
   extensionSeenOnPage,
 } from "@/lib/extension-bridge";
@@ -87,72 +88,51 @@ export function AiProvidersClient({
   const [switching, setSwitching] = useState(false);
 
   const [extError, setExtError] = useState("");
-  // Set when ANY Lazee extension build announces itself on this page, even an
-  // old one that doesn't understand the AI bridge.
-  const extensionAnnounced = useRef(false);
-  // What the announcement said: `aiBridge` is only present on builds that
-  // support this page.
-  const announcedInfo = useRef<{
-    extensionId?: string;
-    version?: string;
-    aiBridge?: number;
-  } | null>(null);
   const [foundInfo, setFoundInfo] = useState<{
     extensionId?: string;
     version?: string;
   } | null>(null);
   const [staleHint, setStaleHint] = useState(false);
 
+  const connecting = useRef(false);
   const connect = useCallback(async () => {
+    if (connecting.current) return;
+    connecting.current = true;
     setExt("checking");
-    // Ask any running extension to announce itself again (live signal).
-    window.postMessage({ type: "LAZEE_PING" }, window.location.origin);
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        setSettings(await extensionAi.getSettings());
-        setExt("ready");
-        return;
-      } catch (err) {
-        if (!(err instanceof ExtensionNotFoundError)) {
-          // The extension answered, but with an error - show the real reason.
-          setExtError(errorMessage(err));
-          setExt("error");
-          return;
+    try {
+      setSettings(await extensionAi.getSettings());
+      setExt("ready");
+    } catch (err) {
+      if (err instanceof ExtensionOutdatedError) {
+        setFoundInfo({ extensionId: err.extensionId, version: err.version });
+        setExt("outdated");
+      } else if (err instanceof ExtensionNotFoundError) {
+        // An old build may have announced before we mounted; the site's own
+        // listener records that for this page load only.
+        const liveId = (window as unknown as { LAZEE_EXTENSION_ID?: string })
+          .LAZEE_EXTENSION_ID;
+        if (liveId) {
+          setFoundInfo({ extensionId: liveId });
+          setExt("outdated");
+        } else {
+          setStaleHint(extensionSeenOnPage());
+          setExt("missing");
         }
+      } else {
+        setExtError(errorMessage(err));
+        setExt("error");
       }
+    } finally {
+      connecting.current = false;
     }
-    const info = announcedInfo.current;
-    if (info?.aiBridge) {
-      // Up-to-date content script is here, but nothing came back from the
-      // extension's background (usually: dev build just reloaded / crashed).
-      setExtError(
-        "The Lazee extension is on this page but its background isn't answering. Reload the extension from your browser's extensions page, then refresh this tab.",
-      );
-      setExt("error");
-      return;
-    }
-    // window.LAZEE_EXTENSION_ID is set (this page load only) by the site's own
-    // listener, so it also catches announcements made before this component
-    // mounted.
-    const liveId = (window as unknown as { LAZEE_EXTENSION_ID?: string })
-      .LAZEE_EXTENSION_ID;
-    if (extensionAnnounced.current || liveId) {
-      setFoundInfo(info ?? { extensionId: liveId });
-      setExt("outdated");
-      return;
-    }
-    // No live announcement. Only an old saved hint (localStorage) remains,
-    // which usually means the extension isn't running in this browser now.
-    setStaleHint(extensionSeenOnPage());
-    setExt("missing");
   }, []);
 
   useEffect(() => {
     connect();
   }, [connect]);
 
-  // The extension announces itself on lazee.dev pages. Remember that, and
-  // retry if we loaded before its content script did.
+  // If an up-to-date extension shows up later (installed / reloaded while
+  // this tab is open), connect straight away.
   const extRef = useRef(ext);
   useEffect(() => {
     extRef.current = ext;
@@ -160,16 +140,13 @@ export function AiProvidersClient({
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
-      if (event.data?.type === "LAZEE_EXTENSION_READY") {
-        extensionAnnounced.current = true;
-        if (event.data.aiBridge || !announcedInfo.current?.aiBridge) {
-          announcedInfo.current = {
-            extensionId: event.data.extensionId,
-            version: event.data.version,
-            aiBridge: event.data.aiBridge,
-          };
-        }
-        if (extRef.current === "missing") connect();
+      if (
+        event.data?.type === "LAZEE_EXTENSION_READY" &&
+        event.data.aiBridge &&
+        extRef.current !== "ready" &&
+        extRef.current !== "checking"
+      ) {
+        connect();
       }
     };
     window.addEventListener("message", onMessage);

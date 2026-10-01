@@ -19,9 +19,22 @@ declare global {
 
 const EXTENSION_IDS: string[] = ["hkompooiicoamiambpjhbbmimjefgiii"];
 
+/**
+ * Tells the extension's content script who is logged in. The content script
+ * only pushes the login token when the extension doesn't already have it, so
+ * these messages are cheap. Nothing here may be sent in response to a sync
+ * request, or the page and the content script ping-pong forever.
+ */
 export function ExtensionAuthSync() {
   const { data: session, status } = useSession();
   const lastSyncedRef = useRef<string | null>(null);
+  const email = session?.user?.email ?? null;
+
+  // Latest auth state for the message listener (which is registered once).
+  const authRef = useRef({ status, email });
+  useEffect(() => {
+    authRef.current = { status, email };
+  }, [status, email]);
 
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
@@ -31,6 +44,18 @@ export function ExtensionAuthSync() {
     }
   }, [session, status]);
 
+  // One announcement per auth state change.
+  useEffect(() => {
+    if (status === "loading") return;
+    window.postMessage(
+      status === "authenticated"
+        ? { type: "LAZEE_SYNC_AUTH", session: true, email }
+        : { type: "LAZEE_SYNC_AUTH", session: false },
+      window.location.origin,
+    );
+  }, [status, email]);
+
+  // Direct channel to the store build (Chrome externally_connectable).
   useEffect(() => {
     if (status !== "authenticated" || !session?.user) {
       return;
@@ -40,19 +65,6 @@ export function ExtensionAuthSync() {
     if (lastSyncedRef.current === sessionKey) {
       return;
     }
-
-    // Also notify via postMessage for the content script to pick up
-    // This doesn't require knowing the extension ID
-    const broadcastSync = () => {
-      window.postMessage({ type: "LAZEE_SYNC_AUTH", session: !!session }, window.location.origin);
-    };
-
-    // Broadcast immediately
-    broadcastSync();
-    
-    // Also broadcast after a short delay to catch the content script if it's still loading
-    setTimeout(broadcastSync, 1000);
-    setTimeout(broadcastSync, 3000);
 
     if (!window.chrome?.runtime?.sendMessage) {
       return;
@@ -76,8 +88,9 @@ export function ExtensionAuthSync() {
     if (extensionIdFromUrl) {
       tryExtensionIds.unshift(extensionIdFromUrl);
     }
-    
-    const injectedId = (window as any).LAZEE_EXTENSION_ID;
+
+    const injectedId = (window as { LAZEE_EXTENSION_ID?: string })
+      .LAZEE_EXTENSION_ID;
     if (injectedId && !tryExtensionIds.includes(injectedId)) {
       tryExtensionIds.unshift(injectedId);
     }
@@ -96,10 +109,9 @@ export function ExtensionAuthSync() {
               "success" in response &&
               response.success
             ) {
-              // Auth synced with extension
               lastSyncedRef.current = sessionKey;
               localStorage.setItem("lazeeExtensionId", extensionId);
-              
+
               if (urlParams.get("extensionId")) {
                 window.location.href = `chrome-extension://${extensionId}/popup.html`;
               }
@@ -114,9 +126,6 @@ export function ExtensionAuthSync() {
 
   useEffect(() => {
     if (status === "unauthenticated" && lastSyncedRef.current) {
-      // Notify extension via postMessage
-      window.postMessage({ type: "LAZEE_SYNC_AUTH" }, window.location.origin);
-
       const urlParams = new URLSearchParams(window.location.search);
       const extensionId =
         urlParams.get("extensionId") ||
@@ -138,60 +147,56 @@ export function ExtensionAuthSync() {
       }
     }
   }, [status]);
-  // Periodic re-broadcast and message listener for sync requests
+
+  // Handshake: the content script may load before or after this component.
+  // Ask it to announce once, and answer each announcement (one per extension
+  // id) with a single sync hint.
   useEffect(() => {
-    if (status !== "authenticated" || !session?.user) return;
+    const answered = new Set<string>();
+
+    const answer = (extensionId: string) => {
+      (window as { LAZEE_EXTENSION_ID?: string }).LAZEE_EXTENSION_ID =
+        extensionId;
+      if (answered.has(extensionId)) return;
+      answered.add(extensionId);
+      const { status: s, email: e } = authRef.current;
+      if (s === "loading") return;
+      window.postMessage(
+        s === "authenticated"
+          ? { type: "LAZEE_SYNC_AUTH", session: true, email: e }
+          : { type: "LAZEE_SYNC_AUTH", session: false },
+        window.location.origin,
+      );
+    };
 
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
-      if (event.data?.type === "LAZEE_REQUEST_AUTH_SYNC") {
-        lastSyncedRef.current = null;
-        window.postMessage(
-          { type: "LAZEE_SYNC_AUTH", session: true },
-          window.location.origin,
-        );
-      } else if (
+      if (
         event.data?.type === "LAZEE_EXTENSION_READY" &&
-        event.data.extensionId
+        typeof event.data.extensionId === "string"
       ) {
-        (window as any).LAZEE_EXTENSION_ID = event.data.extensionId;
+        answer(event.data.extensionId);
+      } else if (event.data?.type === "LAZEE_REQUEST_AUTH_SYNC") {
         lastSyncedRef.current = null;
-        window.postMessage(
-          { type: "LAZEE_SYNC_AUTH", session: true },
-          window.location.origin,
-        );
+        window.postMessage({ type: "LAZEE_SYNC_AUTH" }, window.location.origin);
+      }
+    };
+
+    const handleIdReady = (event: Event) => {
+      const id = (event as CustomEvent<string>).detail;
+      if (typeof id === "string") {
+        (window as { LAZEE_EXTENSION_ID?: string }).LAZEE_EXTENSION_ID = id;
       }
     };
 
     window.addEventListener("message", handleMessage);
-
-    // Keep active session broadcast to extension every 30 seconds
-    const intervalId = setInterval(() => {
-      window.postMessage(
-        { type: "LAZEE_SYNC_AUTH", session: true },
-        window.location.origin,
-      );
-    }, 30000);
+    window.addEventListener("LAZEE_ID_READY", handleIdReady);
+    window.postMessage({ type: "LAZEE_PING" }, window.location.origin);
 
     return () => {
       window.removeEventListener("message", handleMessage);
-      clearInterval(intervalId);
+      window.removeEventListener("LAZEE_ID_READY", handleIdReady);
     };
-  }, [session, status]);
-
-  useEffect(() => {
-    const handleIdReady = (event?: any) => {
-      if (event?.detail) {
-        (window as any).LAZEE_EXTENSION_ID = event.detail;
-      }
-      lastSyncedRef.current = null; // Reset to force re-sync
-      window.postMessage(
-        { type: "LAZEE_SYNC_AUTH", session: true },
-        window.location.origin,
-      );
-    };
-    window.addEventListener("LAZEE_ID_READY" as any, handleIdReady);
-    return () => window.removeEventListener("LAZEE_ID_READY" as any, handleIdReady);
   }, []);
 
   return null;
