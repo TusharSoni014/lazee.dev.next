@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
+import { AnimatePresence, motion } from "motion/react";
 import {
   AlertCircle,
   ArrowLeft,
@@ -784,7 +785,7 @@ function ProviderCard({
   return (
     <div
       className={clsx(
-        "rounded-2xl border bg-white dark:bg-zinc-900/90 shadow-xs transition-colors",
+        "rounded-2xl border bg-white dark:bg-zinc-900/90 shadow-xs transition-colors overflow-hidden",
         isActive
           ? "border-emerald-500/40"
           : "border-zinc-200/80 dark:border-zinc-800",
@@ -830,14 +831,22 @@ function ProviderCard({
         </div>
         <ChevronDown
           className={clsx(
-            "size-4 text-zinc-400 shrink-0 transition-transform",
-            open && "rotate-180",
+            "size-4 text-zinc-400 shrink-0 transition-transform duration-300 ease-out",
+            open && "rotate-180 text-zinc-600 dark:text-zinc-200",
           )}
         />
       </button>
 
-      {open && (
-        <div className="px-5 pb-5 pt-1 space-y-4 border-t border-zinc-100 dark:border-zinc-800/80">
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="px-5 pb-5 pt-1 space-y-4 border-t border-zinc-100 dark:border-zinc-800/80">
           {isCustom && (
             <div className="pt-4 space-y-3">
               <div>
@@ -1060,9 +1069,11 @@ function ProviderCard({
                 Remove
               </Button>
             )}
+            </div>
           </div>
-        </div>
+        </motion.div>
       )}
-    </div>
+    </AnimatePresence>
+  </div>
   );
 }
