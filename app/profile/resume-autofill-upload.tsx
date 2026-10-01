@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Upload, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FaFilePdf } from "react-icons/fa";
 
 export function ResumeAutofillUpload() {
   const queryClient = useQueryClient();
@@ -15,7 +16,10 @@ export function ResumeAutofillUpload() {
   const [overwrite, setOverwrite] = useState(false);
 
   const autofillMutation = useMutation({
-    mutationFn: (formData: FormData) => applyResumeAutofillFromPdf(formData, { mode: overwrite ? "overwrite" : "empty-only" }),
+    mutationFn: (formData: FormData) =>
+      applyResumeAutofillFromPdf(formData, {
+        mode: overwrite ? "overwrite" : "empty-only",
+      }),
     onSuccess: async (result) => {
       if (result.success) {
         const filled = result.summary?.filled ?? [];
@@ -26,7 +30,9 @@ export function ResumeAutofillUpload() {
             }`,
           );
         } else {
-          toast.message("Resume parsed, but no new profile fields were filled.");
+          toast.message(
+            "Resume parsed, but no new profile fields were filled.",
+          );
         }
 
         await queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -43,7 +49,10 @@ export function ResumeAutofillUpload() {
   });
 
   function validateAndAutofill(file: File) {
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+    if (
+      file.type !== "application/pdf" &&
+      !file.name.toLowerCase().endsWith(".pdf")
+    ) {
       toast.error("Please upload a PDF file.");
       return;
     }
@@ -65,10 +74,8 @@ export function ResumeAutofillUpload() {
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-4 sm:p-5 shadow-xs transition-colors">
-      <div className="flex items-center gap-3.5 min-w-0">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400">
-          <Sparkles className="size-5" />
-        </div>
+      <div className="flex items-center gap-3.5 min-w-0 h-16">
+        <FaFilePdf className="size-10" />
         <div className="min-w-0">
           <h2 className="text-sm sm:text-base font-heading font-semibold text-zinc-900 dark:text-white tracking-tight leading-tight flex items-center gap-2">
             Autofill profile from resume
@@ -77,17 +84,18 @@ export function ResumeAutofillUpload() {
             </span>
           </h2>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-            Parses your PDF locally and fills empty profile fields — zero AI credits consumed.
+            Parses your PDF locally and fills empty profile fields — zero AI
+            credits consumed.
           </p>
           <div className="flex items-center gap-2 mt-2">
-            <Checkbox 
-              id="overwrite-fields" 
-              checked={overwrite} 
+            <Checkbox
+              id="overwrite-fields"
+              checked={overwrite}
               onCheckedChange={(checked) => setOverwrite(checked === true)}
               className="size-3.5"
             />
-            <label 
-              htmlFor="overwrite-fields" 
+            <label
+              htmlFor="overwrite-fields"
               className="text-xs text-zinc-600 dark:text-zinc-300 cursor-pointer hover:text-zinc-900 dark:hover:text-white transition-colors"
             >
               Overwrite existing fields
