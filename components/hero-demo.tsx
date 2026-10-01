@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Check, ShieldCheck, Cpu, Sparkles, Terminal } from "lucide-react";
+import { Check, ShieldCheck, Cpu, Terminal } from "lucide-react";
 
 export function HeroDemo() {
   const [step, setStep] = useState(0);
@@ -235,7 +235,7 @@ export function HeroDemo() {
                 </>
               ) : step >= 3 ? (
                 <>
-                  <Sparkles className="size-3.5" />
+                  <Cpu className="size-3.5 text-orange-500 animate-pulse" />
                   <span>Synthesizing Tailored Profile</span>
                 </>
               ) : (

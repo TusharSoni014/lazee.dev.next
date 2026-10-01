@@ -16,7 +16,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowRight, Download, Laptop } from "lucide-react";
+import { ArrowRight, Download, Laptop } from "lucide-react";
 import { useBrowser, type BrowserType } from "@/hooks/use-browser";
 import { useWindowWidth } from "@/hooks/useWindowWidth";
 import { toast } from "@/components/ui/toast";
@@ -44,11 +44,13 @@ function ExtensionOnboardingContent({
   return (
     <div className="flex flex-col">
       <div className="p-4 sm:p-5 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 flex items-center gap-3.5">
-        <div className="size-10 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 flex items-center justify-center shrink-0 shadow-2xs">
+        <div className="size-10 rounded-xl flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
           {isInstalled ? (
-            <Sparkles className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+            <img src="/logo.png" alt="Lazee.dev" className="size-full object-cover select-none" />
           ) : (
-            <Download className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+            <div className="size-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 flex items-center justify-center">
+              <Download className="w-5 h-5" />
+            </div>
           )}
         </div>
         <div className="min-w-0 text-left">

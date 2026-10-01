@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Briefcase, Sparkles, AlertCircle } from "lucide-react";
+import { ArrowLeft, Briefcase, Target, Cpu, Heart, AlertCircle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Careers",
@@ -72,7 +72,7 @@ export default function CareersPage() {
               <ul className="list-none space-y-3 pt-1">
                 <li className="flex items-start gap-3">
                   <div className="size-6 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <Target className="w-3.5 h-3.5" />
                   </div>
                   <div>
                     <strong className="font-semibold text-zinc-900 dark:text-zinc-100">High agency:</strong> Absolute ownership over outcomes, not just task completion.
@@ -80,7 +80,7 @@ export default function CareersPage() {
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="size-6 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <Cpu className="w-3.5 h-3.5" />
                   </div>
                   <div>
                     <strong className="font-semibold text-zinc-900 dark:text-zinc-100">Obsessive automation:</strong> A deep-seated aversion to performing repetitive manual workflows.
@@ -88,7 +88,7 @@ export default function CareersPage() {
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="size-6 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <Heart className="w-3.5 h-3.5" />
                   </div>
                   <div>
                     <strong className="font-semibold text-zinc-900 dark:text-zinc-100">Developer empathy:</strong> A passion for crafting beautiful, responsive, and tactile software tools.

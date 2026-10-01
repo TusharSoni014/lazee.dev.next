@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Sparkles, FileText, Mail, Layers, Check } from "lucide-react";
+import { Brain, FileText, Mail, Layers, Check } from "lucide-react";
 
 function TypewriterSynthesizer() {
   const fullText =
@@ -246,7 +246,7 @@ export function GridFeaturesSection() {
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-900 mb-4">
               <span className="text-xs font-mono uppercase tracking-wider text-orange-600 dark:text-orange-400 font-semibold flex items-center gap-1.5">
-                <Sparkles className="size-3.5" />
+                <Brain className="size-3.5" />
                 Contextual AI Synthesis
               </span>
               <span className="text-[10px] font-mono text-zinc-400">Deterministic</span>

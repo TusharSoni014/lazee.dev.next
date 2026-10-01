@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { FileText, Globe, Wand2, Sparkles, Check } from "lucide-react";
+import { FileText, Globe, Wand2, Layers, Check } from "lucide-react";
 
 export function FeaturesSection() {
   return (
@@ -15,7 +15,7 @@ export function FeaturesSection() {
     >
       <div className="w-full mb-16 text-center max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-orange-500/20 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs font-medium mb-4">
-          <Sparkles className="w-3.5 h-3.5" />
+          <Layers className="w-3.5 h-3.5" />
           <span>Core Capabilities</span>
         </div>
         <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 leading-tight mb-4">

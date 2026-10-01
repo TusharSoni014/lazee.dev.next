@@ -6,7 +6,7 @@ import { SignOutButton } from "@/components/SignOutButton";
 import {
   Lock,
   FileText,
-  Sparkles,
+  Bot,
   Globe,
   ArrowRight,
   UserCheck,
@@ -115,7 +115,7 @@ export default async function ProfilePage({
 
                   <div className="flex items-start gap-3 p-3 rounded-xl border border-zinc-200/60 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-950/50">
                     <div className="p-1.5 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5">
-                      <Sparkles className="size-4" />
+                      <Bot className="size-4" />
                     </div>
                     <div>
                       <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">

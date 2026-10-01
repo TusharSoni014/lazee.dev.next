@@ -7,7 +7,7 @@ import {
   ArrowRight,
   ArrowLeft,
   Mail,
-  Sparkles,
+  Gift,
   ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -184,7 +184,7 @@ export default function AuthForm() {
                   isEmailValid &&
                   !email.toLowerCase().endsWith("@gmail.com") && (
                     <div className="flex items-start gap-2 mt-2 p-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-400 text-xs">
-                      <Sparkles className="size-3.5 shrink-0 mt-0.5" />
+                      <Gift className="size-3.5 shrink-0 mt-0.5" />
                       <span>
                         Note: Only @gmail.com accounts are eligible for free
                         signup credits.

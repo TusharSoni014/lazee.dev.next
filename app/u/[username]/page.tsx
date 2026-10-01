@@ -16,7 +16,7 @@ import {
   Mail,
   FileText,
   Folder,
-  Sparkles,
+  Star,
   GraduationCap,
   Video,
   Fingerprint,
@@ -573,7 +573,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                         </div>
                         {project.isTopProject && (
                           <span className="inline-flex items-center gap-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[11px] font-medium px-2.5 py-0.5 rounded-full border border-orange-500/20 select-none">
-                            <Sparkles className="w-3 h-3" /> Featured
+                            <Star className="w-3 h-3 fill-orange-500/20" /> Featured
                           </span>
                         )}
                       </div>

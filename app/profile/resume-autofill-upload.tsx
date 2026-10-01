@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { applyResumeAutofillFromPdf } from "./resume-actions";
 import { toast } from "sonner";
-import { Upload, Loader2, Sparkles } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FaFilePdf } from "react-icons/fa";

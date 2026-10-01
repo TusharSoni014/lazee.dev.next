@@ -38,7 +38,7 @@ import {
   ArrowUp,
   ArrowDown,
   Upload,
-  Sparkles,
+  Star,
   AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -1545,7 +1545,7 @@ function ProjectForm({
                   </FormControl>
                   <div className="space-y-1">
                     <FormLabel className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5 cursor-pointer">
-                      <Sparkles className="size-3.5 text-orange-500" />
+                      <Star className="size-3.5 text-orange-500 fill-orange-500/20" />
                       <span>Highlight as Top Project</span>
                     </FormLabel>
                   </div>

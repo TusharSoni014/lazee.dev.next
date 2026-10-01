@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useTransition } from "react";
 import { toast } from "@/components/ui/toast";
-import { Sparkles, ArrowRight, Loader2, Users } from "lucide-react";
+import { Zap, ArrowRight, Loader2, Users } from "lucide-react";
 
 import {
   Form,
@@ -61,7 +61,7 @@ export function EarlyAccessForm() {
       >
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-orange-500/20 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs font-medium">
-            <Sparkles className="w-3.5 h-3.5" />
+            <Zap className="w-3.5 h-3.5" />
             <span>Priority Waitlist</span>
           </div>
           <span className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">

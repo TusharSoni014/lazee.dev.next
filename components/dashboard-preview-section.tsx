@@ -8,7 +8,7 @@ import {
   Check,
   User,
   FileText,
-  Sparkles,
+  Sliders,
   Settings,
   ShieldCheck,
   ExternalLink,
@@ -27,7 +27,7 @@ export function DashboardPreviewSection() {
   const tabs = [
     { id: "profile", label: "Profile", icon: User },
     { id: "resumes", label: "Resumes", icon: FileText },
-    { id: "ai-notes", label: "Directives", icon: Sparkles },
+    { id: "ai-notes", label: "Directives", icon: Sliders },
     { id: "settings", label: "Settings", icon: Settings },
   ] as const;
 

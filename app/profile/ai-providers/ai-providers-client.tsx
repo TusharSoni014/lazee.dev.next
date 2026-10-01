@@ -17,7 +17,6 @@ import {
   PlugZap,
   RefreshCw,
   ShieldCheck,
-  Sparkles,
   Trash2,
   Zap,
 } from "lucide-react";
@@ -439,8 +438,12 @@ export function AiProvidersClient({
             >
               <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="size-10 shrink-0 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center">
-                  <Sparkles className="size-5" />
+                <div className="size-10 shrink-0 rounded-xl overflow-hidden shadow-xs flex items-center justify-center">
+                  <img
+                    src="/logo.png"
+                    alt="Lazee AI"
+                    className="size-full object-cover select-none"
+                  />
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
