@@ -50,6 +50,11 @@ export async function GET(request: NextRequest) {
             startDate: "desc",
           },
         },
+        savedAnswers: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
       },
     });
 
@@ -110,6 +115,7 @@ export async function GET(request: NextRequest) {
         veteranStatus: user.veteranStatus,
         disabilityStatus: user.disabilityStatus,
         postalCode: user.postalCode,
+        savedAnswers: user.savedAnswers,
       },
       {
         headers: {

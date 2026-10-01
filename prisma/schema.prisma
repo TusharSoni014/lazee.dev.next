@@ -96,6 +96,7 @@ model User {
   experiences Experience[]
   projects    Project[]
   educations  Education[]
+  savedAnswers SavedAnswer[]
 }
 
 model Project {
@@ -188,3 +189,14 @@ model Education {
   updatedAt    DateTime  @updatedAt
 }
 
+model SavedAnswer {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question  String   @db.Text
+  answer    String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
