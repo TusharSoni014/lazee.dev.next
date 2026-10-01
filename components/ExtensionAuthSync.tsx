@@ -138,13 +138,57 @@ export function ExtensionAuthSync() {
       }
     }
   }, [status]);
+  // Periodic re-broadcast and message listener for sync requests
   useEffect(() => {
-    const handleIdReady = () => {
-      // Re-trigger the sync effect by touching session or status if needed
-      // Actually, since the main effect depends on status, 
-      // we just need to ensure it runs again.
-      // For now, simple re-eval is enough if status is already authenticated.
+    if (status !== "authenticated" || !session?.user) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type === "LAZEE_REQUEST_AUTH_SYNC") {
+        lastSyncedRef.current = null;
+        window.postMessage(
+          { type: "LAZEE_SYNC_AUTH", session: true },
+          window.location.origin,
+        );
+      } else if (
+        event.data?.type === "LAZEE_EXTENSION_READY" &&
+        event.data.extensionId
+      ) {
+        (window as any).LAZEE_EXTENSION_ID = event.data.extensionId;
+        lastSyncedRef.current = null;
+        window.postMessage(
+          { type: "LAZEE_SYNC_AUTH", session: true },
+          window.location.origin,
+        );
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    // Keep active session broadcast to extension every 30 seconds
+    const intervalId = setInterval(() => {
+      window.postMessage(
+        { type: "LAZEE_SYNC_AUTH", session: true },
+        window.location.origin,
+      );
+    }, 30000);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      clearInterval(intervalId);
+    };
+  }, [session, status]);
+
+  useEffect(() => {
+    const handleIdReady = (event?: any) => {
+      if (event?.detail) {
+        (window as any).LAZEE_EXTENSION_ID = event.detail;
+      }
       lastSyncedRef.current = null; // Reset to force re-sync
+      window.postMessage(
+        { type: "LAZEE_SYNC_AUTH", session: true },
+        window.location.origin,
+      );
     };
     window.addEventListener("LAZEE_ID_READY" as any, handleIdReady);
     return () => window.removeEventListener("LAZEE_ID_READY" as any, handleIdReady);
