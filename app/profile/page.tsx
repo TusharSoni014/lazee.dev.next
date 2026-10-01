@@ -10,6 +10,7 @@ import {
   Globe,
   ArrowRight,
   UserCheck,
+  KeyRound,
 } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -199,6 +200,26 @@ export default async function ProfilePage({
             extension synchronization settings.
           </p>
         </div>
+
+        {/* AI Providers entry point */}
+        <Link
+          href="/profile/ai-providers"
+          className="group mb-8 flex items-center gap-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-4 sm:p-5 shadow-xs transition-colors hover:border-orange-500/40"
+        >
+          <div className="size-10 shrink-0 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+            <KeyRound className="size-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              AI Providers
+            </p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+              Bring your own ChatGPT, Claude, Gemini or Grok key, or run a local
+              model with Ollama / LM Studio. Your own AI never uses credits.
+            </p>
+          </div>
+          <ArrowRight className="size-4 shrink-0 text-zinc-400 group-hover:text-orange-600 transition-colors" />
+        </Link>
 
         <ProfileForm user={user} paymentSuccess={paymentSuccess} />
 

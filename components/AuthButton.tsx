@@ -9,7 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { User, Download, Zap } from "lucide-react";
+import { User, Download, Zap, KeyRound } from "lucide-react";
 import { useBrowser, type BrowserType } from "@/hooks/use-browser";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -91,6 +91,15 @@ export default function AuthButton() {
                   >
                     <User className="size-4 text-zinc-400" />
                     Profile & Credentials
+                  </Link>
+
+                  <Link
+                    href="/profile/ai-providers"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                  >
+                    <KeyRound className="size-4 text-zinc-400" />
+                    AI Providers
                   </Link>
 
                   <a
