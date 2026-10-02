@@ -35,9 +35,10 @@ export function HeroSection() {
         </div>
 
         {/* Title */}
-        <h1 className="max-w-2xl text-4xl sm:text-5xl lg:text-6xl font-heading font-bold tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.08]">
-          Eliminate repetitive job applications.{" "}
-          <span className="text-orange-600 dark:text-orange-500">
+        <h1 className="max-w-2xl text-4xl sm:text-5xl lg:text-6xl font-heading font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.08]">
+          Eliminate repetitive job applications.
+          <br />
+          <span className="font-serif italic text-[1.05em] text-orange-600 dark:text-orange-500">
             Apply in seconds,
           </span>{" "}
           not hours.

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion } from "motion/react";
-import { Check, X, Loader2 } from "lucide-react";
+import { Check, X, Loader2, ArrowUpRight } from "lucide-react";
 import { InstallModal } from "@/components/install-modal";
 import { useProfileStatus } from "@/hooks/useProfile";
 import { toast } from "@/components/ui/toast";
@@ -89,27 +89,43 @@ export function PricingSection() {
 
       <div className="grid gap-8 md:grid-cols-2 max-w-5xl mx-auto items-stretch">
         {/* Free Plan */}
-        <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 sm:p-8 flex flex-col justify-between shadow-xs">
+        <div className="rounded-3xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 sm:p-8 flex flex-col justify-between shadow-xs">
           <div>
-            <div className="mb-6 pb-6 border-b border-zinc-100 dark:border-zinc-900">
-              <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                Community
-              </h3>
-              <div className="flex items-baseline gap-1 mt-2">
-                <span className="text-4xl sm:text-5xl font-heading font-bold text-zinc-900 dark:text-zinc-50">
-                  $0
+            <h3 className="text-xl sm:text-2xl font-heading font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">
+              Community
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
+              Everything required for steady, verified application velocity
+              without cost.
+            </p>
+
+            <div className="h-px bg-zinc-200/80 dark:bg-zinc-800 my-6 w-full" />
+
+            <div className="flex items-center gap-3.5 my-6">
+              <span className="text-4xl sm:text-5xl font-heading font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">
+                $0
+              </span>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  per month
                 </span>
-                <span className="text-xs sm:text-sm font-medium text-zinc-500">
-                  /month
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  free forever
                 </span>
               </div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
-                Everything required for steady, verified application velocity
-                without cost.
-              </p>
             </div>
 
-            <ul className="space-y-3 mb-8">
+            <InstallModal>
+              <Button
+                variant="secondary"
+                size="lg"
+                className="w-full h-11 sm:h-12 text-sm font-semibold tracking-tight rounded-xl shadow-xs transition-colors cursor-pointer"
+              >
+                Get Started for Free
+              </Button>
+            </InstallModal>
+
+            <ul className="space-y-3.5 mt-7 sm:mt-8">
               {/* Included in Free */}
               <li className="flex items-start gap-3">
                 <div className="size-4 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-200/80 dark:border-emerald-800">
@@ -249,211 +265,215 @@ export function PricingSection() {
               </li>
             </ul>
           </div>
-
-          <InstallModal>
-            <Button
-              variant="secondary"
-              size="lg"
-              className="w-full text-xs sm:text-sm font-semibold tracking-tight h-11"
-            >
-              Get Started for Free
-            </Button>
-          </InstallModal>
         </div>
 
         {/* Pro Plan */}
-        <div className="rounded-2xl border border-orange-500/40 dark:border-orange-500/30 bg-gradient-to-b from-orange-500/[0.04] to-white dark:to-zinc-950 p-6 sm:p-8 flex flex-col justify-between shadow-md relative overflow-hidden ring-1 ring-orange-500/20">
-          <div className="absolute top-0 right-0 w-36 h-36 bg-orange-500/10 rounded-full blur-2xl pointer-events-none" />
-
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
-                Professional
+        <div className="rounded-3xl border border-zinc-800 dark:border-orange-500 bg-zinc-950 dark:bg-orange-600 p-6 sm:p-8 flex flex-col justify-between shadow-2xl relative text-white transition-colors duration-200">
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-xl sm:text-2xl font-heading font-bold text-white tracking-tight">
+                Pro Plan
               </h3>
-              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider bg-orange-600 text-white px-2 py-0.5 rounded-full shadow-2xs">
-                Recommended
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-orange-600 dark:bg-zinc-950 text-white text-xs font-semibold tracking-wide border border-orange-500/40 dark:border-zinc-800 shadow-xs select-none">
+                Most Popular
               </span>
             </div>
+            <p className="text-xs sm:text-sm text-zinc-400 dark:text-orange-100/90 mt-1.5 leading-relaxed">
+              Designed for engineers in active interview search mode needing
+              peak velocity.
+            </p>
 
-            <div className="mb-6 pb-6 border-b border-zinc-200/80 dark:border-zinc-800">
-              <div className="flex items-baseline gap-1 mt-2">
-                <span className="text-4xl sm:text-5xl font-heading font-bold text-zinc-900 dark:text-zinc-50">
+              <div className="h-px bg-zinc-800/80 dark:bg-white/20 my-6 w-full" />
+
+              <div className="flex items-center gap-3.5 my-6">
+                <span className="text-4xl sm:text-5xl font-heading font-bold text-white tracking-tight">
                   $9
                 </span>
-                <span className="text-xs sm:text-sm font-medium text-zinc-500">
-                  /month
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-zinc-200 dark:text-white">
+                    per month
+                  </span>
+                  <span className="text-xs text-zinc-400 dark:text-orange-100/80">
+                    plus local taxes
+                  </span>
+                </div>
               </div>
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed">
-                Designed for engineers in active interview search mode needing
-                peak velocity.
-              </p>
+
+              <Button
+                size="lg"
+                onClick={handleGoPro}
+                disabled={isCheckingOut}
+                className="w-full h-11 sm:h-12 bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white dark:bg-zinc-950 dark:hover:bg-black dark:text-white dark:border dark:border-zinc-800 font-semibold rounded-xl text-sm gap-2 shadow-sm transition-colors cursor-pointer"
+              >
+                {isCheckingOut ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="size-4 animate-spin" />
+                    Connecting checkout...
+                  </span>
+                ) : isPro ? (
+                  "Manage Subscription"
+                ) : (
+                  <span className="flex items-center justify-center gap-1.5">
+                    Upgrade to Pro <ArrowUpRight className="size-4" />
+                  </span>
+                )}
+              </Button>
+
+              <ul className="space-y-3.5 mt-7 sm:mt-8">
+                <li className="flex items-start gap-3">
+                  <Check
+                    className="size-4 text-orange-500 dark:text-white shrink-0 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-xs sm:text-sm text-zinc-200 dark:text-white leading-normal">
+                    <strong className="font-semibold text-white">
+                      Unlimited profile data autofill
+                    </strong>
+                    <span className="text-zinc-400 dark:text-orange-100/85">
+                      {" "}
+                      (Experience, education, projects &amp; CTC)
+                    </span>
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check
+                    className="size-4 text-orange-500 dark:text-white shrink-0 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-xs sm:text-sm text-zinc-200 dark:text-white leading-normal">
+                    <strong className="font-semibold text-white">
+                      Universal ATS support
+                    </strong>
+                    <span className="text-zinc-400 dark:text-orange-100/85">
+                      {" "}
+                      across 100+ hiring portals
+                    </span>
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check
+                    className="size-4 text-orange-500 dark:text-white shrink-0 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-xs sm:text-sm text-zinc-200 dark:text-white leading-normal">
+                    <strong className="font-semibold text-orange-400 dark:text-white">
+                      1-Click Express Batch Fill
+                    </strong>
+                    <span className="text-zinc-400 dark:text-orange-100/85">
+                      {" "}
+                      (Synthesizes all questions simultaneously)
+                    </span>
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check
+                    className="size-4 text-orange-500 dark:text-white shrink-0 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-xs sm:text-sm text-zinc-200 dark:text-white leading-normal">
+                    <strong className="font-semibold text-orange-400 dark:text-white">
+                      AI Cold DM &amp; Recruiter Outreach
+                    </strong>
+                    <span className="text-zinc-400 dark:text-orange-100/85">
+                      {" "}
+                      (Gmail compose &amp; web scraper)
+                    </span>
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check
+                    className="size-4 text-orange-500 dark:text-white shrink-0 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-xs sm:text-sm text-zinc-200 dark:text-white leading-normal">
+                    <strong className="font-semibold text-orange-400 dark:text-white">
+                      Multi-Resume Matrix (Up to 10 versions)
+                    </strong>
+                    <span className="text-zinc-400 dark:text-orange-100/85">
+                      {" "}
+                      with instant popup hot-swap
+                    </span>
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check
+                    className="size-4 text-orange-500 dark:text-white shrink-0 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-xs sm:text-sm text-zinc-200 dark:text-white leading-normal">
+                    <strong className="font-semibold text-orange-400 dark:text-white">
+                      10,000 AI credits / month
+                    </strong>
+                    <span className="text-zinc-400 dark:text-orange-100/85">
+                      {" "}
+                      (50x higher monthly allowance)
+                    </span>
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check
+                    className="size-4 text-orange-500 dark:text-white shrink-0 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-xs sm:text-sm text-zinc-200 dark:text-white leading-normal">
+                    <strong className="font-semibold text-white">
+                      Single-question AI fill
+                    </strong>
+                    <span className="text-zinc-400 dark:text-orange-100/85">
+                      {" "}
+                      with custom prompts &amp; guidance
+                    </span>
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check
+                    className="size-4 text-orange-500 dark:text-white shrink-0 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-xs sm:text-sm text-zinc-200 dark:text-white leading-normal">
+                    <strong className="font-semibold text-white">
+                      Bring Your Own Key (BYOK)
+                    </strong>
+                    <span className="text-zinc-400 dark:text-orange-100/85">
+                      {" "}
+                      with direct browser inference
+                    </span>
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check
+                    className="size-4 text-orange-500 dark:text-white shrink-0 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-xs sm:text-sm text-zinc-200 dark:text-white leading-normal">
+                    <strong className="font-semibold text-white">
+                      Saved Q&amp;A library
+                    </strong>
+                    <span className="text-zinc-400 dark:text-orange-100/85">
+                      {" "}
+                      with instant search &amp; 1-click insert
+                    </span>
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check
+                    className="size-4 text-orange-500 dark:text-white shrink-0 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-xs sm:text-sm text-zinc-200 dark:text-white leading-normal">
+                    <strong className="font-semibold text-white">
+                      Public profile portfolio
+                    </strong>
+                    <span className="text-zinc-400 dark:text-orange-100/85">
+                      {" "}
+                      (Shareable lazee.dev/u/ link)
+                    </span>
+                  </span>
+                </li>
+              </ul>
             </div>
-
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-3">
-                <div className="size-4 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-200 dark:border-emerald-800">
-                  <Check className="size-2.5" strokeWidth={3} />
-                </div>
-                <span className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 leading-normal">
-                  <strong className="font-semibold text-zinc-900 dark:text-zinc-100">
-                    Unlimited profile data autofill
-                  </strong>
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    {" "}
-                    (Experience, education, projects &amp; CTC)
-                  </span>
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="size-4 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-200 dark:border-emerald-800">
-                  <Check className="size-2.5" strokeWidth={3} />
-                </div>
-                <span className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 leading-normal">
-                  <strong className="font-semibold text-zinc-900 dark:text-zinc-100">
-                    Universal ATS support
-                  </strong>
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    {" "}
-                    across 100+ hiring portals
-                  </span>
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="size-4 rounded-full bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0 mt-0.5 border border-orange-300 dark:border-orange-800">
-                  <Check className="size-2.5" strokeWidth={3} />
-                </div>
-                <span className="text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 leading-normal">
-                  <strong className="font-bold text-orange-600 dark:text-orange-400">
-                    1-Click Express Batch Fill
-                  </strong>
-                  <span className="text-zinc-600 dark:text-zinc-300">
-                    {" "}
-                    (Synthesizes all questions simultaneously)
-                  </span>
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="size-4 rounded-full bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0 mt-0.5 border border-orange-300 dark:border-orange-800">
-                  <Check className="size-2.5" strokeWidth={3} />
-                </div>
-                <span className="text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 leading-normal">
-                  <strong className="font-bold text-orange-600 dark:text-orange-400">
-                    AI Cold DM &amp; Recruiter Outreach
-                  </strong>
-                  <span className="text-zinc-600 dark:text-zinc-300">
-                    {" "}
-                    (Gmail compose &amp; web scraper)
-                  </span>
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="size-4 rounded-full bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0 mt-0.5 border border-orange-300 dark:border-orange-800">
-                  <Check className="size-2.5" strokeWidth={3} />
-                </div>
-                <span className="text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 leading-normal">
-                  <strong className="font-bold text-orange-600 dark:text-orange-400">
-                    Multi-Resume Matrix (Up to 10 versions)
-                  </strong>
-                  <span className="text-zinc-600 dark:text-zinc-300">
-                    {" "}
-                    with instant popup hot-swap
-                  </span>
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="size-4 rounded-full bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0 mt-0.5 border border-orange-300 dark:border-orange-800">
-                  <Check className="size-2.5" strokeWidth={3} />
-                </div>
-                <span className="text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 leading-normal">
-                  <strong className="font-bold text-orange-600 dark:text-orange-400">
-                    10,000 AI credits / month
-                  </strong>
-                  <span className="text-zinc-600 dark:text-zinc-300">
-                    {" "}
-                    (50x higher monthly allowance)
-                  </span>
-                </span>
-              </li>
-
-              <li className="flex items-start gap-3">
-                <div className="size-4 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-200 dark:border-emerald-800">
-                  <Check className="size-2.5" strokeWidth={3} />
-                </div>
-                <span className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 leading-normal">
-                  <strong className="font-semibold text-zinc-900 dark:text-zinc-100">
-                    Single-question AI fill
-                  </strong>
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    {" "}
-                    with custom prompts &amp; guidance
-                  </span>
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="size-4 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-200 dark:border-emerald-800">
-                  <Check className="size-2.5" strokeWidth={3} />
-                </div>
-                <span className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 leading-normal">
-                  <strong className="font-semibold text-zinc-900 dark:text-zinc-100">
-                    Bring Your Own Key (BYOK)
-                  </strong>
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    {" "}
-                    with direct browser inference
-                  </span>
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="size-4 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-200 dark:border-emerald-800">
-                  <Check className="size-2.5" strokeWidth={3} />
-                </div>
-                <span className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 leading-normal">
-                  <strong className="font-semibold text-zinc-900 dark:text-zinc-100">
-                    Saved Q&amp;A library
-                  </strong>
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    {" "}
-                    with instant search &amp; 1-click insert
-                  </span>
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="size-4 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-200 dark:border-emerald-800">
-                  <Check className="size-2.5" strokeWidth={3} />
-                </div>
-                <span className="text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 leading-normal">
-                  <strong className="font-semibold text-zinc-900 dark:text-zinc-100">
-                    Public profile portfolio
-                  </strong>
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    {" "}
-                    (Shareable lazee.dev/u/ link)
-                  </span>
-                </span>
-              </li>
-            </ul>
           </div>
-
-          <Button
-            size="lg"
-            onClick={handleGoPro}
-            disabled={isCheckingOut}
-            className="w-full text-xs sm:text-sm font-semibold tracking-tight h-11 relative z-10"
-          >
-            {isCheckingOut ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="size-3.5 animate-spin" />
-                Connecting checkout...
-              </span>
-            ) : isPro ? (
-              "Manage Subscription"
-            ) : (
-              "Upgrade to Pro ($9/mo)"
-            )}
-          </Button>
         </div>
-      </div>
-    </motion.section>
+      </motion.section>
   );
 }

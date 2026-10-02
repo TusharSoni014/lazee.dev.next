@@ -44,6 +44,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
   --font-heading: var(--font-outfit);
+  --font-serif: var(--font-instrument-serif);
+  --font-instrument: var(--font-instrument-serif);
 
   @keyframes blob {
     0% {

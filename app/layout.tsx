@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Outfit, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import SessionProvider from "@/components/providers/SessionProvider";
 import { ExtensionAuthSync } from "@/components/ExtensionAuthSync";
@@ -19,6 +19,13 @@ const inter = Inter({
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
+});
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  weight: "400",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -88,7 +95,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className="scroll-smooth">
       <body
         suppressHydrationWarning
-        className={`${inter.variable} ${outfit.variable} antialiased flex flex-col min-h-screen`}
+        className={`${inter.variable} ${outfit.variable} ${instrumentSerif.variable} antialiased flex flex-col min-h-screen`}
       >
         <ThemeProvider
           attribute="class"
