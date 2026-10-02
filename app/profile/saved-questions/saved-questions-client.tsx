@@ -377,7 +377,7 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
                   setTimeout(() => questionInputRef.current?.focus(), 60);
                 }
               }}
-              className="h-9 text-xs sm:text-sm px-3.5 gap-1.5"
+              className="h-9 text-xs sm:text-sm px-3.5 gap-1.5 w-[140px]"
             >
               <Plus
                 className={cn(
