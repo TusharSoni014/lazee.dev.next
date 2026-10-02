@@ -56,8 +56,16 @@ export function HeroDemo() {
   const formFields = [
     { label: "Full Name", value: "Devin Zhao", tag: "Profile Record" },
     { label: "Email Address", value: "devin@alumni.cmu.edu", tag: "Verified" },
-    { label: "Primary Repository", value: "github.com/devinzhao", tag: "Source" },
-    { label: "Active Resume File", value: "Resume_Staff_Platform_2026.pdf", tag: "Matched" },
+    {
+      label: "Primary Repository",
+      value: "github.com/devinzhao",
+      tag: "Source",
+    },
+    {
+      label: "Active Resume File",
+      value: "Resume_Staff_Platform_2026.pdf",
+      tag: "Matched",
+    },
   ];
 
   return (
@@ -74,7 +82,9 @@ export function HeroDemo() {
         {/* Centered URL Bar */}
         <div className="flex items-center gap-1.5 sm:gap-2 bg-white dark:bg-zinc-950 border border-zinc-200/80 dark:border-zinc-800/80 rounded-md px-2.5 sm:px-3 py-1 text-[10px] sm:text-[11px] text-zinc-600 dark:text-zinc-400 font-mono tracking-tight shadow-2xs max-w-[280px] sm:max-w-[320px] w-full mx-2 justify-center min-w-0">
           <ShieldCheck className="size-3 sm:size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-          <span className="truncate">boards.greenhouse.io/stripe/jobs/platform-lead</span>
+          <span className="truncate">
+            boards.greenhouse.io/stripe/jobs/platform-lead
+          </span>
         </div>
 
         {/* Right Balance Spacer */}
@@ -95,7 +105,11 @@ export function HeroDemo() {
                 Application Schema
               </span>
               <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 font-medium">
-                {step >= 2 ? "4 of 4 mapped" : step === 1 ? "Mapping fields..." : "Detected"}
+                {step >= 2
+                  ? "4 of 4 mapped"
+                  : step === 1
+                    ? "Mapping fields..."
+                    : "Detected"}
               </span>
             </div>
 
@@ -193,7 +207,7 @@ export function HeroDemo() {
                 </span>
               </div>
               <span className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded bg-zinc-200/70 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
-                v2.4
+                v2.1.0
               </span>
             </div>
 
@@ -204,7 +218,9 @@ export function HeroDemo() {
                   Role Question Synthesis
                 </span>
                 <span className="text-[9px] font-mono text-orange-600 dark:text-orange-400 font-medium flex items-center gap-1">
-                  {step >= 3 && <span className="size-1.5 rounded-full bg-orange-500 animate-pulse" />}
+                  {step >= 3 && (
+                    <span className="size-1.5 rounded-full bg-orange-500 animate-pulse" />
+                  )}
                   {step >= 3 ? "Generating" : "Waiting"}
                 </span>
               </div>
