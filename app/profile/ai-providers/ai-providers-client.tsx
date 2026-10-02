@@ -97,7 +97,26 @@ export function AiProvidersClient({
     active: string;
     models: { id: string; name: string }[];
   } | null>(null);
+  const [loadingLazeeModels, setLoadingLazeeModels] = useState(true);
+  const [lazeeModelsError, setLazeeModelsError] = useState<string | null>(null);
   const [savingModel, setSavingModel] = useState<string | null>(null);
+
+  const fetchLazeeModels = useCallback(async () => {
+    setLoadingLazeeModels(true);
+    setLazeeModelsError(null);
+    try {
+      const res = await fetch("/api/ai/lazee-model");
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.models) {
+        throw new Error(data?.error || "Could not load models.");
+      }
+      setLazeeModels(data);
+    } catch (err) {
+      setLazeeModelsError(errorMessage(err));
+    } finally {
+      setLoadingLazeeModels(false);
+    }
+  }, []);
 
   const selectLazeeModel = async (id: string) => {
     if (!lazeeModels || id === lazeeModels.active || savingModel) return;
@@ -122,17 +141,8 @@ export function AiProvidersClient({
   };
 
   useEffect(() => {
-    let cancel = false;
-    fetch("/api/ai/lazee-model")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!cancel && data?.models) setLazeeModels(data);
-      })
-      .catch(() => {});
-    return () => {
-      cancel = true;
-    };
-  }, []);
+    fetchLazeeModels();
+  }, [fetchLazeeModels]);
 
   const connecting = useRef(false);
   const connect = useCallback(async () => {
@@ -259,280 +269,436 @@ export function AiProvidersClient({
           />
         </div>
 
-        {ext === "checking" && (
-          <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-8 flex items-center justify-center gap-3 text-sm text-zinc-500">
-            <Loader2 className="size-4 animate-spin text-orange-500" />
-            Connecting to the Lazee extension...
-          </div>
-        )}
-
-        {ext === "missing" && (
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 md:p-8">
-            <div className="flex items-start gap-3">
-              <div className="size-9 shrink-0 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
-                <PlugZap className="size-4" />
-              </div>
-              <div className="min-w-0">
-                <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                  Lazee extension not detected
-                </h2>
-                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  AI providers are configured inside the extension so your keys
-                  never leave your browser. Install or enable the extension,
-                  keep this tab open, then retry.
-                </p>
-                {staleHint && (
-                  <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                    This browser has used Lazee before, but no running extension
-                    answered just now. If you&apos;re developing locally, the dev
-                    build may not have loaded in this browser — see{" "}
-                    <code>.output/chrome-mv3-dev</code> /{" "}
-                    <code>.output/firefox-mv2-dev</code> and load it from the
-                    extensions page, then refresh.
-                  </p>
-                )}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Button asChild size="sm">
-                    <a
-                      href={DOWNLOAD_LINKS[browser]}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Download className="size-3.5" />
-                      Get the extension
-                    </a>
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={connect}>
-                    <RefreshCw className="size-3.5" />
-                    Retry
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {ext === "outdated" && (
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 md:p-8">
-            <div className="flex items-start gap-3">
-              <div className="size-9 shrink-0 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
-                <RefreshCw className="size-4" />
-              </div>
-              <div className="min-w-0">
-                <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                  Extension found, but it needs an update
-                </h2>
-                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Your Lazee extension is connected to your account, but this
-                  version doesn&apos;t support AI providers yet. Update it from
-                  the store (or reload it from your browser&apos;s extensions
-                  page if you&apos;re running a local build), then refresh this
-                  page.
-                </p>
-                {foundInfo?.extensionId && (
-                  <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed break-all">
-                    Detected: <code>{foundInfo.extensionId}</code>
-                    {foundInfo.version ? ` (v${foundInfo.version})` : " (old build)"}
-                    . Running <code>wxt dev</code>? This is a different,
-                    already-installed copy — the dev build isn&apos;t the one
-                    answering. In Chrome, load <code>.output/chrome-mv3-dev</code>{" "}
-                    via chrome://extensions → Load unpacked (and disable the
-                    installed copy); in Firefox, remove the installed add-on and
-                    use about:debugging → Load Temporary Add-on.
-                  </p>
-                )}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Button asChild size="sm">
-                    <a
-                      href={DOWNLOAD_LINKS[browser]}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Download className="size-3.5" />
-                      Get the latest version
-                    </a>
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={connect}>
-                    <RefreshCw className="size-3.5" />
-                    Retry
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {ext === "error" && (
-          <div className="rounded-2xl border border-rose-500/30 bg-rose-500/5 p-6 md:p-8">
-            <div className="flex items-start gap-3">
-              <div className="size-9 shrink-0 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center">
-                <AlertCircle className="size-4" />
-              </div>
-              <div className="min-w-0">
-                <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                  The extension reported a problem
-                </h2>
-                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed break-words">
-                  {extError}
-                </p>
-                <div className="mt-4">
-                  <Button variant="outline" size="sm" onClick={connect}>
-                    <RefreshCw className="size-3.5" />
-                    Retry
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {ext === "ready" && settings && (
-          <div className="space-y-4">
-            {/* Currently active */}
-            <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-5 flex flex-wrap items-center justify-between gap-3 shadow-xs">
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                  Currently using
-                </p>
-                <p className="mt-0.5 text-base font-semibold text-zinc-900 dark:text-zinc-100 truncate">
-                  {active === "lazee"
-                    ? "Lazee AI"
-                    : PROVIDER_META[active].name}
-                  {activeState?.model && (
-                    <span className="ml-2 font-mono text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                      {activeState.model}
-                    </span>
-                  )}
-                </p>
-              </div>
-              <span
-                className={clsx(
-                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border",
-                  active === "lazee"
-                    ? "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20"
-                    : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
-                )}
-              >
-                {active === "lazee" ? (
-                  <>
-                    <Zap className="size-3.5" />
-                    {Intl.NumberFormat("en-US").format(credits)} credits
-                  </>
-                ) : (
-                  <>
-                    <KeyRound className="size-3.5" />
-                    Your own key • 0 credits used
-                  </>
-                )}
-              </span>
-            </div>
-
-            {/* Lazee AI */}
-            <div
-              className={clsx(
-                "rounded-2xl border bg-white dark:bg-zinc-900/90 p-5 shadow-xs flex flex-col gap-4 transition-colors",
-                active === "lazee"
-                  ? "border-orange-500/40"
-                  : "border-zinc-200/80 dark:border-zinc-800",
-              )}
+        <AnimatePresence mode="wait">
+          {ext === "checking" && (
+            <motion.div
+              key="ext-checking"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-8 flex items-center justify-center gap-3 text-sm text-zinc-500"
             >
-              <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className="size-10 shrink-0 rounded-xl overflow-hidden shadow-xs flex items-center justify-center">
-                  <img
-                    src="/logo.png"
-                    alt="Lazee AI"
-                    className="size-full object-cover select-none"
-                  />
+              <Loader2 className="size-4 animate-spin text-orange-500" />
+              Connecting to the Lazee extension...
+            </motion.div>
+          )}
+
+          {ext === "missing" && (
+            <motion.div
+              key="ext-missing"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 md:p-8"
+            >
+              <div className="flex items-start gap-3">
+                <div className="size-9 shrink-0 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
+                  <PlugZap className="size-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                      Lazee AI
-                    </h3>
-                    {membership === "PRO" && (
-                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-amber-500 to-orange-500 text-white">
-                        Pro
+                  <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                    Lazee extension not detected
+                  </h2>
+                  <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    AI providers are configured inside the extension so your keys
+                    never leave your browser. Install or enable the extension,
+                    keep this tab open, then retry.
+                  </p>
+                  {staleHint && (
+                    <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                      This browser has used Lazee before, but no running extension
+                      answered just now. If you&apos;re developing locally, the dev
+                      build may not have loaded in this browser — see{" "}
+                      <code>.output/chrome-mv3-dev</code> /{" "}
+                      <code>.output/firefox-mv2-dev</code> and load it from the
+                      extensions page, then refresh.
+                    </p>
+                  )}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button asChild size="sm">
+                      <a
+                        href={DOWNLOAD_LINKS[browser]}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Download className="size-3.5" />
+                        Get the extension
+                      </a>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={connect}>
+                      <RefreshCw className="size-3.5" />
+                      Retry
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {ext === "outdated" && (
+            <motion.div
+              key="ext-outdated"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 md:p-8"
+            >
+              <div className="flex items-start gap-3">
+                <div className="size-9 shrink-0 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
+                  <RefreshCw className="size-4" />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                    Extension found, but it needs an update
+                  </h2>
+                  <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    Your Lazee extension is connected to your account, but this
+                    version doesn&apos;t support AI providers yet. Update it from
+                    the store (or reload it from your browser&apos;s extensions
+                    page if you&apos;re running a local build), then refresh this
+                    page.
+                  </p>
+                  {foundInfo?.extensionId && (
+                    <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed break-all">
+                      Detected: <code>{foundInfo.extensionId}</code>
+                      {foundInfo.version ? ` (v${foundInfo.version})` : " (old build)"}
+                      . Running <code>wxt dev</code>? This is a different,
+                      already-installed copy — the dev build isn&apos;t the one
+                      answering. In Chrome, load <code>.output/chrome-mv3-dev</code>{" "}
+                      via chrome://extensions → Load unpacked (and disable the
+                      installed copy); in Firefox, remove the installed add-on and
+                      use about:debugging → Load Temporary Add-on.
+                    </p>
+                  )}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button asChild size="sm">
+                      <a
+                        href={DOWNLOAD_LINKS[browser]}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Download className="size-3.5" />
+                        Get the latest version
+                      </a>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={connect}>
+                      <RefreshCw className="size-3.5" />
+                      Retry
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {ext === "error" && (
+            <motion.div
+              key="ext-error"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="rounded-2xl border border-rose-500/30 bg-rose-500/5 p-6 md:p-8"
+            >
+              <div className="flex items-start gap-3">
+                <div className="size-9 shrink-0 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center">
+                  <AlertCircle className="size-4" />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                    The extension reported a problem
+                  </h2>
+                  <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed break-words">
+                    {extError}
+                  </p>
+                  <div className="mt-4">
+                    <Button variant="outline" size="sm" onClick={connect}>
+                      <RefreshCw className="size-3.5" />
+                      Retry
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {ext === "ready" && settings && (
+            <motion.div
+              key="ext-ready"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-4"
+            >
+              {/* Currently active */}
+              <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-5 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                    Currently using
+                  </p>
+                  <p className="mt-0.5 text-base font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                    {active === "lazee"
+                      ? "Lazee AI"
+                      : PROVIDER_META[active].name}
+                    {activeState?.model && (
+                      <span className="ml-2 font-mono text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                        {activeState.model}
                       </span>
                     )}
-                    {active === "lazee" && <ActiveBadge />}
-                  </div>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                    Our hosted models, tuned for applications. Uses your Lazee
-                    credits.
                   </p>
                 </div>
-              </div>
-              {active !== "lazee" && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={switching}
-                  onClick={() => activate("lazee")}
+                <span
+                  className={clsx(
+                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border",
+                    active === "lazee"
+                      ? "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20"
+                      : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+                  )}
                 >
-                  Use Lazee AI
-                </Button>
-              )}
+                  {active === "lazee" ? (
+                    <>
+                      <Zap className="size-3.5" />
+                      {Intl.NumberFormat("en-US").format(credits)} credits
+                    </>
+                  ) : (
+                    <>
+                      <KeyRound className="size-3.5" />
+                      Your own key • 0 credits used
+                    </>
+                  )}
+                </span>
               </div>
-              {lazeeModels && lazeeModels.models.length > 0 && (
-                <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/40 p-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                    Free text models
-                  </p>
-                  <ul className="mt-2 max-h-40 overflow-y-auto space-y-1">
-                    {lazeeModels.models.map((model) => {
-                      const selected = model.id === lazeeModels.active;
-                      return (
-                        <li key={model.id}>
-                          <button
-                            type="button"
-                            disabled={selected || savingModel !== null}
-                            onClick={() => selectLazeeModel(model.id)}
-                            className={clsx(
-                              "flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1 text-left text-xs transition-colors",
-                              selected
-                                ? "bg-orange-500/10 text-orange-700 dark:text-orange-300"
-                                : "text-zinc-600 hover:bg-zinc-100 disabled:hover:bg-transparent dark:text-zinc-400 dark:hover:bg-zinc-800/80",
-                            )}
-                          >
-                            <span className="min-w-0 truncate">{model.name}</span>
-                            <span className="shrink-0 font-mono text-[10px] text-zinc-400 dark:text-zinc-500">
-                              {savingModel === model.id
-                                ? "saving"
-                                : selected
-                                  ? "active"
-                                  : "use"}
-                            </span>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                  <p className="mt-2 text-[11px] leading-relaxed text-zinc-400 dark:text-zinc-500">
-                    Click a model to use it. Lazee AI is on{" "}
-                    <span className="font-mono">{lazeeModels.active}</span>. If
-                    that model stops answering, the next free text model is
-                    selected and saved automatically.
-                  </p>
+
+              {/* Lazee AI */}
+              <motion.div
+                layout
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className={clsx(
+                  "rounded-2xl border bg-white dark:bg-zinc-900/90 p-5 shadow-xs flex flex-col gap-4 transition-colors",
+                  active === "lazee"
+                    ? "border-orange-500/40"
+                    : "border-zinc-200/80 dark:border-zinc-800",
+                )}
+              >
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="size-10 shrink-0 rounded-xl overflow-hidden shadow-xs flex items-center justify-center">
+                      <img
+                        src="/logo.png"
+                        alt="Lazee AI"
+                        className="size-full object-cover select-none"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                          Lazee AI
+                        </h3>
+                        {membership === "PRO" && (
+                          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                            Pro
+                          </span>
+                        )}
+                        {active === "lazee" && <ActiveBadge />}
+                      </div>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        Our hosted models, tuned for applications. Uses your Lazee
+                        credits.
+                      </p>
+                    </div>
+                  </div>
+                  {active !== "lazee" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={switching}
+                      onClick={() => activate("lazee")}
+                    >
+                      Use Lazee AI
+                    </Button>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <p className="pt-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-              Bring your own
-            </p>
+                {/* Free text models list & loading animation */}
+                <AnimatePresence mode="wait">
+                  {loadingLazeeModels ? (
+                    <motion.div
+                      key="models-loading"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/40 p-3.5 space-y-3 overflow-hidden"
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                          Free text models
+                        </p>
+                        <div className="flex items-center gap-2 text-[11px] font-medium text-orange-600/90 dark:text-orange-400/90">
+                          <span className="relative flex size-2">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" />
+                            <span className="relative inline-flex size-2 rounded-full bg-orange-500" />
+                          </span>
+                          <span>Scanning endpoints...</span>
+                        </div>
+                      </div>
 
-            {BYOK_PROVIDERS.map((id) => (
-              <ProviderCard
-                key={id}
-                id={id}
-                state={settings.providers[id]}
-                isActive={active === id}
-                onSettings={setSettings}
-              />
-            ))}
-          </div>
-        )}
+                      <div className="space-y-1.5 py-0.5">
+                        {[
+                          { width: "w-44", badge: "w-12" },
+                          { width: "w-52", badge: "w-10" },
+                          { width: "w-36", badge: "w-14" },
+                        ].map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between gap-3 px-2.5 py-1.5 rounded-lg bg-zinc-100/80 dark:bg-zinc-900/60 animate-pulse"
+                            style={{ animationDelay: `${idx * 150}ms` }}
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="size-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                              <div
+                                className={clsx(
+                                  "h-3 rounded-md bg-zinc-200/80 dark:bg-zinc-800",
+                                  item.width,
+                                )}
+                              />
+                            </div>
+                            <div
+                              className={clsx(
+                                "h-2.5 rounded-md bg-zinc-200/80 dark:bg-zinc-800 shrink-0",
+                                item.badge,
+                              )}
+                            />
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 dark:text-zinc-500">
+                        <Loader2 className="size-3 animate-spin text-orange-500/80 shrink-0" />
+                        <span>Discovering active OpenRouter free models...</span>
+                      </div>
+                    </motion.div>
+                  ) : lazeeModelsError ? (
+                    <motion.div
+                      key="models-error"
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.2 }}
+                      className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-2.5 text-xs text-amber-700 dark:text-amber-400 min-w-0">
+                        <AlertCircle className="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                        <span className="truncate">
+                          Could not load free models ({lazeeModelsError})
+                        </span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={fetchLazeeModels}
+                        className="h-7 px-2.5 text-xs border-amber-500/30 hover:bg-amber-500/10 text-amber-700 dark:text-amber-300 shrink-0 cursor-pointer"
+                      >
+                        <RefreshCw className="size-3 mr-1.5" />
+                        Retry
+                      </Button>
+                    </motion.div>
+                  ) : lazeeModels && lazeeModels.models.length > 0 ? (
+                    <motion.div
+                      key="models-loaded"
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                      className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/40 p-3"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                          Free text models
+                        </p>
+                        <button
+                          type="button"
+                          onClick={fetchLazeeModels}
+                          disabled={loadingLazeeModels}
+                          className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer"
+                          title="Refresh model list"
+                        >
+                          <RefreshCw className="size-3" />
+                          <span>Refresh</span>
+                        </button>
+                      </div>
+                      <ul className="max-h-40 overflow-y-auto space-y-1 pr-0.5">
+                        {lazeeModels.models.map((model) => {
+                          const selected = model.id === lazeeModels.active;
+                          const isSaving = savingModel === model.id;
+                          return (
+                            <li key={model.id}>
+                              <button
+                                type="button"
+                                disabled={selected || savingModel !== null}
+                                onClick={() => selectLazeeModel(model.id)}
+                                className={clsx(
+                                  "group flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-1.5 text-left text-xs transition-all duration-150 cursor-pointer",
+                                  selected
+                                    ? "bg-orange-500/10 text-orange-800 dark:text-orange-300 font-medium border border-orange-500/20"
+                                    : "text-zinc-600 hover:bg-zinc-100/90 disabled:hover:bg-transparent dark:text-zinc-400 dark:hover:bg-zinc-800/80 hover:text-zinc-900 dark:hover:text-zinc-200",
+                                )}
+                              >
+                                <span className="min-w-0 truncate">{model.name}</span>
+                                <span className="shrink-0 font-mono text-[10px]">
+                                  {isSaving ? (
+                                    <span className="inline-flex items-center gap-1 text-orange-600 dark:text-orange-400 font-medium">
+                                      <Loader2 className="size-2.5 animate-spin" />
+                                      saving...
+                                    </span>
+                                  ) : selected ? (
+                                    <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                                      <span className="size-1.5 rounded-full bg-emerald-500" />
+                                      active
+                                    </span>
+                                  ) : (
+                                    <span className="text-zinc-400 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                                      use
+                                    </span>
+                                  )}
+                                </span>
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      <p className="mt-2 text-[11px] leading-relaxed text-zinc-400 dark:text-zinc-500">
+                        Click a model to use it. Lazee AI is on{" "}
+                        <span className="font-mono text-zinc-700 dark:text-zinc-300 font-medium">
+                          {lazeeModels.active}
+                        </span>
+                        . If that model stops answering, the next free text model is
+                        selected and saved automatically.
+                      </p>
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+              </motion.div>
+
+              <p className="pt-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                Bring your own
+              </p>
+
+              {BYOK_PROVIDERS.map((id) => (
+                <ProviderCard
+                  key={id}
+                  id={id}
+                  state={settings.providers[id]}
+                  isActive={active === id}
+                  onSettings={setSettings}
+                />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
