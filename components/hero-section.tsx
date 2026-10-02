@@ -15,7 +15,7 @@ export function HeroSection() {
   const isFirefox = browser === "firefox";
 
   return (
-    <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16 pt-8 pb-16 sm:py-20 lg:py-24">
+    <div className="w-full flex flex-col lg:flex-row items-center lg:items-start justify-between gap-12 lg:gap-16 pt-8 pb-16 sm:py-20 lg:py-24">
       {/* Left Column (Content) */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -36,25 +36,29 @@ export function HeroSection() {
 
         {/* Title */}
         <h1 className="max-w-2xl text-4xl sm:text-5xl lg:text-6xl font-heading font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.08]">
-          Eliminate repetitive job applications.
+          Job applications.
           <br />
           <span className="font-serif italic text-[1.05em] text-orange-600 dark:text-orange-500">
             Apply in seconds,
-          </span>{" "}
+          </span>
+          <br />
           not hours.
         </h1>
 
         {/* Subtitle / Paragraph */}
         <p className="max-w-xl text-base sm:text-lg text-zinc-600 dark:text-zinc-400 font-normal leading-relaxed mt-5">
-          Lazee is the developer-focused browser extension that
-          deterministically maps your engineering record, multiple tailored
-          resumes, and project metrics into any hiring portal.
+          lazee.dev is a browser extension that autofills repetitive job forms
+          from your unified profile data-saving you hours of tedious
+          copy-pasting.
         </p>
 
         {/* CTA Group */}
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mt-8">
           <InstallModal>
-            <Button size="lg" className="h-12 w-full sm:w-auto min-w-[220px] px-6 text-sm gap-2.5">
+            <Button
+              size="lg"
+              className="h-12 w-full sm:w-auto min-w-[220px] px-6 text-sm gap-2.5"
+            >
               {isFirefox ? (
                 <FaFirefox className="size-4 shrink-0" />
               ) : (
@@ -161,7 +165,7 @@ export function HeroSection() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-        className="flex-1 w-full max-w-xl lg:max-w-none flex justify-center lg:justify-end"
+        className="flex-1 w-full max-w-xl lg:max-w-none flex items-start justify-center lg:justify-end lg:self-start"
       >
         <HeroDemo />
       </motion.div>
