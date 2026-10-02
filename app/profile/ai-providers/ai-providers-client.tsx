@@ -252,7 +252,7 @@ export function AiProvidersClient({
         </div>
 
         {/* Privacy / credits explainer */}
-        <div className="mb-6 grid gap-3 sm:grid-cols-2">
+        <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InfoTile
             icon={<ShieldCheck className="size-4" />}
             title="Keys stay on your device"
@@ -302,16 +302,16 @@ export function AiProvidersClient({
                     Lazee extension not detected
                   </h2>
                   <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                    AI providers are configured inside the extension so your keys
-                    never leave your browser. Install or enable the extension,
-                    keep this tab open, then retry.
+                    AI providers are configured inside the extension so your
+                    keys never leave your browser. Install or enable the
+                    extension, keep this tab open, then retry.
                   </p>
                   {staleHint && (
                     <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                      This browser has used Lazee before, but no running extension
-                      answered just now. If you&apos;re developing locally, the dev
-                      build may not have loaded in this browser — see{" "}
-                      <code>.output/chrome-mv3-dev</code> /{" "}
+                      This browser has used Lazee before, but no running
+                      extension answered just now. If you&apos;re developing
+                      locally, the dev build may not have loaded in this browser
+                      — see <code>.output/chrome-mv3-dev</code> /{" "}
                       <code>.output/firefox-mv2-dev</code> and load it from the
                       extensions page, then refresh.
                     </p>
@@ -356,21 +356,24 @@ export function AiProvidersClient({
                   </h2>
                   <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
                     Your Lazee extension is connected to your account, but this
-                    version doesn&apos;t support AI providers yet. Update it from
-                    the store (or reload it from your browser&apos;s extensions
-                    page if you&apos;re running a local build), then refresh this
-                    page.
+                    version doesn&apos;t support AI providers yet. Update it
+                    from the store (or reload it from your browser&apos;s
+                    extensions page if you&apos;re running a local build), then
+                    refresh this page.
                   </p>
                   {foundInfo?.extensionId && (
                     <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed break-all">
                       Detected: <code>{foundInfo.extensionId}</code>
-                      {foundInfo.version ? ` (v${foundInfo.version})` : " (old build)"}
+                      {foundInfo.version
+                        ? ` (v${foundInfo.version})`
+                        : " (old build)"}
                       . Running <code>wxt dev</code>? This is a different,
                       already-installed copy — the dev build isn&apos;t the one
-                      answering. In Chrome, load <code>.output/chrome-mv3-dev</code>{" "}
-                      via chrome://extensions → Load unpacked (and disable the
-                      installed copy); in Firefox, remove the installed add-on and
-                      use about:debugging → Load Temporary Add-on.
+                      answering. In Chrome, load{" "}
+                      <code>.output/chrome-mv3-dev</code> via
+                      chrome://extensions → Load unpacked (and disable the
+                      installed copy); in Firefox, remove the installed add-on
+                      and use about:debugging → Load Temporary Add-on.
                     </p>
                   )}
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -505,8 +508,8 @@ export function AiProvidersClient({
                         {active === "lazee" && <ActiveBadge />}
                       </div>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                        Our hosted models, tuned for applications. Uses your Lazee
-                        credits.
+                        Our hosted models, tuned for applications. Uses your
+                        Lazee credits.
                       </p>
                     </div>
                   </div>
@@ -578,7 +581,9 @@ export function AiProvidersClient({
 
                       <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 dark:text-zinc-500">
                         <Loader2 className="size-3 animate-spin text-orange-500/80 shrink-0" />
-                        <span>Discovering active OpenRouter free models...</span>
+                        <span>
+                          Discovering active OpenRouter free models...
+                        </span>
                       </div>
                     </motion.div>
                   ) : lazeeModelsError ? (
@@ -647,7 +652,9 @@ export function AiProvidersClient({
                                     : "text-zinc-600 hover:bg-zinc-100/90 disabled:hover:bg-transparent dark:text-zinc-400 dark:hover:bg-zinc-800/80 hover:text-zinc-900 dark:hover:text-zinc-200",
                                 )}
                               >
-                                <span className="min-w-0 truncate">{model.name}</span>
+                                <span className="min-w-0 truncate">
+                                  {model.name}
+                                </span>
                                 <span className="shrink-0 font-mono text-[10px]">
                                   {isSaving ? (
                                     <span className="inline-flex items-center gap-1 text-orange-600 dark:text-orange-400 font-medium">
@@ -675,8 +682,8 @@ export function AiProvidersClient({
                         <span className="font-mono text-zinc-700 dark:text-zinc-300 font-medium">
                           {lazeeModels.active}
                         </span>
-                        . If that model stops answering, the next free text model is
-                        selected and saved automatically.
+                        . If that model stops answering, the next free text
+                        model is selected and saved automatically.
                       </p>
                     </motion.div>
                   ) : null}
@@ -714,7 +721,7 @@ function InfoTile({
   body: string;
 }) {
   return (
-    <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 p-4 flex gap-3">
+    <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 p-4 flex gap-4">
       <div className="size-8 shrink-0 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 flex items-center justify-center">
         {icon}
       </div>
@@ -806,7 +813,9 @@ function ProviderCard({
   const [open, setOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
-  const [preset, setPreset] = useState<CustomPresetId>(state.preset ?? "ollama");
+  const [preset, setPreset] = useState<CustomPresetId>(
+    state.preset ?? "ollama",
+  );
   const [baseUrl, setBaseUrl] = useState(
     state.baseUrl ?? CUSTOM_PRESETS.ollama.baseUrl,
   );
@@ -949,7 +958,8 @@ function ProviderCard({
   };
 
   const avatar = AVATAR[id];
-  const modelOptions = model && !models.includes(model) ? [model, ...models] : models;
+  const modelOptions =
+    model && !models.includes(model) ? [model, ...models] : models;
 
   return (
     <div
@@ -1016,233 +1026,239 @@ function ProviderCard({
             className="overflow-hidden"
           >
             <div className="px-5 pb-5 pt-1 space-y-4 border-t border-zinc-100 dark:border-zinc-800/80">
-          {isCustom && (
-            <div className="pt-4 space-y-3">
-              <div>
-                <label className={labelClass}>Server type</label>
-                <div className="flex flex-wrap gap-2">
-                  {(Object.keys(CUSTOM_PRESETS) as CustomPresetId[]).map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => {
-                        setPreset(p);
-                        if (CUSTOM_PRESETS[p].baseUrl) {
-                          setBaseUrl(CUSTOM_PRESETS[p].baseUrl);
-                        } else if (preset !== "other") {
-                          setBaseUrl("");
-                        }
-                        setModels([]);
-                        setResult(null);
-                      }}
-                      className={clsx(
-                        "px-3 h-8 rounded-lg border text-xs font-medium transition-colors cursor-pointer",
-                        preset === p
-                          ? "border-orange-500 bg-orange-500/10 text-orange-700 dark:text-orange-400"
-                          : "border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/60",
+              {isCustom && (
+                <div className="pt-4 space-y-3">
+                  <div>
+                    <label className={labelClass}>Server type</label>
+                    <div className="flex flex-wrap gap-2">
+                      {(Object.keys(CUSTOM_PRESETS) as CustomPresetId[]).map(
+                        (p) => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => {
+                              setPreset(p);
+                              if (CUSTOM_PRESETS[p].baseUrl) {
+                                setBaseUrl(CUSTOM_PRESETS[p].baseUrl);
+                              } else if (preset !== "other") {
+                                setBaseUrl("");
+                              }
+                              setModels([]);
+                              setResult(null);
+                            }}
+                            className={clsx(
+                              "px-3 h-8 rounded-lg border text-xs font-medium transition-colors cursor-pointer",
+                              preset === p
+                                ? "border-orange-500 bg-orange-500/10 text-orange-700 dark:text-orange-400"
+                                : "border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/60",
+                            )}
+                          >
+                            {CUSTOM_PRESETS[p].label}
+                          </button>
+                        ),
                       )}
-                    >
-                      {CUSTOM_PRESETS[p].label}
-                    </button>
-                  ))}
+                    </div>
+                    <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                      {CUSTOM_PRESETS[preset].help}
+                    </p>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Endpoint URL</label>
+                    <Input
+                      value={baseUrl}
+                      onChange={(e) => {
+                        setBaseUrl(e.target.value);
+                        setModels([]);
+                      }}
+                      placeholder="http://localhost:11434/v1"
+                      spellCheck={false}
+                      autoComplete="off"
+                    />
+                  </div>
                 </div>
-                <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                  {CUSTOM_PRESETS[preset].help}
-                </p>
-              </div>
-              <div>
-                <label className={labelClass}>Endpoint URL</label>
-                <Input
-                  value={baseUrl}
-                  onChange={(e) => {
-                    setBaseUrl(e.target.value);
-                    setModels([]);
-                  }}
-                  placeholder="http://localhost:11434/v1"
-                  spellCheck={false}
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-          )}
-
-          <div className={clsx(!isCustom && "pt-4")}>
-            <div className="flex items-center justify-between">
-              <label className={labelClass}>{meta.keyLabel}</label>
-              {meta.keyHelpUrl && (
-                <a
-                  href={meta.keyHelpUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[11px] text-orange-600 dark:text-orange-400 hover:underline mb-1.5"
-                >
-                  Get a key
-                </a>
               )}
-            </div>
-            <div className="relative">
-              <Input
-                type={showKey ? "text" : "password"}
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder={
-                  state.hasKey
-                    ? `Saved (${state.keyHint}). Enter a new key to replace it`
-                    : meta.keyPlaceholder
-                }
-                autoComplete="off"
-                spellCheck={false}
-                className="pr-10 font-mono"
-              />
-              <button
-                type="button"
-                onClick={() => setShowKey((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer"
-                aria-label={showKey ? "Hide key" : "Show key"}
-              >
-                {showKey ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-              </button>
-            </div>
-          </div>
 
-          <div>
-            <div className="flex items-center justify-between">
-              <label className={labelClass}>Model</label>
-              <div className="flex items-center gap-3 mb-1.5">
-                {models.length > 0 && (
+              <div className={clsx(!isCustom && "pt-4")}>
+                <div className="flex items-center justify-between">
+                  <label className={labelClass}>{meta.keyLabel}</label>
+                  {meta.keyHelpUrl && (
+                    <a
+                      href={meta.keyHelpUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] text-orange-600 dark:text-orange-400 hover:underline mb-1.5"
+                    >
+                      Get a key
+                    </a>
+                  )}
+                </div>
+                <div className="relative">
+                  <Input
+                    type={showKey ? "text" : "password"}
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder={
+                      state.hasKey
+                        ? `Saved (${state.keyHint}). Enter a new key to replace it`
+                        : meta.keyPlaceholder
+                    }
+                    autoComplete="off"
+                    spellCheck={false}
+                    className="pr-10 font-mono"
+                  />
                   <button
                     type="button"
-                    onClick={() => setManualModel((v) => !v)}
-                    className="text-[11px] text-zinc-500 hover:text-orange-600 dark:text-zinc-400 dark:hover:text-orange-400 cursor-pointer"
+                    onClick={() => setShowKey((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer"
+                    aria-label={showKey ? "Hide key" : "Show key"}
                   >
-                    {manualModel ? "Pick from list" : "Type model id"}
+                    {showKey ? (
+                      <EyeOff className="size-4" />
+                    ) : (
+                      <Eye className="size-4" />
+                    )}
                   </button>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <label className={labelClass}>Model</label>
+                  <div className="flex items-center gap-3 mb-1.5">
+                    {models.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setManualModel((v) => !v)}
+                        className="text-[11px] text-zinc-500 hover:text-orange-600 dark:text-zinc-400 dark:hover:text-orange-400 cursor-pointer"
+                      >
+                        {manualModel ? "Pick from list" : "Type model id"}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => fetchModels(false)}
+                      disabled={busy !== null}
+                      className="inline-flex items-center gap-1 text-[11px] font-medium text-orange-600 dark:text-orange-400 hover:underline disabled:opacity-50 cursor-pointer"
+                    >
+                      {busy === "models" ? (
+                        <Loader2 className="size-3 animate-spin" />
+                      ) : (
+                        <RefreshCw className="size-3" />
+                      )}
+                      {models.length > 0 ? "Refresh models" : "Load models"}
+                    </button>
+                  </div>
+                </div>
+                {models.length > 0 && !manualModel ? (
+                  <Select value={model} onValueChange={setModel}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a model" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      {modelOptions.map((m) => (
+                        <SelectItem key={m} value={m}>
+                          {m}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    placeholder={meta.modelPlaceholder}
+                    spellCheck={false}
+                    autoComplete="off"
+                    className="font-mono"
+                  />
                 )}
-                <button
-                  type="button"
-                  onClick={() => fetchModels(false)}
-                  disabled={busy !== null}
-                  className="inline-flex items-center gap-1 text-[11px] font-medium text-orange-600 dark:text-orange-400 hover:underline disabled:opacity-50 cursor-pointer"
-                >
-                  {busy === "models" ? (
-                    <Loader2 className="size-3 animate-spin" />
-                  ) : (
-                    <RefreshCw className="size-3" />
+              </div>
+
+              {result && (
+                <div
+                  className={clsx(
+                    "flex items-start gap-2 rounded-xl border px-3.5 py-2.5 text-xs leading-relaxed",
+                    result.ok
+                      ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400"
+                      : "border-rose-500/20 bg-rose-500/5 text-rose-700 dark:text-rose-400",
                   )}
-                  {models.length > 0 ? "Refresh models" : "Load models"}
-                </button>
+                >
+                  {result.ok ? (
+                    <Check className="size-4 shrink-0 mt-px" />
+                  ) : (
+                    <AlertCircle className="size-4 shrink-0 mt-px" />
+                  )}
+                  <span className="break-words min-w-0">{result.message}</span>
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <Button
+                  size="sm"
+                  disabled={!canSave || busy !== null}
+                  onClick={() => save(true)}
+                >
+                  {busy === "save" ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <Check className="size-3.5" />
+                  )}
+                  {isActive ? "Save" : "Save & use"}
+                </Button>
+                {!isActive && state.configured && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={busy !== null}
+                    onClick={async () => {
+                      setBusy("save");
+                      try {
+                        onSettings(await extensionAi.setActive(id));
+                        toast.success(`Now using ${meta.name}`);
+                      } catch (err) {
+                        setResult({ ok: false, message: errorMessage(err) });
+                      } finally {
+                        setBusy(null);
+                      }
+                    }}
+                  >
+                    Use this provider
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!canSave || busy !== null}
+                  onClick={test}
+                >
+                  {busy === "test" ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <PlugZap className="size-3.5" />
+                  )}
+                  Test connection
+                </Button>
+                {(state.hasKey || state.configured) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={busy !== null}
+                    onClick={remove}
+                    className="ml-auto text-rose-600 dark:text-rose-400 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                  >
+                    {busy === "remove" ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="size-3.5" />
+                    )}
+                    Remove
+                  </Button>
+                )}
               </div>
             </div>
-            {models.length > 0 && !manualModel ? (
-              <Select value={model} onValueChange={setModel}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a model" />
-                </SelectTrigger>
-                <SelectContent className="max-h-72">
-                  {modelOptions.map((m) => (
-                    <SelectItem key={m} value={m}>
-                      {m}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <Input
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                placeholder={meta.modelPlaceholder}
-                spellCheck={false}
-                autoComplete="off"
-                className="font-mono"
-              />
-            )}
-          </div>
-
-          {result && (
-            <div
-              className={clsx(
-                "flex items-start gap-2 rounded-xl border px-3.5 py-2.5 text-xs leading-relaxed",
-                result.ok
-                  ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400"
-                  : "border-rose-500/20 bg-rose-500/5 text-rose-700 dark:text-rose-400",
-              )}
-            >
-              {result.ok ? (
-                <Check className="size-4 shrink-0 mt-px" />
-              ) : (
-                <AlertCircle className="size-4 shrink-0 mt-px" />
-              )}
-              <span className="break-words min-w-0">{result.message}</span>
-            </div>
-          )}
-
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            <Button
-              size="sm"
-              disabled={!canSave || busy !== null}
-              onClick={() => save(true)}
-            >
-              {busy === "save" ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : (
-                <Check className="size-3.5" />
-              )}
-              {isActive ? "Save" : "Save & use"}
-            </Button>
-            {!isActive && state.configured && (
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={busy !== null}
-                onClick={async () => {
-                  setBusy("save");
-                  try {
-                    onSettings(await extensionAi.setActive(id));
-                    toast.success(`Now using ${meta.name}`);
-                  } catch (err) {
-                    setResult({ ok: false, message: errorMessage(err) });
-                  } finally {
-                    setBusy(null);
-                  }
-                }}
-              >
-                Use this provider
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!canSave || busy !== null}
-              onClick={test}
-            >
-              {busy === "test" ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : (
-                <PlugZap className="size-3.5" />
-              )}
-              Test connection
-            </Button>
-            {(state.hasKey || state.configured) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={busy !== null}
-                onClick={remove}
-                className="ml-auto text-rose-600 dark:text-rose-400 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
-              >
-                {busy === "remove" ? (
-                  <Loader2 className="size-3.5 animate-spin" />
-                ) : (
-                  <Trash2 className="size-3.5" />
-                )}
-                Remove
-              </Button>
-            )}
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

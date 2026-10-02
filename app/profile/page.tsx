@@ -204,7 +204,7 @@ export default async function ProfilePage({
         </div>
 
         {/* Profile Quick Links: AI Providers & Saved Questions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
           <Link
             href="/profile/ai-providers"
             className="group flex items-center gap-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-4 sm:p-5 shadow-xs transition-colors hover:border-orange-500/40"
@@ -217,8 +217,8 @@ export default async function ProfilePage({
                 AI Providers
               </p>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                Bring your own ChatGPT, Claude, Gemini or Grok key, or run a local
-                model with Ollama / LM Studio.
+                Bring your own ChatGPT, Claude, Gemini or Grok key, or run a
+                local model with Ollama / LM Studio.
               </p>
             </div>
             <ArrowRight className="size-4 shrink-0 text-zinc-400 group-hover:text-orange-600 transition-colors" />
@@ -243,7 +243,8 @@ export default async function ProfilePage({
                 )}
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                Manage and reuse custom screening questions &amp; answers across job applications.
+                Manage and reuse custom screening questions &amp; answers across
+                job applications.
               </p>
             </div>
             <ArrowRight className="size-4 shrink-0 text-zinc-400 group-hover:text-orange-600 transition-colors" />
