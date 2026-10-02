@@ -6,13 +6,10 @@
  */
 
 /**
- * When a user runs the extension on their own AI provider, should the
- * PRO-only AI features (Cold DM, Express Fill) be available on the FREE plan?
- *
- * They are PRO-only today because they cost us inference money; with BYOK they
- * don't. Flip this to `false` to keep them PRO-only even for BYOK users.
+ * Cold DM and Express Fill are strictly PRO-only features across all providers
+ * (including BYOK and local models). Free users cannot access them under any condition.
  */
-export const BYOK_UNLOCKS_PRO_FEATURES = true;
+export const BYOK_UNLOCKS_PRO_FEATURES = false;
 
 export const BYOK_PROVIDERS = [
   "openai",

@@ -7,6 +7,7 @@ import { InstallModal } from "./install-modal";
 import { useBrowser } from "@/hooks/use-browser";
 import { FaChrome, FaFirefox, FaGithub } from "react-icons/fa";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 export function HeroSection() {
@@ -103,23 +104,30 @@ export function HeroSection() {
 
         {/* Engineer Social Proof Bar */}
         <div className="mt-10 pt-6 border-t border-zinc-200/80 dark:border-zinc-800/80 w-full flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4">
-          <div className="flex items-center gap-2">
-            <div className="flex -space-x-1.5 overflow-hidden">
-              {["MV", "ER", "DZ", "SK"].map((initials, i) => (
-                <div
-                  key={i}
-                  className="inline-flex items-center justify-center size-7 rounded-full ring-2 ring-white dark:ring-zinc-950 bg-zinc-100 dark:bg-zinc-800 text-[10px] font-semibold text-zinc-700 dark:text-zinc-300"
-                >
-                  {initials}
-                </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="flex -space-x-1.5 shrink-0">
+              {[
+                { src: "/avatars/avatar-1.jpg", alt: "Software engineer using Lazee" },
+                { src: "/avatars/avatar-2.jpg", alt: "Frontend developer using Lazee" },
+                { src: "/avatars/avatar-3.jpg", alt: "Backend developer using Lazee" },
+                { src: "/avatars/avatar-4.jpg", alt: "Full-stack engineer using Lazee" },
+              ].map((avatar) => (
+                <Image
+                  key={avatar.src}
+                  src={avatar.src}
+                  alt={avatar.alt}
+                  width={28}
+                  height={28}
+                  className="inline-block size-7 rounded-full object-cover ring-2 ring-white dark:ring-zinc-950 bg-zinc-100 dark:bg-zinc-800 shrink-0"
+                />
               ))}
             </div>
-            <div className="flex items-center gap-0.5 text-amber-500 ml-1">
+            <div className="flex items-center gap-0.5 text-amber-500 ml-1 shrink-0">
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
                   size={12}
-                  className="fill-amber-500 text-amber-500"
+                  className="fill-amber-500 text-amber-500 shrink-0"
                 />
               ))}
             </div>

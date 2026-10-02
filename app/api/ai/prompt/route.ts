@@ -3,7 +3,6 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { buildColdDmPrompt, buildSystemPrompt } from "@/lib/prompt";
 import { getCorsHeaders } from "@/lib/cors";
-import { BYOK_UNLOCKS_PRO_FEATURES } from "@/lib/byok";
 
 export const dynamic = "force-dynamic";
 
@@ -90,9 +89,9 @@ export async function POST(request: NextRequest) {
     });
     if (!user) return fail("User not found", 404);
 
-    // PRO-only features stay PRO-only unless BYOK unlocks them.
+    // Cold DM and Express Fill are strictly PRO-only features across all providers (Lazee AI, BYOK, local models).
+    // Free users cannot access them under any condition.
     if (
-      !BYOK_UNLOCKS_PRO_FEATURES &&
       user.membership !== "PRO" &&
       (kind === "cold-dm" || kind === "express-fill")
     ) {
