@@ -92,9 +92,17 @@ export function Footer() {
               <li>
                 <Link
                   className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors"
+                  href="/careers"
+                >
+                  Jobs &amp; Careers
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors"
                   href="/feedback"
                 >
-                  Request ATS Platform
+                  Share Feedback
                 </Link>
               </li>
               <li>
