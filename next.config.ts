@@ -25,7 +25,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.r2.dev",
       },
+      {
+        protocol: "https",
+        hostname: "api.dicebear.com",
+      },
     ],
+    dangerouslyAllowSVG: true,
   },
   experimental: {
     serverActions: {

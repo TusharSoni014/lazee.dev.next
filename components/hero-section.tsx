@@ -107,10 +107,22 @@ export function HeroSection() {
           <div className="flex items-center gap-2 shrink-0">
             <div className="flex -space-x-1.5 shrink-0">
               {[
-                { src: "/avatars/avatar-1.jpg", alt: "Software engineer using Lazee" },
-                { src: "/avatars/avatar-2.jpg", alt: "Frontend developer using Lazee" },
-                { src: "/avatars/avatar-3.jpg", alt: "Backend developer using Lazee" },
-                { src: "/avatars/avatar-4.jpg", alt: "Full-stack engineer using Lazee" },
+                {
+                  src: "https://api.dicebear.com/9.x/avataaars/svg?seed=Felix",
+                  alt: "Software engineer using Lazee",
+                },
+                {
+                  src: "https://api.dicebear.com/9.x/avataaars/svg?seed=Aneka",
+                  alt: "Frontend developer using Lazee",
+                },
+                {
+                  src: "https://api.dicebear.com/9.x/avataaars/svg?seed=Aiden",
+                  alt: "Backend developer using Lazee",
+                },
+                {
+                  src: "https://api.dicebear.com/9.x/avataaars/svg?seed=Sophia",
+                  alt: "Full-stack engineer using Lazee",
+                },
               ].map((avatar) => (
                 <Image
                   key={avatar.src}
@@ -118,6 +130,7 @@ export function HeroSection() {
                   alt={avatar.alt}
                   width={28}
                   height={28}
+                  unoptimized
                   className="inline-block size-7 rounded-full object-cover ring-2 ring-white dark:ring-zinc-950 bg-zinc-100 dark:bg-zinc-800 shrink-0"
                 />
               ))}
