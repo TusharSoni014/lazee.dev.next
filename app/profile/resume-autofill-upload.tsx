@@ -73,38 +73,42 @@ export function ResumeAutofillUpload() {
   }
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-4 sm:p-5 shadow-xs transition-colors">
-      <div className="flex items-center gap-3.5 min-w-0 h-16">
-        <FaFilePdf className="size-10" />
-        <div className="min-w-0">
-          <h2 className="text-sm sm:text-base font-heading font-semibold text-zinc-900 dark:text-white tracking-tight leading-tight flex items-center gap-2">
-            Autofill profile from resume
-            <span className="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-400 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-400/20">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-4 sm:p-5 shadow-xs transition-colors">
+      <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+        <div className="size-10 sm:size-11 shrink-0 rounded-xl bg-rose-500/10 dark:bg-rose-500/15 border border-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+          <FaFilePdf className="size-5 sm:size-5.5 shrink-0" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-sm sm:text-base font-heading font-semibold text-zinc-900 dark:text-white tracking-tight leading-snug">
+              Autofill profile from resume
+            </h2>
+            <span className="inline-flex items-center rounded-full bg-orange-500/10 dark:bg-orange-500/20 px-2 py-0.5 text-[10px] font-semibold text-orange-700 dark:text-orange-400 border border-orange-500/20 font-mono uppercase tracking-wider">
               Beta
             </span>
-          </h2>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+          </div>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
             Parses your PDF locally and fills empty profile fields — zero AI
             credits consumed.
           </p>
-          <div className="flex items-center gap-2 mt-2">
+          <label
+            htmlFor="overwrite-fields"
+            className="group inline-flex items-center gap-2 mt-2.5 sm:mt-2 cursor-pointer select-none py-0.5"
+          >
             <Checkbox
               id="overwrite-fields"
               checked={overwrite}
               onCheckedChange={(checked) => setOverwrite(checked === true)}
-              className="size-3.5"
+              className="size-4 rounded-md border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
             />
-            <label
-              htmlFor="overwrite-fields"
-              className="text-xs text-zinc-600 dark:text-zinc-300 cursor-pointer hover:text-zinc-900 dark:hover:text-white transition-colors"
-            >
+            <span className="text-xs text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors">
               Overwrite existing fields
-            </label>
-          </div>
+            </span>
+          </label>
         </div>
       </div>
 
-      <div className="shrink-0 w-full sm:w-auto">
+      <div className="shrink-0 w-full sm:w-auto pt-1 sm:pt-0">
         <input
           ref={inputRef}
           type="file"
@@ -115,9 +119,10 @@ export function ResumeAutofillUpload() {
         />
         <Button
           type="button"
+          variant="default"
           disabled={autofillMutation.isPending}
           onClick={() => inputRef.current?.click()}
-          className="w-full sm:w-auto h-9 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-xs hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          className="w-full sm:w-auto h-10 sm:h-9 px-4.5 font-medium text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
         >
           {autofillMutation.isPending ? (
             <>

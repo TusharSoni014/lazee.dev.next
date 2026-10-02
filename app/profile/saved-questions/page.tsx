@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { SavedQuestionsClient } from "./saved-questions-client";
 
 export const dynamic = "force-dynamic";
@@ -30,13 +31,12 @@ export default async function SavedQuestionsPage() {
           <p className="mt-1.5 text-sm text-zinc-600 dark:text-zinc-400">
             Sign in to view and manage your saved questions vault.
           </p>
-          <Link
-            href="/login"
-            className="mt-6 w-full h-11 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm transition-all flex items-center justify-center gap-2"
-          >
-            <span>Sign In or Create Account</span>
-            <ArrowRight className="size-4" />
-          </Link>
+          <Button asChild size="lg" className="mt-6 w-full">
+            <Link href="/login">
+              <span>Sign In or Create Account</span>
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
         </div>
       </div>
     );

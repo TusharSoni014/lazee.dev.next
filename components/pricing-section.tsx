@@ -8,6 +8,7 @@ import { Check, X, Loader2 } from "lucide-react";
 import { InstallModal } from "@/components/install-modal";
 import { useProfileStatus } from "@/hooks/useProfile";
 import { toast } from "@/components/ui/toast";
+import { Button } from "@/components/ui/button";
 
 export function PricingSection() {
   const { data: session } = useSession();
@@ -156,9 +157,13 @@ export function PricingSection() {
           </div>
 
           <InstallModal>
-            <button className="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 text-zinc-900 dark:text-zinc-100 font-medium text-xs tracking-tight transition-all cursor-pointer">
+            <Button
+              variant="secondary"
+              size="lg"
+              className="w-full text-xs tracking-tight"
+            >
               Get Started for Free
-            </button>
+            </Button>
           </InstallModal>
         </div>
 
@@ -240,10 +245,11 @@ export function PricingSection() {
             </ul>
           </div>
 
-          <button
+          <Button
+            size="lg"
             onClick={handleGoPro}
             disabled={isCheckingOut}
-            className="w-full h-11 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs tracking-tight shadow-[0_1px_2px_rgba(0,0,0,0.05),0_8px_16px_-4px_rgba(234,88,12,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center relative z-10"
+            className="w-full text-xs tracking-tight relative z-10"
           >
             {isCheckingOut ? (
               <span className="flex items-center gap-2">
@@ -255,7 +261,7 @@ export function PricingSection() {
             ) : (
               "Upgrade to Pro ($9/mo)"
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </motion.section>

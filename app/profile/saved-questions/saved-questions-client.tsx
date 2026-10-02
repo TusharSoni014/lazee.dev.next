@@ -37,7 +37,8 @@ interface Props {
 }
 
 export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
-  const [answers, setAnswers] = useState<SavedAnswerItem[]>(initialSavedAnswers);
+  const [answers, setAnswers] =
+    useState<SavedAnswerItem[]>(initialSavedAnswers);
   const [search, setSearch] = useState("");
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -51,13 +52,16 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Google Keep Card Modal State
-  const [activeModalItem, setActiveModalItem] = useState<SavedAnswerItem | null>(null);
+  const [activeModalItem, setActiveModalItem] =
+    useState<SavedAnswerItem | null>(null);
   const [modalQuestion, setModalQuestion] = useState("");
   const [modalAnswer, setModalAnswer] = useState("");
   const [isSavingModal, setIsSavingModal] = useState(false);
 
   // Delete Confirmation Modal State
-  const [itemToDelete, setItemToDelete] = useState<SavedAnswerItem | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<SavedAnswerItem | null>(
+    null,
+  );
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Copy Feedback
@@ -80,7 +84,7 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
     return answers.filter(
       (item) =>
         item.question.toLowerCase().includes(q) ||
-        item.answer.toLowerCase().includes(q)
+        item.answer.toLowerCase().includes(q),
     );
   }, [answers, search]);
 
@@ -107,8 +111,8 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
 
   const isModalDirty = Boolean(
     activeModalItem &&
-      (modalQuestion.trim() !== activeModalItem.question ||
-        modalAnswer.trim() !== activeModalItem.answer)
+    (modalQuestion.trim() !== activeModalItem.question ||
+      modalAnswer.trim() !== activeModalItem.answer),
   );
 
   const handleSaveModal = useCallback(async () => {
@@ -144,12 +148,15 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
       };
 
       setAnswers((prev) =>
-        prev.map((item) => (item.id === activeModalItem.id ? updatedItem : item))
+        prev.map((item) =>
+          item.id === activeModalItem.id ? updatedItem : item,
+        ),
       );
       setActiveModalItem(updatedItem);
       toast.success("Question & answer updated!");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Error saving changes";
+      const message =
+        err instanceof Error ? err.message : "Error saving changes";
       toast.error(message);
     } finally {
       setIsSavingModal(false);
@@ -167,9 +174,12 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
 
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/profile/saved-answers?id=${itemToDelete.id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `/api/profile/saved-answers?id=${itemToDelete.id}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       if (!res.ok) {
         throw new Error("Failed to delete saved question");
@@ -222,8 +232,6 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
       setIsAddingSubmitting(false);
     }
   };
-
-
 
   // Keyboard shortcut listener
   useEffect(() => {
@@ -303,26 +311,64 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-400 text-xs font-medium mb-3">
-              <span>Candidate Workspace</span>
-              <span className="text-zinc-300 dark:text-zinc-700">•</span>
-              <span>Saved Questions</span>
+            <div className="flex justify-start items-center mb-3 gap-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-400 text-xs font-medium ">
+                <span>Candidate Workspace</span>
+                <span className="text-zinc-300 dark:text-zinc-700">•</span>
+                <span>Saved Questions</span>
+              </div>
+              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/80 px-3 py-1 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 font-mono">
+                {answers.length}{" "}
+                {answers.length === 1 ? "Question" : "Questions"}
+              </span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-heading font-bold tracking-tight text-zinc-900 dark:text-white">
               Saved Questions Vault
             </h1>
             <p className="mt-2 max-w-xl text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans">
-              Organize and store your best responses for recurring job application
-              prompts and screening questions.
+              Organize and store your best responses for recurring job
+              application prompts and screening questions.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 self-start md:self-auto">
-            <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/80 px-3 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 font-mono">
-              {answers.length} {answers.length === 1 ? "Question" : "Questions"}
-            </span>
+          <div className="flex items-center gap-2.5 self-start md:self-auto"></div>
+        </div>
+
+        {/* Action & Search Toolbar (Placed above cards and composer) */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6">
+          {/* Search Input */}
+          <div className="w-full flex justify-center items-center gap-3">
+            <div className="relative flex-1 shrink-0">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400 dark:text-zinc-500 pointer-events-none" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search questions or answers..."
+                className="w-full pl-10 pr-9 py-2 text-xs sm:text-sm rounded-lg border border-zinc-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/10 shadow-xs transition-colors min-h-9"
+              />
+              {search ? (
+                <button
+                  onClick={() => {
+                    setSearch("");
+                    searchInputRef.current?.focus();
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-md text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+                  title="Clear search (Esc)"
+                >
+                  <X className="size-3.5" />
+                </button>
+              ) : (
+                <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800/80 px-1.5 py-0.5 rounded border border-zinc-200/80 dark:border-zinc-700/60 pointer-events-none hidden sm:inline-block">
+                  /
+                </kbd>
+              )}
+            </div>
             <Button
               type="button"
+              size="sm"
+              variant={isAddingOpen ? "secondary" : "default"}
               onClick={() => {
                 if (isAddingOpen) {
                   handleCancel();
@@ -331,55 +377,29 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
                   setTimeout(() => questionInputRef.current?.focus(), 60);
                 }
               }}
-              className={cn(
-                "h-9 text-xs sm:text-sm rounded-xl px-3.5 shadow-xs cursor-pointer inline-flex items-center gap-1.5 transition-all font-medium active:scale-[0.98]",
-                isAddingOpen
-                  ? "bg-zinc-200 hover:bg-zinc-300 text-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200"
-                  : "bg-orange-600 hover:bg-orange-500 text-white"
-              )}
+              className="h-9 text-xs sm:text-sm px-3.5 gap-1.5"
             >
-              <Plus className={cn("size-3.5 transition-transform duration-200", isAddingOpen && "rotate-45")} />
+              <Plus
+                className={cn(
+                  "size-3.5 transition-transform duration-200",
+                  isAddingOpen && "rotate-45",
+                )}
+              />
               <span>{isAddingOpen ? "Close Form" : "New Question"}</span>
             </Button>
           </div>
-        </div>
-
-        {/* Action & Search Toolbar (Placed above cards and composer) */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6">
-          {/* Search Input */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400 dark:text-zinc-500 pointer-events-none" />
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search questions or answers..."
-              className="w-full pl-10 pr-9 py-2 text-xs sm:text-sm rounded-xl border border-zinc-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/10 shadow-xs transition-colors"
-            />
-            {search ? (
-              <button
-                onClick={() => {
-                  setSearch("");
-                  searchInputRef.current?.focus();
-                }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-md text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
-                title="Clear search (Esc)"
-              >
-                <X className="size-3.5" />
-              </button>
-            ) : (
-              <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800/80 px-1.5 py-0.5 rounded border border-zinc-200/80 dark:border-zinc-700/60 pointer-events-none hidden sm:inline-block">
-                /
-              </kbd>
-            )}
-          </div>
 
           {/* Results Summary */}
+        </div>
+        <div className=" mb-6">
           {search.trim() && (
             <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 shrink-0 font-mono">
               <span>
-                Showing <span className="font-semibold text-zinc-800 dark:text-zinc-200">{filteredAnswers.length}</span> of {answers.length}
+                Showing{" "}
+                <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                  {filteredAnswers.length}
+                </span>{" "}
+                of {answers.length}
               </span>
               <button
                 onClick={() => setSearch("")}
@@ -460,7 +480,7 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
                         !newQuestion.trim() ||
                         !newAnswer.trim()
                       }
-                      className="bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs rounded-xl shadow-xs cursor-pointer"
+                      className="text-xs"
                     >
                       {isAddingSubmitting ? "Saving..." : "Save Answer"}
                     </Button>
@@ -473,19 +493,21 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
 
         {/* Cards Grid */}
         {filteredAnswers.length === 0 ? (
-          <div className="text-center py-16 px-4 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/40 max-w-lg mx-auto">
+          <div className="text-center py-16 px-4 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/40 mx-auto">
             <div className="size-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center mx-auto mb-3">
               <MessageSquareQuote className="size-6" />
             </div>
             <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-              {search.trim() ? "No matching saved questions" : "Your vault is empty"}
+              {search.trim()
+                ? "No matching saved questions"
+                : "Your vault is empty"}
             </h3>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto leading-relaxed">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-lg mx-auto leading-relaxed">
               {search.trim()
                 ? "Try searching for a different keyword or question context."
                 : "Add frequently asked screening and interview questions here for 1-click autofill."}
             </p>
-            {search.trim() ? (
+            {search.trim() && (
               <Button
                 variant="outline"
                 size="sm"
@@ -493,18 +515,6 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
                 className="mt-4 text-xs rounded-xl cursor-pointer"
               >
                 Clear Search
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                onClick={() => {
-                  setIsAddingOpen(true);
-                  setTimeout(() => questionInputRef.current?.focus(), 50);
-                }}
-                className="mt-4 bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs rounded-xl shadow-xs cursor-pointer"
-              >
-                <Plus className="size-3.5 mr-1" />
-                Add Your First Question
               </Button>
             )}
           </div>
@@ -527,7 +537,11 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
                     key={item.id}
                     initial={hasMounted ? { opacity: 0, y: 8 } : false}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.96,
+                      transition: { duration: 0.15 },
+                    }}
                     transition={{ duration: 0.18 }}
                     onClick={() => handleOpenModal(item)}
                     className="group relative flex flex-col justify-between rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40 p-5 shadow-xs hover:border-orange-500/40 dark:hover:border-orange-500/30 transition-colors duration-150 cursor-pointer select-none"
@@ -695,7 +709,9 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleCopy(activeModalItem.id, modalAnswer)}
+                      onClick={() =>
+                        handleCopy(activeModalItem.id, modalAnswer)
+                      }
                       className="text-xs rounded-xl cursor-pointer"
                     >
                       {copiedId === activeModalItem.id ? (
@@ -733,16 +749,16 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
                           !modalQuestion.trim() ||
                           !modalAnswer.trim()
                         }
-                        className="bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs rounded-xl shadow-xs cursor-pointer"
+                        className="text-xs"
                       >
                         {isSavingModal ? "Saving..." : "Save Changes"}
                       </Button>
                     ) : (
                       <Button
                         size="sm"
-                        variant="default"
+                        variant="black"
                         onClick={handleCloseModal}
-                        className="bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-xs rounded-xl cursor-pointer"
+                        className="text-xs"
                       >
                         Done
                       </Button>
@@ -786,7 +802,8 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
                       Delete Saved Question?
                     </h3>
                     <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                      This action cannot be undone. This question and its saved answer will be permanently removed from your vault.
+                      This action cannot be undone. This question and its saved
+                      answer will be permanently removed from your vault.
                     </p>
                   </div>
                 </div>
@@ -855,9 +872,10 @@ export function SavedQuestionsClient({ initialSavedAnswers = [] }: Props) {
               Auto-sync with the Lazee Extension
             </p>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-              When applying on job boards or portals with the Lazee Chrome extension,
-              you can click &quot;Save Answer&quot; to automatically add questions here.
-              Clicking any card opens it in full modal for fast editing.
+              When applying on job boards or portals with the Lazee Chrome
+              extension, you can click &quot;Save Answer&quot; to automatically
+              add questions here. Clicking any card opens it in full modal for
+              fast editing.
             </p>
           </div>
         </div>

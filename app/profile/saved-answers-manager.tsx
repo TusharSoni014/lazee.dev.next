@@ -126,7 +126,7 @@ export const SavedAnswersManager = ({ initialSavedAnswers = [] }: Props) => {
         <Button
           onClick={() => setIsAddOpen(true)}
           size="sm"
-          className="bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs rounded-xl shadow-xs self-start sm:self-auto cursor-pointer"
+          className="text-xs self-start sm:self-auto"
         >
           <Plus className="size-3.5 mr-1" />
           Add Q&amp;A
@@ -241,7 +241,7 @@ export const SavedAnswersManager = ({ initialSavedAnswers = [] }: Props) => {
               size="sm"
               onClick={handleAdd}
               disabled={isSubmitting}
-              className="bg-orange-600 hover:bg-orange-500 text-white text-xs rounded-xl"
+              className="text-xs"
             >
               {isSubmitting ? "Saving..." : "Save Answer"}
             </Button>

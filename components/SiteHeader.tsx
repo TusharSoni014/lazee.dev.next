@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import AuthButton from "./AuthButton";
-import { ThemeToggle } from "./ThemeToggle";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { LOGO_URL } from "@/lib/constants";
@@ -44,8 +43,7 @@ export function SiteHeader() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          <ThemeToggle />
+        <div className="flex items-center">
           <AuthButton />
         </div>
       </div>

@@ -1261,7 +1261,8 @@ function ProjectForm({
                                   )
                                   ?.click()
                               }
-                              className="h-9 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-xs transition-all flex items-center gap-1.5"
+                              size="sm"
+                              className="h-9 px-4 text-xs gap-1.5"
                             >
                               <Upload className="size-3.5" />
                               Upload Logo
@@ -1311,7 +1312,7 @@ function ProjectForm({
                           ?.click()
                       }
                       size="sm"
-                      className="h-9 px-3.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+                      className="h-9 px-3.5 text-xs gap-1.5"
                     >
                       <Upload className="size-3.5" />
                       <span>Add Screenshot</span>
@@ -1568,7 +1569,8 @@ function ProjectForm({
             <Button
               type="submit"
               disabled={isPendingSave || isLoading}
-              className="w-full sm:w-auto h-9 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-xs active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+              size="sm"
+              className="w-full sm:w-auto h-9 px-5 text-xs gap-1.5"
             >
               <Check className="size-3.5" />
               <span>{isMobile ? "Save" : "Save Project"}</span>

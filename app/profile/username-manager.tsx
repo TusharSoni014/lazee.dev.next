@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Globe,
   Settings,
@@ -291,8 +291,9 @@ export function UsernameManager({
             </Button>
             <Button
               type="button"
+              variant="black"
               onClick={handleOpen}
-              className="h-10 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-medium shadow-xs active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+              className="h-10 px-4 text-xs font-medium w-full sm:w-auto"
             >
               <Settings className="size-3.5" />
               <span>Settings</span>
@@ -302,7 +303,7 @@ export function UsernameManager({
           <Button
             type="button"
             onClick={handleOpen}
-            className="h-10 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-xs hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+            className="h-10 px-5 text-xs font-medium w-full sm:w-auto"
           >
             <ShieldCheck className="size-4" />
             <span>Enable Public Profile</span>
@@ -422,7 +423,8 @@ export function UsernameManager({
                     onClick={() =>
                       document.getElementById("modal-resume-upload")?.click()
                     }
-                    className="h-9 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-xs"
+                    size="sm"
+                    className="h-9 px-4 text-xs font-medium"
                   >
                     {isUploadingResume ? (
                       <>
@@ -509,12 +511,14 @@ export function UsernameManager({
               <Button
                 type="button"
                 variant="outline"
+                size="sm"
                 onClick={() => setIsOpen(false)}
-                className="w-full sm:w-auto h-9 px-4 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-medium"
+                className="w-full sm:w-auto h-9 px-4 text-xs font-medium"
               >
                 Cancel
               </Button>
               <Button
+                size="sm"
                 disabled={
                   isSaving ||
                   isChecking ||
@@ -525,7 +529,7 @@ export function UsernameManager({
                   !canSaveUsername
                 }
                 onClick={handleSave}
-                className="w-full sm:w-auto h-9 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-xs active:scale-[0.98]"
+                className="w-full sm:w-auto h-9 px-4 text-xs font-medium"
               >
                 {isSaving ? (
                   <>
@@ -562,17 +566,20 @@ export function UsernameManager({
             <Button
               type="button"
               variant="outline"
+              size="sm"
               onClick={() => setIsDisableConfirmOpen(false)}
               disabled={isDisabling}
-              className="w-full sm:w-auto h-9 px-4 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-medium"
+              className="w-full sm:w-auto h-9 px-4 text-xs font-medium"
             >
               Cancel
             </Button>
             <Button
               type="button"
+              variant="destructive"
+              size="sm"
               onClick={handleDisableSharing}
               disabled={isDisabling}
-              className="w-full sm:w-auto h-9 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-medium shadow-xs"
+              className="w-full sm:w-auto h-9 px-4 text-xs font-medium"
             >
               {isDisabling ? (
                 <>

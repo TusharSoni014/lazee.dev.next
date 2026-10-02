@@ -231,7 +231,8 @@ export function ResumeManager({
                 type="button"
                 disabled={!canUpload || uploadMutation.isPending}
                 onClick={() => document.getElementById("resume-upload")?.click()}
-                className="h-9 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-xs hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                size="sm"
+                className="h-9 px-4 text-xs gap-2 cursor-pointer"
               >
                 {uploadMutation.isPending ? (
                   <Loader2 className="size-3.5 animate-spin" />
@@ -265,8 +266,10 @@ export function ResumeManager({
             {membership === "FREE" && (
               <Button
                 type="button"
+                variant="black"
+                size="sm"
                 onClick={onUpgrade}
-                className="h-9 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-900 font-semibold text-xs flex items-center gap-1.5 shadow-xs"
+                className="h-9 px-4 text-xs font-semibold gap-1.5"
               >
                 <Zap className="size-3.5 fill-orange-500 text-orange-500" />
                 <span>Upgrade to Pro</span>
@@ -362,19 +365,22 @@ export function ResumeManager({
             <Button
               type="button"
               variant="outline"
+              size="sm"
               onClick={() => setDeleteDialogId(null)}
               disabled={deleteMutation.isPending}
-              className="w-full sm:w-auto h-9 px-4 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-medium"
+              className="w-full sm:w-auto h-9 px-4 text-xs font-medium"
             >
               Cancel
             </Button>
             <Button
               type="button"
+              variant="destructive"
+              size="sm"
               onClick={() =>
                 deleteDialogId && deleteMutation.mutate(deleteDialogId)
               }
               disabled={deleteMutation.isPending}
-              className="w-full sm:w-auto h-9 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-medium shadow-xs"
+              className="w-full sm:w-auto h-9 px-4 text-xs font-medium"
             >
               {deleteMutation.isPending ? (
                 <>

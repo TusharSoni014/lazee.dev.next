@@ -2469,8 +2469,9 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
           </Button>
           <Button
             type="submit"
+            size="sm"
             disabled={isLoading}
-            className="w-full sm:w-auto h-9 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+            className="w-full sm:w-auto h-9 px-5 text-xs gap-1.5"
           >
             {isLoading ? (
               <>
@@ -2911,8 +2912,9 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
           </Button>
           <Button
             type="submit"
+            size="sm"
             disabled={isLoading}
-            className="w-full sm:w-auto h-9 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+            className="w-full sm:w-auto h-9 px-5 text-xs gap-1.5"
           >
             {isLoading ? (
               <>

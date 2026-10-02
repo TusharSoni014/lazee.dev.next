@@ -1,19 +1,21 @@
 "use client";
 
-import { useEffect, useState, useId } from "react";
+import { useId, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 
+const emptySubscribe = () => () => {};
+
 export function ThemeToggle({ className }: { className?: string }) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const { resolvedTheme, setTheme } = useTheme();
   const shouldReduceMotion = useReducedMotion();
   const maskId = useId();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const isDark = mounted ? resolvedTheme === "dark" : false;
 
@@ -50,9 +52,9 @@ export function ThemeToggle({ className }: { className?: string }) {
       }
       onClick={toggleTheme}
       className={cn(
-        "group relative flex size-9 items-center justify-center rounded-xl border",
+        "group relative flex size-9 shrink-0 items-center justify-center rounded-xl border",
         "border-zinc-200/80 dark:border-zinc-800",
-        "bg-white/80 hover:bg-zinc-100 dark:bg-zinc-900/80 dark:hover:bg-zinc-800",
+        "bg-white/80 hover:bg-zinc-100/90 dark:bg-zinc-900/80 dark:hover:bg-zinc-800/90",
         "text-zinc-600 dark:text-zinc-300 hover:text-orange-600 dark:hover:text-orange-400",
         "shadow-2xs transition-colors duration-200 cursor-pointer select-none",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 active:scale-95",

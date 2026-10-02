@@ -92,13 +92,13 @@ function ExtensionOnboardingContent({
         <div className="w-full space-y-2 pt-1">
           <Button
             onClick={onAction}
-            className="w-full h-10 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white font-medium text-xs sm:text-sm shadow-xs shadow-orange-600/20 transition-all flex items-center justify-center gap-2"
+            className="w-full text-xs sm:text-sm"
           >
             <span>{isInstalled ? "I'll open it now" : "Download Extension"}</span>
             {isInstalled ? (
-              <ArrowRight className="w-4 h-4 ml-1" />
+              <ArrowRight className="size-4 ml-1" />
             ) : (
-              <Download className="w-4 h-4 ml-1" />
+              <Download className="size-4 ml-1" />
             )}
           </Button>
 
@@ -132,14 +132,16 @@ export function LoginSuccessModal() {
 
   useEffect(() => {
     if (searchParams.get("logged_in") === "true") {
-      setPendingOnboarding(true);
+      queueMicrotask(() => {
+        setPendingOnboarding(true);
 
-      const extensionId =
-        searchParams.get("extensionId") ||
-        localStorage.getItem("lazeeExtensionId");
-      if (extensionId) {
-        setIsInstalled(true);
-      }
+        const extensionId =
+          searchParams.get("extensionId") ||
+          localStorage.getItem("lazeeExtensionId");
+        if (extensionId) {
+          setIsInstalled(true);
+        }
+      });
 
       const newParams = new URLSearchParams(searchParams.toString());
       newParams.delete("logged_in");

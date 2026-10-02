@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function GlobalError({
   error,
@@ -47,20 +48,25 @@ export default function GlobalError({
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 w-full">
-          <button
+          <Button
             onClick={reset}
-            className="flex-1 h-11 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm transition-all shadow-[0_1px_2px_rgba(0,0,0,0.05),0_8px_16px_-4px_rgba(234,88,12,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+            size="lg"
+            className="flex-1"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="size-4" />
             Try Again
-          </button>
-          <Link
-            href="/"
-            className="flex-1 h-11 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 text-zinc-700 dark:text-zinc-300 font-medium text-sm transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] flex items-center justify-center gap-2"
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="flex-1"
           >
-            <Home className="w-4 h-4" />
-            Go Home
-          </Link>
+            <Link href="/">
+              <Home className="size-4" />
+              Go Home
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

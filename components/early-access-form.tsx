@@ -98,7 +98,8 @@ export function EarlyAccessForm() {
 
         <Button
           type="submit"
-          className="w-full h-11 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm transition-all shadow-[0_1px_2px_rgba(0,0,0,0.05),0_8px_16px_-4px_rgba(234,88,12,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none cursor-pointer flex items-center justify-center gap-2"
+          size="lg"
+          className="w-full"
           disabled={isPending || !form.formState.isValid}
         >
           {isPending ? (

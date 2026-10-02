@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function AuthForm() {
   const [email, setEmail] = useState("");
@@ -102,12 +103,14 @@ export default function AuthForm() {
             className="flex flex-col gap-5"
           >
             {/* Google OAuth Button */}
-            <button
+            <Button
               id="google-login-btn"
               type="button"
+              variant="outline"
+              size="lg"
               onClick={handleGoogleLogin}
               disabled={isEmailLoading || isGoogleLoading}
-              className="relative flex w-full items-center justify-center gap-3 h-11 sm:h-12 px-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200 text-sm font-medium transition-all shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full h-11 sm:h-12 gap-3"
             >
               {isGoogleLoading ? (
                 <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
@@ -144,7 +147,7 @@ export default function AuthForm() {
                   <span>Continue with Google</span>
                 </>
               )}
-            </button>
+            </Button>
 
             {/* Hairline Divider */}
             <div className="relative flex py-1 items-center">
@@ -194,11 +197,12 @@ export default function AuthForm() {
               </div>
 
               {/* Submit Button */}
-              <button
+              <Button
                 id="send-magic-link-btn"
                 type="submit"
+                size="lg"
                 disabled={isEmailLoading || isGoogleLoading || !isEmailValid}
-                className="group flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm transition-all shadow-[0_1px_2px_rgba(0,0,0,0.05),0_8px_16px_-4px_rgba(234,88,12,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+                className="group w-full"
               >
                 {isEmailLoading ? (
                   <div className="flex items-center gap-2">
@@ -211,7 +215,7 @@ export default function AuthForm() {
                     <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" />
                   </>
                 )}
-              </button>
+              </Button>
             </form>
 
             {/* Terms and Privacy Policy Note */}

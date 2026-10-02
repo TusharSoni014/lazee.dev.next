@@ -2,11 +2,12 @@
 
 import { motion } from "motion/react";
 import { HeroDemo } from "@/components/hero-demo";
-import { ShieldCheck, Check, ArrowRight, Star } from "lucide-react";
+import { ShieldCheck, Check, Star } from "lucide-react";
 import { InstallModal } from "./install-modal";
 import { useBrowser } from "@/hooks/use-browser";
-import { FaChrome, FaFirefox } from "react-icons/fa";
+import { FaChrome, FaFirefox, FaGithub } from "react-icons/fa";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export function HeroSection() {
   const browser = useBrowser();
@@ -27,9 +28,9 @@ export function HeroSection() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
           </span>
-          <span className="font-mono text-[11px]">v2.0 Released</span>
+          <span className="font-mono text-[11px]">v2.0.1</span>
           <span className="text-zinc-300 dark:text-zinc-700">•</span>
-          <span>Now with Ashby & Workday auto-mapping</span>
+          <span>Now with Custom Providers & Web Scraping</span>
         </div>
 
         {/* Title */}
@@ -51,23 +52,31 @@ export function HeroSection() {
         {/* CTA Group */}
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mt-8">
           <InstallModal>
-            <button className="h-12 w-full sm:w-auto min-w-[220px] px-6 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm shadow-[0_1px_2px_rgba(0,0,0,0.05),0_8px_16px_-4px_rgba(234,88,12,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer">
+            <Button size="lg" className="h-12 w-full sm:w-auto min-w-[220px] px-6 text-sm gap-2.5">
               {isFirefox ? (
                 <FaFirefox className="size-4 shrink-0" />
               ) : (
                 <FaChrome className="size-4 shrink-0" />
               )}
               <span>Add to {isFirefox ? "Firefox" : "Chrome"} — Free</span>
-            </button>
+            </Button>
           </InstallModal>
 
-          <Link
-            href="#features"
-            className="h-12 w-full sm:w-auto px-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200 font-medium text-sm transition-all flex items-center justify-center gap-2"
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="h-12 w-full sm:w-auto px-6 text-sm gap-2.5"
           >
-            <span>See Architecture</span>
-            <ArrowRight className="size-3.5 text-zinc-400" />
-          </Link>
+            <Link
+              href="https://github.com/TusharSoni014/lazee.dev.next"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaGithub className="size-4 shrink-0" />
+              <span>GitHub Code</span>
+            </Link>
+          </Button>
         </div>
 
         {/* Micro reassurance notes */}

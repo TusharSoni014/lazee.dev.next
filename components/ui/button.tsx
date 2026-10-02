@@ -10,13 +10,17 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-orange-600 hover:bg-orange-500 text-white shadow-xs shadow-orange-600/20 hover:shadow-sm",
+          "relative overflow-hidden bg-orange-600 hover:bg-orange-500 text-white shadow-xs shadow-orange-600/20 hover:shadow-md hover:shadow-orange-600/30 hover:brightness-105 before:pointer-events-none before:absolute before:inset-0 before:-translate-x-full hover:before:translate-x-full before:bg-gradient-to-r before:from-transparent before:via-white/25 before:to-transparent before:transition-transform before:duration-700 before:ease-out before:-skew-x-12",
+        primary:
+          "relative overflow-hidden bg-orange-600 hover:bg-orange-500 text-white shadow-xs shadow-orange-600/20 hover:shadow-md hover:shadow-orange-600/30 hover:brightness-105 before:pointer-events-none before:absolute before:inset-0 before:-translate-x-full hover:before:translate-x-full before:bg-gradient-to-r before:from-transparent before:via-white/25 before:to-transparent before:transition-transform before:duration-700 before:ease-out before:-skew-x-12",
         destructive:
           "bg-rose-600 hover:bg-rose-500 text-white shadow-xs shadow-rose-600/20",
         outline:
-          "border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 shadow-2xs",
+          "border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-700 shadow-2xs",
         secondary:
-          "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-200/80 dark:hover:bg-zinc-700/80",
+          "border border-zinc-200/80 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200/90 dark:hover:bg-zinc-700/90 text-zinc-900 dark:text-zinc-100 shadow-2xs hover:shadow-xs",
+        tertiary:
+          "border border-zinc-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 hover:bg-zinc-100/90 dark:hover:bg-zinc-800/90 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:border-zinc-300 dark:hover:border-zinc-700 shadow-2xs",
         black:
           "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white shadow-xs",
         ghost:

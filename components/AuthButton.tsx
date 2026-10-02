@@ -15,6 +15,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useProfileStatus } from "@/hooks/useProfile";
 import { CHROME_EXTENSION_URL, FIREFOX_EXTENSION_URL } from "@/lib/constants";
+import { ThemeToggle } from "./ThemeToggle";
 
 const DOWNLOAD_LINKS: Record<BrowserType, string> = {
   chrome: CHROME_EXTENSION_URL,
@@ -31,19 +32,23 @@ export default function AuthButton() {
 
   if (status === "loading") {
     return (
-      <div className="h-9 w-9 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-800/60" />
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
+        <ThemeToggle />
+        <div className="size-9 animate-pulse rounded-full bg-zinc-200/80 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-800/60 shrink-0" />
+      </div>
     );
   }
 
   if (session) {
     return (
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
         <CreditsDisplay />
+        <ThemeToggle />
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <button
               aria-label="User profile menu"
-              className="relative h-9 w-9 cursor-pointer rounded-full border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-zinc-100 dark:bg-zinc-800/90 overflow-hidden transition-all duration-200 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40"
+              className="relative size-9 shrink-0 cursor-pointer rounded-full border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-zinc-100 dark:bg-zinc-800/90 overflow-hidden transition-all duration-200 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40"
             >
               {session.user?.image ? (
                 <Image
@@ -90,7 +95,7 @@ export default function AuthButton() {
                     className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
                   >
                     <User className="size-4 text-zinc-400" />
-                    Profile & Credentials
+                    Profile &amp; Credentials
                   </Link>
 
                   <Link
@@ -122,13 +127,16 @@ export default function AuthButton() {
   }
 
   return (
-    <Button
-      asChild
-      size="sm"
-      className="bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-100 dark:text-zinc-950 font-medium text-xs px-4 h-8 rounded-lg shadow-sm transition-all"
-    >
-      <Link href="/login">Sign In</Link>
-    </Button>
+    <div className="flex items-center gap-1.5 sm:gap-2.5">
+      <ThemeToggle />
+      <Button
+        asChild
+        variant="black"
+        className="h-9 px-3.5 sm:px-4 rounded-xl font-semibold text-xs shadow-xs transition-colors cursor-pointer"
+      >
+        <Link href="/login">Sign In</Link>
+      </Button>
+    </div>
   );
 }
 
@@ -140,17 +148,18 @@ function CreditsDisplay() {
 
   if (isLoading || !status) {
     return (
-      <div className="h-5 w-14 animate-pulse bg-zinc-200 dark:bg-zinc-800 rounded-md" />
+      <div className="h-9 w-16 animate-pulse bg-zinc-200/60 dark:bg-zinc-800/60 rounded-xl border border-zinc-200/60 dark:border-zinc-800/60 shrink-0" />
     );
   }
 
   return (
     <Link
       href="/profile"
-      className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:text-orange-600 transition-colors flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 mr-1"
+      title="View credits & profile"
+      className="h-9 px-2.5 sm:px-3 text-xs font-semibold font-mono tabular-nums text-zinc-700 dark:text-zinc-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors flex items-center gap-1.5 rounded-xl bg-zinc-100/80 dark:bg-zinc-900/80 hover:bg-zinc-200/60 dark:hover:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs active:scale-[0.98] shrink-0"
     >
       <span>{Intl.NumberFormat("en-US").format(status.credits)}</span>
-      <Zap className="size-3 text-orange-500 fill-orange-500" />
+      <Zap className="size-3.5 text-orange-500 fill-orange-500 shrink-0" />
     </Link>
   );
 }

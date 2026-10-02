@@ -239,15 +239,16 @@ export function FeedbackForm({
 
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
               {isUninstall && (
-                <a
-                  href={CHROME_EXTENSION_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm shadow-xs shadow-orange-600/20 active:scale-[0.98] transition-all"
-                >
-                  <Download className="w-4 h-4" />
-                  Reinstall Extension
-                </a>
+                <Button asChild size="lg" className="w-full sm:w-auto">
+                  <a
+                    href={CHROME_EXTENSION_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Download className="w-4 h-4" />
+                    Reinstall Extension
+                  </a>
+                </Button>
               )}
               <Button
                 variant="outline"
@@ -367,8 +368,9 @@ export function FeedbackForm({
             <div className="pt-2">
               <Button
                 type="submit"
+                size="lg"
                 disabled={loading}
-                className="w-full h-11 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-sm shadow-xs shadow-orange-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full"
               >
                 {loading ? (
                   <>

@@ -25,13 +25,13 @@ import {
 } from "lucide-react";
 import { ElementType } from "react";
 import { format } from "date-fns";
-import clsx from "clsx";
 import { Metadata } from "next";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getS3Client } from "@/lib/s3";
 import { ProjectCarousel } from "@/components/ProjectCarousel";
 import { getPublicImageUrl } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const getYoutubeId = (url: string) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -270,24 +270,24 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
               </h2>
               <div className="space-y-3">
                 {(user.contactEmail || user.email) && (
-                  <a
-                    href={`mailto:${user.contactEmail || user.email}`}
-                    className="w-full h-10 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white font-medium text-xs shadow-xs shadow-orange-600/20 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Mail className="w-3.5 h-3.5" />
-                    Email Me
-                  </a>
+                  <Button asChild size="default" className="w-full text-xs">
+                    <a href={`mailto:${user.contactEmail || user.email}`}>
+                      <Mail className="size-3.5" />
+                      Email Me
+                    </a>
+                  </Button>
                 )}
                 {generatedResumeUrl && (
-                  <a
-                    href={generatedResumeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 active:scale-[0.98] text-zinc-900 dark:text-zinc-100 font-medium text-xs shadow-2xs transition-all flex items-center justify-center gap-2"
-                  >
-                    <FileText className="w-3.5 h-3.5 text-zinc-500" />
-                    View Primary Resume
-                  </a>
+                  <Button asChild variant="outline" size="default" className="w-full text-xs">
+                    <a
+                      href={generatedResumeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <FileText className="size-3.5 text-zinc-500" />
+                      View Primary Resume
+                    </a>
+                  </Button>
                 )}
 
                 <div className="pt-2 space-y-2 border-t border-zinc-100 dark:border-zinc-800">
@@ -697,14 +697,15 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
               Auto-fill repetitive job application forms in seconds across Greenhouse, Lever, Workday, and Ashby with Lazee.dev.
             </p>
           </div>
-          <a
-            href="https://lazee.dev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 w-full md:w-auto h-10 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs shadow-xs shadow-orange-600/20 transition-all active:scale-[0.98] flex items-center justify-center cursor-pointer"
-          >
-            Get Lazee Free
-          </a>
+          <Button asChild size="default" className="shrink-0 w-full md:w-auto px-5 text-xs">
+            <a
+              href="https://lazee.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Get Lazee Free
+            </a>
+          </Button>
         </div>
 
       </div>
