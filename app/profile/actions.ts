@@ -450,23 +450,44 @@ export async function updateEducation(educations: any[]) {
   }
 
   try {
+    const normalizedEducations = educations.map((edu: any) => {
+      // If only 1 item exists in total, automatically show on public profile
+      const isPublic =
+        educations.length === 1
+          ? true
+          : edu.isPublic !== undefined
+            ? Boolean(edu.isPublic)
+            : true;
+
+      return {
+        schoolName: edu.schoolName,
+        degree: edu.degree || null,
+        fieldOfStudy: edu.fieldOfStudy || null,
+        startDate: edu.startDate ? new Date(edu.startDate) : null,
+        endDate: edu.endDate ? new Date(edu.endDate) : null,
+        isCurrent: Boolean(edu.isCurrent),
+        isPublic,
+        description: edu.description || null,
+      };
+    });
+
+    const primaryPublicEdu = normalizedEducations.find((e) => e.isPublic);
+    const collegeName = primaryPublicEdu
+      ? primaryPublicEdu.schoolName
+      : normalizedEducations.length === 0
+        ? null
+        : undefined;
+
     const user = await prisma.user.update({
       where: { id: session.user.id },
       data: {
+        ...(collegeName !== undefined ? { collegeName } : {}),
         educations: {
           deleteMany: {},
-          create: educations.map((edu: any) => ({
-            schoolName: edu.schoolName,
-            degree: edu.degree || null,
-            fieldOfStudy: edu.fieldOfStudy || null,
-            startDate: edu.startDate ? new Date(edu.startDate) : null,
-            endDate: edu.endDate ? new Date(edu.endDate) : null,
-            isCurrent: Boolean(edu.isCurrent),
-            description: edu.description || null,
-          })),
+          create: normalizedEducations,
         },
       },
-      select: { username: true }
+      select: { username: true },
     });
     revalidatePath("/profile");
     if (user.username) {

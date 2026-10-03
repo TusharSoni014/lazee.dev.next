@@ -99,7 +99,6 @@ export function ResumeAutofillUpload() {
               id="overwrite-fields"
               checked={overwrite}
               onCheckedChange={(checked) => setOverwrite(checked === true)}
-              className="size-4 rounded-md border-zinc-300 dark:border-zinc-700 data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
             />
             <span className="text-xs text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors">
               Overwrite existing fields

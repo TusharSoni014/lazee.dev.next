@@ -1956,6 +1956,7 @@ const educationSchema = z.object({
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   isCurrent: z.boolean(),
+  isPublic: z.boolean(),
   description: z.string().optional(),
 });
 
@@ -1983,6 +1984,7 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
       startDate: new Date(),
       endDate: null,
       isCurrent: false,
+      isPublic: true,
       description: "",
     };
     setTempEdu(newEdu);
@@ -1991,7 +1993,11 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
 
   const removeEducation = async (id: string) => {
     setDeletingId(id);
-    const newEducations = educations.filter((edu: any) => edu.id !== id);
+    let newEducations = educations.filter((edu: any) => edu.id !== id);
+    // If only 1 item remains, it automatically should show on public profile
+    if (newEducations.length === 1) {
+      newEducations = [{ ...newEducations[0], isPublic: true }];
+    }
     try {
       const result = await updateEducation(newEducations);
       if (result.success) {
@@ -2017,6 +2023,11 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
       newEducations = educations.map((e: any) => (e.id === data.id ? data : e));
     } else {
       newEducations = [data, ...educations];
+    }
+
+    // If only 1 item exists in total, it automatically shows on public profile
+    if (newEducations.length === 1) {
+      newEducations[0] = { ...newEducations[0], isPublic: true };
     }
 
     // Sort before saving
@@ -2081,9 +2092,21 @@ function EducationSection({ educations, setEducations, refetchProfile }: any) {
             >
               <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 min-w-0">
                 <div className="space-y-1 md:pr-24 min-w-0 flex-1">
-                  <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 break-words">
-                    {edu.schoolName || "Untitled Institution"}
-                  </h3>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 break-words">
+                      {edu.schoolName || "Untitled Institution"}
+                    </h3>
+                    {edu.isPublic !== false ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                        <Globe className="size-3" />
+                        Public
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full border border-zinc-200 dark:border-zinc-700">
+                        Hidden
+                      </span>
+                    )}
+                  </div>
                   {edu.degree && (
                     <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 break-words">
                       {edu.degree}
@@ -2263,6 +2286,7 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
       startDate: edu.startDate ? new Date(edu.startDate) : undefined,
       endDate: edu.endDate ? new Date(edu.endDate) : undefined,
       isCurrent: edu.isCurrent || false,
+      isPublic: edu.isPublic !== undefined ? Boolean(edu.isPublic) : true,
       description: edu.description || "",
     },
   });
@@ -2342,7 +2366,6 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
                             form.setValue("endDate", undefined);
                           }
                         }}
-                        className="data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
                       />
                     </FormControl>
                     <FormLabel className="text-xs font-medium text-zinc-700 dark:text-zinc-300 select-none cursor-pointer">
@@ -2455,6 +2478,34 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
               </FormItem>
             )}
           />
+
+          <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 p-3 sm:p-3.5">
+            <FormField
+              control={form.control}
+              name="isPublic"
+              render={({ field }) => (
+                <FormItem className="flex items-start gap-3 space-y-0">
+                  <FormControl className="mt-0.5">
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={(checked) =>
+                        field.onChange(Boolean(checked))
+                      }
+                    />
+                  </FormControl>
+                  <div className="space-y-0.5 leading-none">
+                    <FormLabel className="text-xs font-medium text-zinc-900 dark:text-zinc-100 select-none cursor-pointer flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-zinc-400" />
+                      Show on public profile
+                    </FormLabel>
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-normal">
+                      Display this education entry on your public profile page.
+                    </p>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
         <div className="bg-zinc-50/50 dark:bg-zinc-900/50 border-t border-zinc-200 dark:border-zinc-800 px-4 py-2.5 sm:py-2.5 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 shrink-0">
@@ -2869,7 +2920,6 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
                       field.onChange(checked);
                       if (checked) form.setValue("endDate", undefined);
                     }}
-                    className="data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
                   />
                 </FormControl>
                 <FormLabel className="text-xs font-medium text-zinc-700 dark:text-zinc-300 select-none cursor-pointer">

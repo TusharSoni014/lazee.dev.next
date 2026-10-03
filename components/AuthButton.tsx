@@ -3,19 +3,21 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { User, Download, Zap, KeyRound } from "lucide-react";
+import { User, Download, Zap, KeyRound, BookmarkCheck } from "lucide-react";
 import { useBrowser, type BrowserType } from "@/hooks/use-browser";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useProfileStatus } from "@/hooks/useProfile";
 import { CHROME_EXTENSION_URL, FIREFOX_EXTENSION_URL } from "@/lib/constants";
 import { ThemeToggle } from "./ThemeToggle";
+import { cn } from "@/lib/utils";
 
 const DOWNLOAD_LINKS: Record<BrowserType, string> = {
   chrome: CHROME_EXTENSION_URL,
@@ -28,7 +30,14 @@ const DOWNLOAD_LINKS: Record<BrowserType, string> = {
 export default function AuthButton() {
   const { data: session, status } = useSession();
   const browser = useBrowser();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+
+  const isProfileActive = pathname === "/profile";
+  const isAiProvidersActive = pathname?.startsWith("/profile/ai-providers");
+  const isSavedQuestionsActive =
+    pathname?.startsWith("/profile/saved-questions") ||
+    pathname?.startsWith("/saved-questions");
 
   if (status === "loading") {
     return (
@@ -92,30 +101,77 @@ export default function AuthButton() {
                   <Link
                     href="/profile"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                    className={cn(
+                      "flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40",
+                      isProfileActive
+                        ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-950 dark:text-white font-semibold"
+                        : "text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    )}
                   >
-                    <User className="size-4 text-zinc-400" />
-                    Profile &amp; Credentials
+                    <User
+                      className={cn(
+                        "size-4 shrink-0 transition-colors",
+                        isProfileActive
+                          ? "text-orange-500 dark:text-orange-400"
+                          : "text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200"
+                      )}
+                    />
+                    <span>Profile &amp; Credentials</span>
                   </Link>
 
                   <Link
                     href="/profile/ai-providers"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                    className={cn(
+                      "flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40",
+                      isAiProvidersActive
+                        ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-950 dark:text-white font-semibold"
+                        : "text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    )}
                   >
-                    <KeyRound className="size-4 text-zinc-400" />
-                    AI Providers
+                    <KeyRound
+                      className={cn(
+                        "size-4 shrink-0 transition-colors",
+                        isAiProvidersActive
+                          ? "text-orange-500 dark:text-orange-400"
+                          : "text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200"
+                      )}
+                    />
+                    <span>AI Providers</span>
                   </Link>
+
+                  <Link
+                    href="/profile/saved-questions"
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      "flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40",
+                      isSavedQuestionsActive
+                        ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-950 dark:text-white font-semibold"
+                        : "text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    )}
+                  >
+                    <BookmarkCheck
+                      className={cn(
+                        "size-4 shrink-0 transition-colors",
+                        isSavedQuestionsActive
+                          ? "text-orange-500 dark:text-orange-400"
+                          : "text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200"
+                      )}
+                    />
+                    <span>Saved Q&amp;A</span>
+                  </Link>
+
+                  <div className="my-1 border-t border-zinc-100 dark:border-zinc-800" />
 
                   <a
                     href={DOWNLOAD_LINKS[browser]}
                     target="_blank"
                     rel="noreferrer"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 rounded-lg transition-colors"
+                    className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40"
                   >
-                    <Download className="size-4" />
-                    Download Extension
+                    <Download className="size-4 shrink-0" />
+                    <span>Download Extension</span>
                   </a>
                 </motion.div>
               </PopoverContent>

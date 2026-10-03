@@ -131,6 +131,21 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   const fullName = [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ").trim() || user.name || "Anonymous User";
   const totalExperienceString = calculateTotalExperience(user.experiences);
 
+  // Resolve public educations:
+  // If user has only 1 education, it automatically shows on public profile.
+  // Otherwise, filter by isPublic !== false.
+  const userEducations = user.educations || [];
+  const publicEducations = userEducations.filter((edu) =>
+    userEducations.length === 1 ? true : edu.isPublic !== false
+  );
+
+  const rawCollege =
+    publicEducations[0]?.schoolName ||
+    (user.collegeName && user.collegeName.trim() && user.collegeName !== "NA" && user.collegeName !== "N/A"
+      ? user.collegeName
+      : null);
+  const displayCollege = rawCollege?.trim() || "NA";
+
   // Generate primary resume presigned URL
   const primaryResume = user.resumes.find(r => r.isPrimary) || user.resumes[0];
   let generatedResumeUrl = user.resumeUrl || null;
@@ -303,12 +318,10 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                       <span>Based in {[user.city, user.country].filter(Boolean).join(", ")}</span>
                     </div>
                   )}
-                  {user.collegeName && (
-                    <div className="flex items-center gap-2.5 text-xs text-zinc-600 dark:text-zinc-400 font-normal">
-                      <GraduationCap className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                      <span>{user.collegeName}</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2.5 text-xs text-zinc-600 dark:text-zinc-400 font-normal">
+                    <GraduationCap className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                    <span>{displayCollege}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -507,13 +520,13 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             </div>
 
             {/* Education Timeline Section */}
-            {user.educations && user.educations.length > 0 && (
+            {publicEducations.length > 0 && (
               <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-8 shadow-xs">
                 <h2 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 pb-3 mb-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
                   <GraduationCap className="w-4 h-4 text-orange-500" /> Education
                 </h2>
                 <div className="space-y-6 relative before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-[2px] before:bg-zinc-200 dark:before:bg-zinc-800">
-                  {user.educations.map((edu) => (
+                  {publicEducations.map((edu) => (
                     <div key={edu.id} className="relative pl-7 group">
                       <div className="absolute left-[1px] top-2 h-3.5 w-3.5 rounded-full border-2 border-white dark:border-zinc-900 bg-orange-500 shadow-2xs" />
                       

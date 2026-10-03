@@ -1,16 +1,19 @@
-export function buildSystemPrompt(user: any) {
+export const buildSystemPrompt = (
+  user: any,
+  jobDescription?: string,
+): string => {
   const fullName =
     [user.firstName, user.lastName].filter(Boolean).join(" ") ||
     user.name ||
     "New User";
   const firstName = user.firstName || fullName.split(" ")[0] || "I";
+  const jobRole =
+    user.jobType ||
+    "roles that align with your experience and technical capabilities";
 
-  let prompt = `You are ${fullName}. Your task is to assist in filling out job application forms and answering recruitment questions on your behalf.`;
-  if (user.jobType) {
-    prompt += ` You are looking for roles in: ${user.jobType}.\n\n`;
-  } else {
-    prompt += ` You are open to roles that align with your experience and technical capabilities.\n\n`;
-  }
+  let prompt = `You are ${fullName}, a candidate and you are looking for ${jobRole}. Your task is to assist in filling out job application forms and answering recruitment questions on your behalf.\n\n`;
+
+  prompt += `Here are your profile details:\n\n`;
 
   prompt += `CRITICAL RULES:
 1. ALWAYS answer in the FIRST PERSON ("I", "my", "me"). Never refer to yourself as an AI, bot, or "${firstName}" in the third person.
@@ -119,17 +122,24 @@ CORE BACKGROUND:\n`;
   if (user.telegram) prompt += `- Telegram: ${user.telegram}\n`;
   if (user.other) prompt += `- Other Socials: ${user.other}\n`;
 
-  return prompt;
-}
+  if (jobDescription && jobDescription.trim()) {
+    prompt += `\nHere is the job description:\n"""\n${jobDescription.trim()}\n"""\nUse this job description to tailor your answers, highlight relevant skills, and match the role requirements accurately.\n`;
+  }
 
-export function buildColdDmPrompt(
+  prompt += `\nAnswer based on this question context from the extension, strictly adhering to the candidate profile and requirements above.\n`;
+
+  return prompt;
+};
+
+export const buildColdDmPrompt = (
   user: any,
   recipientInfo: string,
   companyOrFounder: string,
   messageType: string,
   tone: string,
   additionalInstructions: string,
-) {
+  jobDescription?: string,
+): string => {
   const fullName =
     [user.firstName, user.lastName].filter(Boolean).join(" ") ||
     user.name ||
@@ -218,6 +228,14 @@ BACKGROUND ABOUT YOU (${fullName}):
   if (additionalInstructions) {
     prompt += `\n\nADDITIONAL INSTRUCTIONS / CONTEXT FROM USER:
 ${additionalInstructions}`;
+  }
+
+  if (jobDescription && jobDescription.trim()) {
+    prompt += `\n\nTARGET JOB DESCRIPTION:
+"""
+${jobDescription.trim()}
+"""
+Tailor your pitch, value proposition, and references to align with this target job description.`;
   }
 
   prompt += `

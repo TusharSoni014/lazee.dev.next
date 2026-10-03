@@ -1541,7 +1541,6 @@ function ProjectForm({
                       checked={field.value}
                       disabled={isPendingSave || isLoading}
                       onCheckedChange={field.onChange}
-                      className="size-4 accent-orange-600 rounded"
                     />
                   </FormControl>
                   <div className="space-y-1">

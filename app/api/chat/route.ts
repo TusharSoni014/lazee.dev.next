@@ -27,7 +27,11 @@ export async function POST(request: NextRequest) {
     // Passive credit refresh
     await checkAndRefreshCredits(session.user.email);
 
-    const { messages, userProfile } = await request.json();
+    const { messages, userProfile, jobDescription } = await request.json();
+
+    const hasJd =
+      typeof jobDescription === "string" && jobDescription.trim().length > 0;
+    const requiredCredits = hasJd ? 8 : 2; // Extra 6 credits when job description is used
 
     // Check credits and fetch profile
     const user = await prisma.user.findUnique({
@@ -45,17 +49,21 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    if (!user || user.credits < 2) {
+    if (!user || user.credits < requiredCredits) {
       return NextResponse.json(
         {
-          error:
-            "Insufficient credits. Please upgrade or purchase more credits.",
+          error: hasJd
+            ? `Insufficient credits. Answering with a job description requires ${requiredCredits} credits (2 base + 6 JD). You have ${user?.credits ?? 0} credits.`
+            : "Insufficient credits. Please upgrade or purchase more credits.",
         },
         { status: 403, headers: corsHeaders },
       );
     }
 
-    let systemContent = buildSystemPrompt(user);
+    let systemContent = buildSystemPrompt(
+      user,
+      hasJd ? jobDescription : undefined,
+    );
 
     // Inject dynamic user profile fields if sent from client as a fallback
     if (userProfile && !user.name) {
@@ -85,7 +93,7 @@ export async function POST(request: NextRequest) {
       where: { email: session.user.email },
       data: {
         credits: {
-          decrement: 2,
+          decrement: requiredCredits,
         },
       },
     });

@@ -104,6 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
     const requests: PromptRequest[] = [];
+    const jobDescription = str(body?.jobDescription, 20_000);
 
     if (kind === "chat") {
       const incoming: IncomingMessage[] = Array.isArray(body.messages)
@@ -124,7 +125,10 @@ export async function POST(request: NextRequest) {
       }
       if (messages.length === 0) return fail("No messages provided", 400);
 
-      let systemContent = buildSystemPrompt(user);
+      let systemContent = buildSystemPrompt(
+        user,
+        jobDescription || undefined,
+      );
       const userProfile = body.userProfile;
       if (userProfile && !user.name) {
         systemContent += userContextSuffix(userProfile);
@@ -145,6 +149,7 @@ export async function POST(request: NextRequest) {
         str(body.messageType, 100),
         str(body.tone, 100),
         str(body.additionalInstructions),
+        jobDescription || undefined,
       );
       requests.push({
         id: "cold-dm",
@@ -169,7 +174,10 @@ export async function POST(request: NextRequest) {
         return fail(`Too many fields (max ${MAX_FIELDS}).`, 400);
       }
 
-      let systemContent = buildSystemPrompt(user);
+      let systemContent = buildSystemPrompt(
+        user,
+        jobDescription || undefined,
+      );
       const userProfile = body.userProfile;
       if (userProfile && !user.name) {
         systemContent += userContextSuffix(userProfile);
