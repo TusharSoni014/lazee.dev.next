@@ -32,13 +32,25 @@ function TypewriterSynthesizer() {
   }, []);
 
   return (
-    <div className="font-mono text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed min-h-[58px]">
-      <span>{text}</span>
-      <motion.span
-        animate={{ opacity: [1, 0] }}
-        transition={{ repeat: Infinity, duration: 0.6 }}
-        className="inline-block w-1 h-3 bg-orange-600 ml-0.5 align-middle"
-      />
+    <div className="relative font-mono text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed min-h-[96px] sm:min-h-[58px]">
+      {/* Invisible ghost sizer reserving exact full text height across all screen widths */}
+      <div
+        className="invisible select-none pointer-events-none"
+        aria-hidden="true"
+      >
+        <span>{fullText}</span>
+        <span className="inline-block w-1 h-3 ml-0.5 align-middle" />
+      </div>
+
+      {/* Streaming typewriter text positioned over the pre-sized container */}
+      <div className="absolute inset-0">
+        <span>{text}</span>
+        <motion.span
+          animate={{ opacity: [1, 0] }}
+          transition={{ repeat: Infinity, duration: 0.6 }}
+          className="inline-block w-1 h-3 bg-orange-600 ml-0.5 align-middle"
+        />
+      </div>
     </div>
   );
 }
@@ -261,9 +273,13 @@ export function GridFeaturesSection() {
           </div>
 
           <div className="mt-6 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-900/50 p-3.5 space-y-2">
-            <div className="flex items-center justify-between text-[11px] text-zinc-500 font-mono pb-2 border-b border-zinc-200/60 dark:border-zinc-800">
-              <span className="text-zinc-700 dark:text-zinc-300 font-medium">Prompt: System Scalability & Optimization</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-medium">99.4% Match</span>
+            <div className="flex items-center justify-between gap-2 text-[11px] text-zinc-500 font-mono pb-2 border-b border-zinc-200/60 dark:border-zinc-800">
+              <span className="text-zinc-700 dark:text-zinc-300 font-medium truncate">
+                Prompt: System Scalability &amp; Optimization
+              </span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-medium shrink-0">
+                99.4% Match
+              </span>
             </div>
             <TypewriterSynthesizer />
           </div>
