@@ -207,7 +207,7 @@ export function HeroDemo() {
                 </span>
               </div>
               <span className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded bg-zinc-200/70 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
-                v2.1.0
+                v2.2.0
               </span>
             </div>
 
