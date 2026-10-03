@@ -3,23 +3,65 @@
 import Image from "next/image";
 import { motion } from "motion/react";
 
-const logos = [
-  { name: "Airtable", src: "airtable.jpg" },
-  { name: "ClanX", src: "clanx.png" },
-  { name: "Glassdoor", src: "glassdoor.png" },
-  { name: "Google Forms", src: "google-form.png" },
-  { name: "Lever", src: "lever.png" },
-  { name: "Notion", src: "notion.png" },
-  { name: "Superteam", src: "superteam.png" },
-  { name: "Wellfound", src: "wellfound.png" },
+interface LogoItem {
+  name: string;
+  src: string;
+  darkSrc?: string;
+  className?: string;
+  containerClassName?: string;
+}
+
+const logos: LogoItem[] = [
+  {
+    name: "Ashby",
+    src: "/ashby.svg",
+  },
+  {
+    name: "Lever",
+    src: "/lever.svg",
+    className: "invert dark:invert-0",
+  },
+  {
+    name: "Glassdoor",
+    src: "/glassdoor.svg",
+  },
+  {
+    name: "Wellfound",
+    src: "/wellfound.svg",
+    darkSrc: "/wellfound-dark.svg",
+    containerClassName: "h-8 w-36 sm:h-9 sm:w-48",
+  },
+  {
+    name: "Notion",
+    src: "/notion.svg",
+    className: "dark:invert",
+  },
+  {
+    name: "Airtable",
+    src: "/airtable.svg",
+    darkSrc: "/airtable-dark.svg",
+  },
+  {
+    name: "ClanX",
+    src: "/clanx.svg",
+    darkSrc: "/clanx-dark.svg",
+  },
+  {
+    name: "Google Forms",
+    src: "/google-forms.svg",
+  },
+  {
+    name: "Superteam",
+    src: "/superteam.svg",
+    className: "invert dark:invert-0",
+    containerClassName: "h-10 w-24 sm:h-12 sm:w-28",
+  },
 ];
 
 // Combine logos to ensure infinite scroll
 const duplicatedLogos = [...logos, ...logos];
 
 export function LogoCarousel() {
-  const baseUrl = "https://pub-889628534b094cf89bcd7cd93528323d.r2.dev/assets/";
-
   return (
     <section id="platforms" className="w-full py-12 sm:py-16 border-y border-zinc-200/80 dark:border-zinc-800/80 my-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,7 +85,7 @@ export function LogoCarousel() {
                 x: {
                   repeat: Infinity,
                   repeatType: "loop",
-                  duration: 28,
+                  duration: 30,
                   ease: "linear",
                 },
               }}
@@ -52,16 +94,39 @@ export function LogoCarousel() {
               {duplicatedLogos.map((logo, index) => (
                 <div
                   key={`${logo.name}-${index}`}
-                  className="flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-200 px-6 sm:px-10"
+                  className="flex items-center justify-center px-6 sm:px-10"
                 >
-                  <div className="relative h-8 w-24 sm:h-9 sm:w-28 flex items-center justify-center">
-                    <Image
-                      src={`${baseUrl}${logo.src}`}
-                      alt={logo.name}
-                      fill
-                      className="object-contain"
-                      unoptimized
-                    />
+                  <div
+                    className={`relative flex items-center justify-center ${
+                      logo.containerClassName || "h-8 w-24 sm:h-9 sm:w-28"
+                    }`}
+                  >
+                    {logo.darkSrc ? (
+                      <>
+                        <Image
+                          src={logo.src}
+                          alt={logo.name}
+                          fill
+                          className={`object-contain dark:hidden ${logo.className || ""}`}
+                          unoptimized
+                        />
+                        <Image
+                          src={logo.darkSrc}
+                          alt={logo.name}
+                          fill
+                          className={`object-contain hidden dark:block ${logo.className || ""}`}
+                          unoptimized
+                        />
+                      </>
+                    ) : (
+                      <Image
+                        src={logo.src}
+                        alt={logo.name}
+                        fill
+                        className={`object-contain ${logo.className || ""}`}
+                        unoptimized
+                      />
+                    )}
                   </div>
                 </div>
               ))}

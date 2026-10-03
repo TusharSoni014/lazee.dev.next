@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="240 155 800 640" fill="#fff">
+
+  <!-- Superteam symbol -->
+  <g>
+    <!-- Top-left shape -->
+    <path d="
+      M610 162
+      H490
+      C414 162 378 188 378 254
+      C378 319 414 352 490 368
+      H610
+      Z
+    "></path>
+
+    <!-- Bottom-left shape -->
+    <path d="
+      M378 368
+      H490
+      C565 385 610 424 610 484
+      C610 550 565 582 490 582
+      H378
+      Z
+    "></path>
+
+    <!-- Right shape -->
+    <path d="
+      M644 162
+      H808
+      V226
+      H923
+      V263
+      C923 327 878 379 816 379
+      H808
+      V581
+      H782
+      C697 581 646 528 646 429
+      Z
+    "></path>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="640" y="770" text-anchor="middle" textLength="790" lengthAdjust="spacingAndGlyphs" font-family="Arial, Helvetica, sans-serif" font-size="108" font-weight="700" letter-spacing="-4">superteam</text>
+
+</svg>
