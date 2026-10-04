@@ -30,8 +30,12 @@ export function HeroSection() {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
           </span>
           <span className="font-mono text-[11px]">v2.2.1</span>
-          <span className="text-zinc-300 dark:text-zinc-700">•</span>
-          <span>Now with Custom Providers & Web Scraping</span>
+          <span className="text-zinc-300 dark:text-zinc-700 hidden sm:block">
+            •
+          </span>
+          <span className="hidden sm:block">
+            Now with Custom Providers & Smarter Detection
+          </span>
         </div>
 
         {/* Title */}

@@ -22,6 +22,12 @@ const logos: LogoItem[] = [
     className: "invert dark:invert-0",
   },
   {
+    name: "Y Combinator",
+    src: "/ycombinator.svg",
+    darkSrc: "/ycombinator-dark.svg",
+    containerClassName: "h-9 w-40 sm:h-10 sm:w-44",
+  },
+  {
     name: "Glassdoor",
     src: "/glassdoor.svg",
   },
@@ -47,8 +53,8 @@ const logos: LogoItem[] = [
     darkSrc: "/clanx-dark.svg",
   },
   {
-    name: "Google Forms",
-    src: "/google-forms.svg",
+    name: "Google & Gmail",
+    src: "/google.svg",
   },
   {
     name: "Superteam",
@@ -98,7 +104,7 @@ export function LogoCarousel() {
               {duplicatedLogos.map((logo, index) => (
                 <div
                   key={`${logo.name}-${index}`}
-                  className="flex items-center justify-center px-6 sm:px-10 transition-transform duration-200 hover:scale-105"
+                  className="flex items-center justify-center px-6 sm:px-10"
                 >
                   <div
                     className={`relative flex items-center justify-center ${
@@ -149,7 +155,8 @@ export function LogoCarousel() {
             </span>
           </div>
           <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-            Seamless auto-detection on Greenhouse, Workday, Taleo, BambooHR &amp; custom forms.
+            Seamless auto-detection on Greenhouse, Workday, Taleo, BambooHR
+            &amp; custom forms.
           </p>
         </div>
       </div>
