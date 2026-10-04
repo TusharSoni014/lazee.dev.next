@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { LazyVideoEmbed } from "@/components/LazyVideoEmbed";
 
 export function VideoSection() {
   return (
@@ -19,17 +20,13 @@ export function VideoSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full aspect-video rounded-2xl overflow-hidden border border-zinc-200/80 dark:border-zinc-800 bg-zinc-950 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.15)] ring-1 ring-zinc-900/5 dark:ring-white/10"
+        className="w-full shadow-[0_20px_50px_-15px_rgba(0,0,0,0.15)] ring-1 ring-zinc-900/5 dark:ring-white/10 rounded-2xl"
       >
-        <iframe
-          className="absolute top-0 left-0 w-full h-full"
-          src="https://www.youtube.com/embed/5B3ib4ydzwA?si=5s76zkrLsRL_oOy6"
-          title="Lazee Product Walkthrough"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-        ></iframe>
+        <LazyVideoEmbed
+          url="https://www.youtube.com/watch?v=5B3ib4ydzwA"
+          thumbnailUrl="/og.jpg"
+          title="Watch the Lazee.dev Launch Video 2026"
+        />
       </motion.div>
     </section>
   );

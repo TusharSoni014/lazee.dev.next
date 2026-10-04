@@ -351,6 +351,7 @@ function PersonalInformationForm({
   const form = useForm<z.infer<typeof personalSchema>>({
     resolver: zodResolver(personalSchema),
     defaultValues: getPersonalFormValues(user),
+    shouldFocusError: false,
   });
 
   const onSubmit = async (values: z.infer<typeof personalSchema>) => {
@@ -713,6 +714,7 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
   const form = useForm<z.infer<typeof professionalSchema>>({
     resolver: zodResolver(professionalSchema) as any,
     defaultValues: getProfessionalFormValues(user),
+    shouldFocusError: false,
   });
 
   const onSubmit = async (values: z.infer<typeof professionalSchema>) => {
@@ -882,6 +884,7 @@ function SocialLinksForm({ user, refetchProfile }: any) {
       telegram: user.telegram || "",
       other: user.other || "",
     },
+    shouldFocusError: false,
   });
 
   const onSubmit = async (values: z.infer<typeof socialsSchema>) => {
@@ -997,6 +1000,7 @@ function AiSettingsForm({ user, refetchProfile }: any) {
     defaultValues: {
       specificQuestionGuidance: user.specificQuestionGuidance || "",
     },
+    shouldFocusError: false,
   });
 
   const onSubmit = async (values: z.infer<typeof aiSettingsSchema>) => {
@@ -1089,6 +1093,7 @@ function CoverLetterForm({ user, refetchProfile }: any) {
     defaultValues: {
       coverLetter: user.coverLetter || "",
     },
+    shouldFocusError: false,
   });
 
   const handleCopy = async () => {
@@ -1297,17 +1302,19 @@ export default function ProfileForm({
     return () => clearInterval(interval);
   }, [paymentSuccess, status?.membership, refetchStatus]);
 
-  if (!user || isLoadingProfile) {
+  useEffect(() => {
+    if (user?.resumes) {
+      useResumeStore.getState().setResumes(user.resumes);
+    }
+  }, [user?.resumes]);
+
+  if (!user) {
     return (
       <div className="flex justify-center py-12">
         <Loading fullPage={false} message="Loading candidate profile..." />
       </div>
     );
   }
-
-  useEffect(() => {
-    useResumeStore.getState().setResumes(user?.resumes || []);
-  }, [user?.resumes]);
 
   async function handleUpgrade() {
     setIsCheckingOut(true);
@@ -2579,6 +2586,7 @@ function IntroVideoForm({ user, refetchProfile }: any) {
     defaultValues: {
       introVideo: user.introVideo || "",
     },
+    shouldFocusError: false,
   });
 
   const onSubmit = async (values: z.infer<typeof introVideoSchema>) => {
@@ -2677,6 +2685,7 @@ function IntroVideoForm({ user, refetchProfile }: any) {
               <div className="aspect-video w-full max-w-2xl rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-900 shadow-sm relative overflow-hidden">
                 <iframe
                   src={embedUrl}
+                  loading="lazy"
                   className="absolute inset-0 w-full h-full"
                   allowFullScreen
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

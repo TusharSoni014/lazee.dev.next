@@ -63,7 +63,6 @@ export async function updateProfile(data: any) {
       select: { username: true }
     });
 
-    revalidatePath("/profile");
     if (updatedUser.username) {
       revalidatePath(`/u/${updatedUser.username}`);
     }
@@ -135,7 +134,7 @@ export async function updateUsername(username: string) {
       data: { username: normalizedUsername },
     });
 
-    revalidatePath("/profile");
+    revalidatePath(`/u/${normalizedUsername}`);
     return { success: true };
   } catch (error: any) {
     console.error("Failed to update username:", error);
@@ -150,7 +149,7 @@ export async function updateExperiences(experiences: any[]) {
   }
 
   try {
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { id: session.user.id },
       data: {
         experiences: {
@@ -167,8 +166,11 @@ export async function updateExperiences(experiences: any[]) {
           })),
         },
       },
+      select: { username: true },
     });
-    revalidatePath("/profile");
+    if (user.username) {
+      revalidatePath(`/u/${user.username}`);
+    }
     return { success: true };
   } catch (error) {
     console.error("Failed to update experiences:", error);
@@ -183,7 +185,7 @@ export async function updateProjects(projects: any[]) {
   }
 
   try {
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { id: session.user.id },
       data: {
         projects: {
@@ -203,8 +205,11 @@ export async function updateProjects(projects: any[]) {
           })),
         },
       },
+      select: { username: true },
     });
-    revalidatePath("/profile");
+    if (user.username) {
+      revalidatePath(`/u/${user.username}`);
+    }
     return { success: true };
   } catch (error) {
     console.error("Failed to update projects:", error);
@@ -279,7 +284,6 @@ export async function savePublicProfileSettings(data: {
       }),
     ]);
 
-    revalidatePath("/profile");
     revalidatePath(`/u/${normalizedUsername}`);
     return { success: true };
   } catch (error: any) {
@@ -305,7 +309,6 @@ export async function disablePublicSharing() {
       data: { username: null },
     });
 
-    revalidatePath("/profile");
     if (user?.username) {
       revalidatePath(`/u/${user.username}`);
     }
@@ -489,7 +492,6 @@ export async function updateEducation(educations: any[]) {
       },
       select: { username: true },
     });
-    revalidatePath("/profile");
     if (user.username) {
       revalidatePath(`/u/${user.username}`);
     }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   Loader2,
   ArrowRight,
@@ -16,10 +17,30 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function AuthForm() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [isEmailLoading, setIsEmailLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const extensionId = urlParams.get("extensionId");
+      if (extensionId) {
+        router.replace(`/?extensionId=${extensionId}&logged_in=true`);
+        return;
+      }
+      const callbackUrl = urlParams.get("callbackUrl");
+      if (callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//")) {
+        router.replace(callbackUrl);
+        return;
+      }
+      router.replace("/profile");
+    }
+  }, [status, session, router]);
 
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -72,6 +93,17 @@ export default function AuthForm() {
       setIsGoogleLoading(false);
     }
   };
+
+  if (status === "authenticated") {
+    return (
+      <div className="w-full rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 shadow-xl shadow-zinc-950/5 dark:shadow-black/20 p-8 flex flex-col items-center justify-center min-h-[280px]">
+        <Loader2 className="size-6 animate-spin text-orange-600 mb-3" />
+        <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+          Already signed in. Redirecting to your dashboard...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 shadow-xl shadow-zinc-950/5 dark:shadow-black/20 p-6 sm:p-8 backdrop-blur-sm">

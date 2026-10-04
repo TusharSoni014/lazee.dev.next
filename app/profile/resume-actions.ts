@@ -108,7 +108,9 @@ export async function uploadResumeDirect(formData: FormData) {
       },
     });
 
-    revalidatePath("/profile");
+    if (user.username) {
+      revalidatePath(`/u/${user.username}`);
+    }
     return { success: true, inspected: shouldInspect };
   } catch (error) {
     console.error("Failed to upload resume to S3:", error);
@@ -265,7 +267,9 @@ export async function applyResumeAutofillFromPdf(
       if (projectResult.error) return { error: projectResult.error };
     }
 
-    revalidatePath("/profile");
+    if (user.username) {
+      revalidatePath(`/u/${user.username}`);
+    }
 
     return {
       success: true,
@@ -369,7 +373,9 @@ export async function deleteResume(id: string) {
       where: { id },
     });
 
-    revalidatePath("/profile");
+    if (user.username) {
+      revalidatePath(`/u/${user.username}`);
+    }
     return { success: true };
   } catch (error) {
     console.error("Failed to delete resume:", error);

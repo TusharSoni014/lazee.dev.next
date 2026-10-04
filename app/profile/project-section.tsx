@@ -667,6 +667,7 @@ function ProjectForm({
       isTopProject: proj.isTopProject || false,
       screenshots: proj.screenshots || [],
     },
+    shouldFocusError: false,
   });
 
   const [stackInput, setStackInput] = useState("");

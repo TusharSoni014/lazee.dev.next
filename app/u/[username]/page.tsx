@@ -15,8 +15,6 @@ import {
   Code,
   Mail,
   FileText,
-  Folder,
-  Star,
   GraduationCap,
   Video,
   Fingerprint,
@@ -29,9 +27,9 @@ import { Metadata } from "next";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getS3Client } from "@/lib/s3";
-import { ProjectCarousel } from "@/components/ProjectCarousel";
-import { getPublicImageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { PublicProjects } from "./public-projects";
+import { LazyVideoEmbed } from "@/components/LazyVideoEmbed";
 
 const getYoutubeId = (url: string) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -422,34 +420,16 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             </div>
             
             {/* Intro Video Embed */}
-            {user.introVideo && (
-              (() => {
-                const ytId = getYoutubeId(user.introVideo);
-                const lId = getLoomId(user.introVideo);
-                const embedUrl = ytId 
-                  ? `https://www.youtube.com/embed/${ytId}` 
-                  : lId 
-                    ? `https://www.loom.com/embed/${lId}` 
-                    : null;
-                
-                if (!embedUrl) return null;
-
-                return (
-                  <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-8 shadow-xs">
-                    <h2 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
-                      <Video className="w-4 h-4 text-orange-500 shrink-0" /> Intro Video
-                    </h2>
-                    <div className="aspect-video w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-950 shadow-xs relative overflow-hidden">
-                      <iframe
-                        src={embedUrl}
-                        className="absolute inset-0 w-full h-full"
-                        allowFullScreen
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      />
-                    </div>
-                  </div>
-                );
-              })()
+            {user.introVideo && (getYoutubeId(user.introVideo) || getLoomId(user.introVideo)) && (
+              <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-8 shadow-xs">
+                <h2 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
+                  <Video className="w-4 h-4 text-orange-500 shrink-0" /> Intro Video
+                </h2>
+                <LazyVideoEmbed
+                  url={user.introVideo}
+                  title={`${fullName}'s Intro Video`}
+                />
+              </div>
             )}
 
             {/* Experience Timeline Section */}
@@ -533,7 +513,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                       <div className="space-y-1">
                         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
                           <h3 className="text-sm sm:text-base font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
-                            {edu.degree || edu.fieldOfStudy || "Education"}{edu.schoolName ? ` at ${edu.schoolName}` : ""}
+                            {edu.schoolName || edu.degree || edu.fieldOfStudy || "Education"}
                           </h3>
                           <div className="text-xs text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5 shrink-0">
                             <Calendar className="w-3 h-3 text-zinc-400" />
@@ -544,8 +524,8 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                         </div>
 
                         {(edu.degree || edu.fieldOfStudy) && (
-                          <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-                            {edu.degree}{edu.fieldOfStudy ? ` in ${edu.fieldOfStudy}` : ""}
+                          <div className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 font-medium">
+                            {[edu.degree, edu.fieldOfStudy].filter(Boolean).join(" in ")}
                           </div>
                         )}
 
@@ -561,136 +541,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
               </div>
             )}
 
-            {/* Featured Projects Section */}
-            <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-8 shadow-xs">
-              <h2 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 pb-3 mb-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
-                <Folder className="w-4 h-4 text-orange-500" /> Projects &amp; Creations
-              </h2>
-              <div className="grid gap-5">
-                {user.projects.length > 0 ? (
-                  user.projects.map((project) => (
-                    <div 
-                      key={project.id} 
-                      className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 p-5 md:p-6 shadow-2xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div>
-                          <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
-                            {project.name}
-                          </h3>
-                          {project.contribution && (
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                              {project.contribution}
-                            </p>
-                          )}
-                        </div>
-                        {project.isTopProject && (
-                          <span className="inline-flex items-center gap-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[11px] font-medium px-2.5 py-0.5 rounded-full border border-orange-500/20 select-none">
-                            <Star className="w-3 h-3 fill-orange-500/20" /> Featured
-                          </span>
-                        )}
-                      </div>
-
-                      {project.description && (
-                        <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 font-normal leading-relaxed mb-3">
-                          {project.description}
-                        </p>
-                      )}
-
-                      {/* Stacks tags */}
-                      {project.stacks && (
-                        <div className="flex flex-wrap gap-1.5 mb-3">
-                          {Array.from(
-                            new Set(
-                              (Array.isArray(project.stacks)
-                                ? project.stacks
-                                : typeof project.stacks === "string"
-                                  ? (project.stacks as string).split(",")
-                                  : []
-                              )
-                                .map((s: string) => s?.trim())
-                                .filter(Boolean)
-                            )
-                          ).map((stack, idx) => (
-                            <span
-                              key={`${stack}-${idx}`}
-                              className="text-[11px] font-medium rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 px-2 py-0.5"
-                            >
-                              #{stack}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Screenshots Carousel/Grid */}
-                      {(() => {
-                        const maxScreenshots = user.membership === "PRO" ? 10 : 3;
-                        const activeScreenshots = (project.screenshots || [])
-                          .slice(0, maxScreenshots)
-                          .map((url) => getPublicImageUrl(url));
-
-                        if (activeScreenshots.length === 0) return null;
-
-                        return (
-                          <div className="space-y-2 mt-4 pt-1">
-                            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Media &amp; Screenshots:</p>
-                            {activeScreenshots.length >= 3 ? (
-                              <ProjectCarousel screenshots={activeScreenshots} />
-                            ) : (
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                {activeScreenshots.map((url, idx) => (
-                                  <a
-                                    key={idx}
-                                    href={url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="relative aspect-video rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 overflow-hidden group shadow-2xs"
-                                  >
-                                    <img
-                                      src={url}
-                                      alt={`${project.name} screenshot ${idx + 1}`}
-                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                    />
-                                  </a>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })()}
-
-                      {/* Project Actions */}
-                      <div className="flex gap-4 pt-4 border-t border-zinc-200/80 dark:border-zinc-800 mt-4">
-                        {project.activeLink && (
-                          <a 
-                            href={project.activeLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs font-medium text-orange-600 dark:text-orange-400 hover:underline"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            Live Demo
-                          </a>
-                        )}
-                        {project.githubLink && (
-                          <a 
-                            href={project.githubLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white"
-                          >
-                            <Github className="w-3.5 h-3.5" />
-                            Source Code
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-zinc-400 dark:text-zinc-500 text-xs font-normal pl-4">No projects listed</p>
-                )}
-              </div>
-            </div>
+            {/* Projects Section */}
+            <PublicProjects
+              projects={user.projects}
+              membership={user.membership}
+            />
 
           </div>
         </div>

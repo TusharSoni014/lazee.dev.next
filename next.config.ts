@@ -44,6 +44,16 @@ const nextConfig: NextConfig = {
         destination: "/careers",
         permanent: true,
       },
+      {
+        source: "/signin",
+        destination: "/login",
+        permanent: true,
+      },
+      {
+        source: "/sign-in",
+        destination: "/login",
+        permanent: true,
+      },
     ];
   },
 };

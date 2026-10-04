@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 import AuthForm from "@/components/AuthForm";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Sign In",
@@ -7,7 +11,38 @@ export const metadata: Metadata = {
     "Sign in to Lazee.dev to sync your profile and browser extension.",
 };
 
-export default function LoginPage() {
+interface LoginPageProps {
+  searchParams?: Promise<{
+    callbackUrl?: string;
+    extensionId?: string;
+    [key: string]: string | string[] | undefined;
+  }>;
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const session = await auth();
+
+  if (session?.user) {
+    const params = await searchParams;
+    const extensionId =
+      typeof params?.extensionId === "string" ? params.extensionId : undefined;
+    if (extensionId) {
+      redirect(`/?extensionId=${extensionId}&logged_in=true`);
+    }
+
+    const callbackUrl =
+      typeof params?.callbackUrl === "string" ? params.callbackUrl : undefined;
+    if (
+      callbackUrl &&
+      callbackUrl.startsWith("/") &&
+      !callbackUrl.startsWith("//")
+    ) {
+      redirect(callbackUrl);
+    }
+
+    redirect("/profile");
+  }
+
   return (
     <div className="flex flex-1 w-full h-[calc(100dvh-4rem)] max-h-[calc(100dvh-4rem)] overflow-hidden bg-zinc-50 dark:bg-zinc-950">
       {/* Left Column: Minimal Warm Mesh Gradient Card (Desktop Only) */}
