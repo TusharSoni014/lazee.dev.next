@@ -4,11 +4,11 @@
 
 ## About
 
-Lazee.dev is a developer-centric productivity tool built for software engineers, developers, and tech job seekers who want to eliminate the repetitive friction of manually filling out job applications. It pairs a lightweight cross-browser extension (v2.2.2 for Google Chrome, Mozilla Firefox, Microsoft Edge, and Brave) with a comprehensive web platform for career profile management, multi-resume hosting, custom AI provider orchestration, and shareable public portfolios.
+Lazee.dev is a developer-centric productivity tool built for software engineers, developers, and tech job seekers who want to eliminate the repetitive friction of manually filling out job applications. It pairs a lightweight cross-browser extension (v2.2.3 for Google Chrome, Mozilla Firefox, Microsoft Edge, and Brave) with a comprehensive web platform for career profile management, multi-resume hosting, custom AI provider orchestration, and shareable public portfolios.
 
 - Website: https://lazee.dev
 - Tagline: "Stop Typing. Start Applying."
-- Extension Version: v2.2.2
+- Extension Version: v2.2.3
 - Category: Developer Tools / Job Search Automation / AI Productivity / Career OS
 - Status: Launched & Active
 - Product Hunt: https://www.producthunt.com/products/lazee-dev

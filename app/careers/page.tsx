@@ -2,18 +2,21 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowLeft,
-  Briefcase,
   Target,
   Cpu,
   ShieldCheck,
   Sparkles,
-  AlertCircle,
   ExternalLink,
   MessageSquare,
   Terminal,
 } from "lucide-react";
 import { FaGithub, FaXTwitter } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import { CareerJobListings } from "./CareerJobListings";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Careers & Jobs | Lazee.dev",
@@ -21,7 +24,37 @@ export const metadata: Metadata = {
     "Explore career opportunities at Lazee.dev. Learn about our engineering DNA, radical automation culture, and how we build.",
 };
 
-export default function CareersPage() {
+export default async function CareersPage() {
+  const session = await auth();
+
+  // Strict Admin Verification
+  let isAdmin = false;
+  if (session?.user?.email?.toLowerCase() === "techandrow@gmail.com") {
+    isAdmin = true;
+  } else if (session?.user?.id) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { isAdmin: true, email: true },
+    });
+    isAdmin = Boolean(
+      dbUser?.isAdmin || dbUser?.email?.toLowerCase() === "techandrow@gmail.com"
+    );
+  }
+
+  // Fetch jobs: Admin sees all jobs (both open and closed); public sees only open jobs
+  const jobs = await prisma.job.findMany({
+    where: isAdmin ? undefined : { isOpen: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const serializedJobs = jobs.map((job) => ({
+    ...job,
+    createdAt: job.createdAt.toISOString(),
+    updatedAt: job.updatedAt.toISOString(),
+  }));
+
+  const openCount = jobs.filter((j) => j.isOpen).length;
+
   return (
     <div className="flex flex-1 justify-center py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl w-full">
@@ -62,38 +95,27 @@ export default function CareersPage() {
 
         {/* Content Sections */}
         <div className="space-y-8">
-          {/* Section 1: Hiring Status */}
+          {/* Section 1: Current Openings */}
           <section className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 sm:p-8 shadow-xs">
-            <div className="flex items-center gap-3 pb-4 border-b border-zinc-100 dark:border-zinc-900 mb-6">
-              <span className="text-xs font-mono font-bold text-orange-600 dark:text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded">
-                01
-              </span>
-              <h2 className="text-lg sm:text-xl font-heading font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-                Current Openings
-              </h2>
-            </div>
-
-            <div className="space-y-5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-              <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/[0.08] dark:bg-amber-500/10 p-4 text-amber-900 dark:text-amber-200">
-                <AlertCircle className="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="font-semibold text-xs sm:text-sm text-amber-900 dark:text-amber-100">
-                    We are not actively hiring for open full-time roles right now.
-                  </p>
-                  <p className="text-xs text-amber-800/90 dark:text-amber-300/90 leading-normal">
-                    We prioritize extreme operational leverage and autonomy over headcount growth.
-                  </p>
-                </div>
+            <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-900 mb-6">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-mono font-bold text-orange-600 dark:text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded">
+                  01
+                </span>
+                <h2 className="text-lg sm:text-xl font-heading font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+                  Current Openings
+                </h2>
               </div>
-
-              <p>
-                Since Lazee.dev exists to help software engineers eliminate tedious application busywork, we practice what we preach: keeping our core product highly automated, focused, and run by a small, high-agency team.
-              </p>
-
-              <p>
-                Our infrastructure, DOM matching algorithms, and automated pipeline scripts are engineered so a lean team can serve thousands of active engineers effortlessly without corporate bloat.
-              </p>
+              {openCount > 0 && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{openCount} {openCount === 1 ? "Opening" : "Openings"}</span>
+                </span>
+              )}
             </div>
+
+            {/* Custom Job Listings & Admin Controls */}
+            <CareerJobListings initialJobs={serializedJobs} isAdmin={isAdmin} />
           </section>
 
           {/* Section 2: Engineering DNA */}

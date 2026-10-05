@@ -57,6 +57,7 @@ model User {
   lastCreditReset DateTime   @default(now())
   createdAt       DateTime   @default(now())
   dodoCustomerId  String?
+  isAdmin         Boolean    @default(false)
 
   resumeUrl String?
 
@@ -200,4 +201,24 @@ model SavedAnswer {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+}
+
+model Job {
+  id            String   @id @default(cuid())
+  title         String
+  department    String?
+  location      String
+  type          String   @default("Full-time")
+  workplaceType String   @default("Remote")
+  compensation  String?
+  experience    String?
+  description   String   @db.Text
+  requirements  String?  @db.Text
+  isOpen        Boolean  @default(true)
+  applyEmail    String   @default("career@lazee.dev")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isOpen])
+  @@index([createdAt])
 }

@@ -102,9 +102,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/login",
   },
   callbacks: {
-    async session({ session, user, token }) {
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id;
+      }
+      if (token?.sub) {
+        if (token.email?.toLowerCase() === "techandrow@gmail.com") {
+          token.isAdmin = true;
+        } else {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.sub },
+            select: { isAdmin: true, email: true },
+          });
+          token.isAdmin = Boolean(
+            dbUser?.isAdmin || dbUser?.email?.toLowerCase() === "techandrow@gmail.com"
+          );
+        }
+      }
+      return token;
+    },
+    async session({ session, token }) {
       if (token?.sub && session.user) {
         session.user.id = token.sub;
+        session.user.isAdmin = Boolean(
+          token.isAdmin || session.user.email?.toLowerCase() === "techandrow@gmail.com"
+        );
       }
       return session;
     },
