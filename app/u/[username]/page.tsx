@@ -57,14 +57,14 @@ export async function generateMetadata({ params }: PublicProfilePageProps): Prom
 
   if (!user) {
     return {
-      title: "User Not Found | Lazee.dev",
+      title: "User Not Found",
     };
   }
 
   const fullName = [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ").trim() || user.name || user.username;
   
   return {
-    title: `${fullName} | Lazee.dev Profile`,
+    title: fullName,
     description: `View ${fullName}'s professional profile on Lazee.dev. ${user.jobType || ""}`,
     openGraph: {
       title: `${fullName} | Lazee.dev`,
