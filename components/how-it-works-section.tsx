@@ -327,72 +327,73 @@ function ProviderDemoCard({
         />
       </button>
 
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.28, ease: EASE }}
-            className="overflow-hidden"
-          >
-            <div className="px-3.5 sm:px-4 pb-4 pt-3 space-y-3 border-t border-zinc-100 dark:border-zinc-800/80">
-              <FakeField
-                label={isCustom ? "Endpoint URL" : meta.keyLabel}
-                value={firstValue}
-                placeholder={
-                  isCustom ? "http://localhost:11434/v1" : meta.keyPlaceholder
-                }
-                caret={running && demo.phase === "typing"}
-              />
-              <FakeField
-                label="Model"
-                value={showModel ? script.model : ""}
-                placeholder={meta.modelPlaceholder}
-                caret={running && demo.phase === "model"}
-              />
-
-              <AnimatePresence>
-                {running && demo.phase === "ok" && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    className="flex items-start gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-400"
-                  >
-                    <Check className="size-4 shrink-0 mt-px" />
-                    <span>
-                      Working! {meta.short} replied in {script.latency}.
-                    </span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={clsx(
-                    "inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium transition-colors",
-                    running && demo.phase === "ok"
-                      ? "bg-orange-600 text-white"
-                      : "bg-orange-600/90 text-white",
-                  )}
-                >
-                  <Check className="size-3.5" />
-                  Save &amp; use
-                </span>
-                <span className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 px-3 text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                  {running && demo.phase === "testing" ? (
-                    <Loader2 className="size-3.5 animate-spin text-orange-500" />
-                  ) : (
-                    <PlugZap className="size-3.5" />
-                  )}
-                  Test connection
-                </span>
-              </div>
-            </div>
-          </motion.div>
+      {/* CSS grid-rows transition instead of Motion's height: "auto", which
+          measures layout and restores scroll position, cancelling in-progress
+          smooth scrolls (e.g. nav links to #pricing) while this demo autoplays. */}
+      <div
+        aria-hidden={!open}
+        className={clsx(
+          "grid transition-[grid-template-rows,opacity] duration-[280ms] ease-[cubic-bezier(0.16,1,0.3,1)]",
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
         )}
-      </AnimatePresence>
+      >
+        <div className="overflow-hidden">
+          <div className="px-3.5 sm:px-4 pb-4 pt-3 space-y-3 border-t border-zinc-100 dark:border-zinc-800/80">
+            <FakeField
+              label={isCustom ? "Endpoint URL" : meta.keyLabel}
+              value={firstValue}
+              placeholder={
+                isCustom ? "http://localhost:11434/v1" : meta.keyPlaceholder
+              }
+              caret={running && demo.phase === "typing"}
+            />
+            <FakeField
+              label="Model"
+              value={showModel ? script.model : ""}
+              placeholder={meta.modelPlaceholder}
+              caret={running && demo.phase === "model"}
+            />
+
+            <AnimatePresence>
+              {running && demo.phase === "ok" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="flex items-start gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-400"
+                >
+                  <Check className="size-4 shrink-0 mt-px" />
+                  <span>
+                    Working! {meta.short} replied in {script.latency}.
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={clsx(
+                  "inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium transition-colors",
+                  running && demo.phase === "ok"
+                    ? "bg-orange-600 text-white"
+                    : "bg-orange-600/90 text-white",
+                )}
+              >
+                <Check className="size-3.5" />
+                Save &amp; use
+              </span>
+              <span className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 px-3 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                {running && demo.phase === "testing" ? (
+                  <Loader2 className="size-3.5 animate-spin text-orange-500" />
+                ) : (
+                  <PlugZap className="size-3.5" />
+                )}
+                Test connection
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -526,8 +527,12 @@ function ByokDemo() {
         </p>
 
         {BYOK_PROVIDERS.map((id) => {
+          // Keep one card open between demo steps so the section height stays
+          // stable instead of jumping while people scroll past it.
           const open =
-            manualOpen !== undefined ? manualOpen === id : demo.id === id;
+            manualOpen !== undefined
+              ? manualOpen === id
+              : (demo.id ?? viewActive ?? BYOK_PROVIDERS[0]) === id;
           return (
             <ProviderDemoCard
               key={id}
