@@ -151,25 +151,25 @@ export function JobAdminModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !loading && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-7 rounded-2xl">
-        <DialogHeader className="space-y-1.5 text-left border-b border-zinc-100 dark:border-zinc-800 pb-4">
+      <DialogContent className="max-w-2xl w-[94vw] sm:w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 rounded-2xl">
+        <DialogHeader className="space-y-1.5 text-left border-b border-zinc-100 dark:border-zinc-800 pb-3.5">
           <div className="flex items-center gap-2 text-xs font-mono font-bold text-orange-600 dark:text-orange-500 bg-orange-500/10 px-2.5 py-1 rounded-full w-fit">
             <Briefcase className="size-3.5" />
             <span>Admin Controls</span>
           </div>
-          <DialogTitle className="text-xl sm:text-2xl font-bold font-heading text-zinc-900 dark:text-zinc-50">
+          <DialogTitle className="text-lg sm:text-xl font-bold font-heading text-zinc-950 dark:text-zinc-50">
             {isEditing ? "Edit Job Posting" : "Create New Job Posting"}
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-500 dark:text-zinc-400">
             {isEditing
-              ? "Update details, compensation, requirements, or toggle availability."
-              : "Post a new career opening. It will appear directly on the Lazee careers page."}
+              ? "Update details, compensation, requirements, or toggle visibility."
+              : "Post a new career opening directly onto the Lazee careers board."}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5 pt-3">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           {/* Title & Department */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                 Job Title <span className="text-rose-500">*</span>
@@ -179,7 +179,7 @@ export function JobAdminModal({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
-                className="h-10 text-xs sm:text-sm"
+                className="h-10 text-sm"
               />
             </div>
 
@@ -191,13 +191,13 @@ export function JobAdminModal({
                 placeholder="e.g. Engineering, Product, Growth"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
-                className="h-10 text-xs sm:text-sm"
+                className="h-10 text-sm"
               />
             </div>
           </div>
 
           {/* Location & Workplace Type */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                 Location <span className="text-rose-500">*</span>
@@ -207,7 +207,7 @@ export function JobAdminModal({
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 required
-                className="h-10 text-xs sm:text-sm"
+                className="h-10 text-sm"
               />
             </div>
 
@@ -218,7 +218,7 @@ export function JobAdminModal({
               <select
                 value={workplaceType}
                 onChange={(e) => setWorkplaceType(e.target.value)}
-                className="flex h-10 w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 px-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500"
+                className="flex h-10 w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500"
               >
                 <option value="Remote">Remote</option>
                 <option value="Hybrid">Hybrid</option>
@@ -233,7 +233,7 @@ export function JobAdminModal({
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="flex h-10 w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 px-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500"
+                className="flex h-10 w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500"
               >
                 <option value="Full-time">Full-time</option>
                 <option value="Part-time">Part-time</option>
@@ -244,16 +244,16 @@ export function JobAdminModal({
           </div>
 
           {/* Compensation & Experience */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                 Compensation / Salary Range
               </label>
               <Input
-                placeholder="e.g. ₹15 - ₹25 LPA or $100k - $140k"
+                placeholder="e.g. $120k - $160k or ₹20 - ₹35 LPA"
                 value={compensation}
                 onChange={(e) => setCompensation(e.target.value)}
-                className="h-10 text-xs sm:text-sm"
+                className="h-10 text-sm font-mono"
               />
             </div>
 
@@ -265,24 +265,24 @@ export function JobAdminModal({
                 placeholder="e.g. 2-5 years / High Agency"
                 value={experience}
                 onChange={(e) => setExperience(e.target.value)}
-                className="h-10 text-xs sm:text-sm"
+                className="h-10 text-sm"
               />
             </div>
           </div>
 
           {/* Open / Closed Status Toggle */}
-          <div className="flex items-center justify-between p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60">
-            <div>
+          <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60">
+            <div className="pr-3">
               <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
-                Job Posting Status
+                Public Listing Status
               </p>
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
                 {jobStatusOpen
-                  ? "Active & Open — Public visitors can see and apply for this job."
-                  : "Closed — Hidden from public visitors or marked as inactive."}
+                  ? "Active — Public visitors can discover and apply."
+                  : "Closed — Hidden from public visitors."}
               </p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
+            <label className="relative inline-flex items-center cursor-pointer shrink-0">
               <input
                 type="checkbox"
                 checked={jobStatusOpen}
@@ -297,17 +297,17 @@ export function JobAdminModal({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                Job Description <span className="text-rose-500">*</span>
+                Role Description &amp; Mission <span className="text-rose-500">*</span>
               </label>
-              <span className="text-[10px] font-mono text-zinc-400">Markdown / Plain text</span>
+              <span className="text-[10px] font-mono text-zinc-400">Plain text / Markdown</span>
             </div>
             <Textarea
-              rows={5}
-              placeholder="Describe the role, our mission, what problems the candidate will solve, and daily responsibilities..."
+              rows={4}
+              placeholder="Describe the mission, challenges to solve, daily responsibilities..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
-              className="text-xs sm:text-sm resize-y min-h-[110px]"
+              className="text-sm resize-y min-h-[100px]"
             />
           </div>
 
@@ -320,23 +320,23 @@ export function JobAdminModal({
               <span className="text-[10px] font-mono text-zinc-400">Optional</span>
             </div>
             <Textarea
-              rows={4}
-              placeholder="e.g. Next.js, TypeScript, PostgreSQL, Chrome Extensions, high-agency mentality, DOM reverse engineering..."
+              rows={3}
+              placeholder="e.g. Next.js, TypeScript, PostgreSQL, Chrome Extensions, high-agency..."
               value={requirements}
               onChange={(e) => setRequirements(e.target.value)}
-              className="text-xs sm:text-sm resize-y min-h-[90px]"
+              className="text-sm resize-y min-h-[80px]"
             />
           </div>
 
           {/* Footer actions */}
-          <DialogFooter className="pt-2 gap-2 border-t border-zinc-100 dark:border-zinc-800">
+          <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end pt-2 gap-2 border-t border-zinc-100 dark:border-zinc-800">
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={onClose}
               disabled={loading}
-              className="text-xs"
+              className="w-full sm:w-auto text-xs"
             >
               Cancel
             </Button>
@@ -344,7 +344,7 @@ export function JobAdminModal({
               type="submit"
               size="sm"
               disabled={loading}
-              className="text-xs font-semibold gap-1.5"
+              className="w-full sm:w-auto text-xs font-semibold gap-1.5"
             >
               {loading ? (
                 <>
@@ -359,7 +359,7 @@ export function JobAdminModal({
               ) : (
                 <>
                   <Plus className="size-3.5" />
-                  <span>Publish Job</span>
+                  <span>Publish Role</span>
                 </>
               )}
             </Button>
