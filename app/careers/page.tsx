@@ -62,40 +62,8 @@ export default async function CareersPage() {
   return (
     <div className="min-h-[100dvh] w-full py-8 sm:py-12 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Navigation & Breadcrumb */}
-        <div className="mb-6 sm:mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-mono font-medium text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors group cursor-pointer"
-          >
-            <ArrowLeft className="size-3.5 group-hover:-translate-x-1 transition-transform duration-200" />
-            <span>Back to Home</span>
-          </Link>
-        </div>
-
         {/* Hero Section: Authoritative, calm, professional engineering aesthetic */}
         <section className="border-b border-zinc-200/80 dark:border-zinc-800 pb-10 sm:pb-12 lg:pb-14">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-mono mb-4">
-            <span className="px-2.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-medium">
-              Careers at Lazee
-            </span>
-            <span className="text-zinc-300 dark:text-zinc-700">•</span>
-            <span className="inline-flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400">
-              <span className="size-2 rounded-full bg-emerald-500" />
-              <span className="font-medium text-zinc-900 dark:text-zinc-200">
-                {openCount > 0
-                  ? `${openCount} Open ${openCount === 1 ? "Position" : "Positions"}`
-                  : "Open to General Applications"}
-              </span>
-            </span>
-            <span className="text-zinc-300 dark:text-zinc-700 hidden sm:inline">
-              •
-            </span>
-            <span className="text-zinc-500 dark:text-zinc-400 hidden sm:inline">
-              Remote-first &amp; Async
-            </span>
-          </div>
-
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-heading font-extrabold tracking-tight text-zinc-950 dark:text-zinc-50 leading-[1.1] max-w-4xl">
             Engineering deterministic browser software for{" "}
             <span className="text-orange-600 dark:text-orange-500">
