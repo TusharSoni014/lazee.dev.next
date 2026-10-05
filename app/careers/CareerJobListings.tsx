@@ -274,7 +274,7 @@ export function CareerJobListings({
             <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
               {isAdmin
                 ? 'No job openings found under this criteria. Click "Post New Role" to create an opening.'
-                : "We run a lean, highly focused engineering crew. If you are an exceptional developer or reverse engineer, pitch your own thesis in the Wildcard section!"}
+                : "We run a lean, focused engineering team. If you are an experienced systems or browser engineer, submit a general technical application below."}
             </p>
           </div>
 
@@ -314,7 +314,7 @@ export function CareerJobListings({
                       {/* Status indicator */}
                       {job.isOpen ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="size-1.5 rounded-full bg-emerald-500" />
                           <span>Active Role</span>
                         </span>
                       ) : (
