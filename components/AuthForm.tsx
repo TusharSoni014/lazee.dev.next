@@ -293,8 +293,8 @@ export default function AuthForm() {
               {email}
             </div>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-3 max-w-xs font-sans">
-              Click the link in the email to log in instantly. It expires in 10
-              minutes.
+              Click the link in the email to log in instantly. It expires in 24
+              hours.
             </p>
 
             <button

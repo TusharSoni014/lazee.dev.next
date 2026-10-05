@@ -632,7 +632,7 @@ After login, the web app posts the session token via `postMessage` to the browse
 
 ### Custom Email Template
 
-Auth emails are branded with Lazee's visual identity: orange header (`#f26c0d`), hard black borders, neo-brutalist button style.
+Auth emails are branded with Lazee's modern visual identity: clean typography (Outfit & Inter), subtle warm off-white canvas (`#f8f7f5`), rounded container card (`rounded-2xl` / 20px radius) with hairline borders (`#e4e4e7`), ambient top gradient accent line (`#ea580c` to `#fb923c`), passwordless sign-in pill badge, bulletproof vibrant orange gradient CTA button (`#ea580c` to `#f97316`), session security highlight box, monospace fallback link container, full mobile responsiveness, and native Dark Mode support.
 
 ---
 
