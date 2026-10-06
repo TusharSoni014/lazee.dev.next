@@ -35,11 +35,16 @@ export function SiteHeader() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
-            <NavLink href="/#features">Features</NavLink>
-            <NavLink href="/#platforms">Platforms</NavLink>
-            <NavLink href="/#workflow">Workflow</NavLink>
             <NavLink href="/#pricing">Pricing</NavLink>
-            <NavLink href="/#faq">FAQ</NavLink>
+            <NavLink href="/#features">Features</NavLink>
+            <NavLink href="/careers">Careers</NavLink>
+            <NavLink
+              href="https://github.com/TusharSoni014/lazee.dev.next"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </NavLink>
           </nav>
         </div>
 
@@ -54,13 +59,19 @@ export function SiteHeader() {
 function NavLink({
   href,
   children,
+  target,
+  rel,
 }: {
   href: string;
   children: React.ReactNode;
+  target?: string;
+  rel?: string;
 }) {
   return (
     <Link
       href={href}
+      target={target}
+      rel={rel}
       className={cn(
         "px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white rounded-md hover:bg-zinc-100/70 dark:hover:bg-zinc-800/50 transition-colors"
       )}
