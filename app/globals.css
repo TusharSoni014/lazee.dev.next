@@ -183,6 +183,15 @@ body {
 }
 
 /* View Transition Theme Ripple */
+@keyframes view-transition-ripple {
+  from {
+    clip-path: circle(0px at var(--mask-x, 50%) var(--mask-y, 50%));
+  }
+  to {
+    clip-path: circle(var(--mask-r, 150vmax) at var(--mask-x, 50%) var(--mask-y, 50%));
+  }
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
@@ -195,5 +204,17 @@ body {
 
 ::view-transition-new(root) {
   z-index: 9999;
+  /* Crucial: Initial clip-path prevents the new theme from flashing full-screen before the transition animates */
+  clip-path: circle(0px at var(--mask-x, 50%) var(--mask-y, 50%));
+  animation: view-transition-ripple 450ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+    clip-path: none !important;
+  }
 }
 

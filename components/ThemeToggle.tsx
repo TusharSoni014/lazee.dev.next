@@ -21,7 +21,8 @@ export function ThemeToggle({ className }: { className?: string }) {
   const isDark = mounted ? resolvedTheme === "dark" : false;
 
   const toggleTheme = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const newTheme = resolvedTheme === "dark" ? "light" : "dark";
+    const isCurrentlyDark = document.documentElement.classList.contains("dark");
+    const newTheme = isCurrentlyDark ? "light" : "dark";
 
     if (
       typeof document === "undefined" ||
@@ -34,44 +35,42 @@ export function ThemeToggle({ className }: { className?: string }) {
     }
 
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
+    const hasClientCoords = e.clientX !== 0 || e.clientY !== 0;
+    const x = hasClientCoords ? e.clientX : rect.left + rect.width / 2;
+    const y = hasClientCoords ? e.clientY : rect.top + rect.height / 2;
 
     const endRadius = Math.hypot(
       Math.max(x, window.innerWidth - x),
       Math.max(y, window.innerHeight - y)
     );
 
+    // Set the ripple center and maximum radius before starting transition
+    document.documentElement.style.setProperty("--mask-x", `${x}px`);
+    document.documentElement.style.setProperty("--mask-y", `${y}px`);
+    document.documentElement.style.setProperty("--mask-r", `${endRadius}px`);
+
     const transition = document.startViewTransition(() => {
       flushSync(() => {
         setTheme(newTheme);
       });
       if (newTheme === "dark") {
+        document.documentElement.classList.remove("light");
         document.documentElement.classList.add("dark");
         document.documentElement.style.colorScheme = "dark";
       } else {
         document.documentElement.classList.remove("dark");
+        document.documentElement.classList.add("light");
         document.documentElement.style.colorScheme = "light";
       }
     });
 
-    transition.ready
-      .then(() => {
-        document.documentElement.animate(
-          {
-            clipPath: [
-              `circle(0px at ${x}px ${y}px)`,
-              `circle(${endRadius}px at ${x}px ${y}px)`,
-            ],
-          },
-          {
-            duration: 450,
-            easing: "cubic-bezier(0.4, 0, 0.2, 1)",
-            pseudoElement: "::view-transition-new(root)",
-          }
-        );
-      })
-      .catch(() => {});
+    transition.finished
+      .catch(() => {})
+      .finally(() => {
+        document.documentElement.style.removeProperty("--mask-x");
+        document.documentElement.style.removeProperty("--mask-y");
+        document.documentElement.style.removeProperty("--mask-r");
+      });
   };
 
   const springConfig = shouldReduceMotion
