@@ -42,6 +42,7 @@ export function Footer() {
             <ul className="flex flex-col gap-2.5">
               <li>
                 <Link
+                  prefetch={false}
                   className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors"
                   href="/#features"
                 >
@@ -50,6 +51,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  prefetch={false}
                   className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors"
                   href="/#platforms"
                 >
@@ -58,6 +60,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  prefetch={false}
                   className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors"
                   href="/#workflow"
                 >
@@ -66,6 +69,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  prefetch={false}
                   className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors"
                   href="/#pricing"
                 >
@@ -83,6 +87,7 @@ export function Footer() {
             <ul className="flex flex-col gap-2.5">
               <li>
                 <Link
+                  prefetch={false}
                   className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors"
                   href="/#faq"
                 >

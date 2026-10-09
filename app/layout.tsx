@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toast";
 import { Footer } from "@/components/footer";
 import { Providers as QueryProvider } from "@/components/providers/query-provider";
+import { HashScrollHandler } from "@/components/HashScrollHandler";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -92,7 +93,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className="scroll-smooth">
+    <html lang="en" suppressHydrationWarning className="scroll-pt-20">
       <body
         suppressHydrationWarning
         className={`${inter.variable} ${outfit.variable} ${instrumentSerif.variable} antialiased flex flex-col min-h-screen`}
@@ -106,6 +107,7 @@ export default function RootLayout({
           <SessionProvider>
             <QueryProvider>
               <SiteHeader />
+              <HashScrollHandler />
               <main className="pt-16 grow bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors">
                 {children}
               </main>

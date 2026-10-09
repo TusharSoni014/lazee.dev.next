@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 
 const emptySubscribe = () => () => {};
 
+let isThemeTransitioning = false;
+
 export function ThemeToggle({ className }: { className?: string }) {
   const mounted = useSyncExternalStore(
     emptySubscribe,
@@ -21,6 +23,9 @@ export function ThemeToggle({ className }: { className?: string }) {
   const isDark = mounted ? resolvedTheme === "dark" : false;
 
   const toggleTheme = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Prevent overlapping transitions while an active transition is animating
+    if (isThemeTransitioning) return;
+
     const isCurrentlyDark = document.documentElement.classList.contains("dark");
     const newTheme = isCurrentlyDark ? "light" : "dark";
 
@@ -49,28 +54,48 @@ export function ThemeToggle({ className }: { className?: string }) {
     document.documentElement.style.setProperty("--mask-y", `${y}px`);
     document.documentElement.style.setProperty("--mask-r", `${endRadius}px`);
 
-    const transition = document.startViewTransition(() => {
-      flushSync(() => {
-        setTheme(newTheme);
-      });
-      if (newTheme === "dark") {
-        document.documentElement.classList.remove("light");
-        document.documentElement.classList.add("dark");
-        document.documentElement.style.colorScheme = "dark";
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.documentElement.classList.add("light");
-        document.documentElement.style.colorScheme = "light";
-      }
-    });
+    isThemeTransitioning = true;
+    const safetyTimer = window.setTimeout(() => {
+      isThemeTransitioning = false;
+    }, 1000);
 
-    transition.finished
-      .catch(() => {})
-      .finally(() => {
-        document.documentElement.style.removeProperty("--mask-x");
-        document.documentElement.style.removeProperty("--mask-y");
-        document.documentElement.style.removeProperty("--mask-r");
+    try {
+      const transition = document.startViewTransition(() => {
+        flushSync(() => {
+          setTheme(newTheme);
+        });
+        if (newTheme === "dark") {
+          document.documentElement.classList.remove("light");
+          document.documentElement.classList.add("dark");
+          document.documentElement.style.colorScheme = "dark";
+        } else {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.classList.add("light");
+          document.documentElement.style.colorScheme = "light";
+        }
       });
+
+      // Catch promises to avoid unhandled rejections if transition is skipped/aborted
+      transition.ready.catch(() => {});
+      transition.updateCallbackDone?.catch?.(() => {});
+
+      transition.finished
+        .catch(() => {})
+        .finally(() => {
+          window.clearTimeout(safetyTimer);
+          isThemeTransitioning = false;
+          document.documentElement.style.removeProperty("--mask-x");
+          document.documentElement.style.removeProperty("--mask-y");
+          document.documentElement.style.removeProperty("--mask-r");
+        });
+    } catch {
+      window.clearTimeout(safetyTimer);
+      isThemeTransitioning = false;
+      document.documentElement.style.removeProperty("--mask-x");
+      document.documentElement.style.removeProperty("--mask-y");
+      document.documentElement.style.removeProperty("--mask-r");
+      setTheme(newTheme);
+    }
   };
 
   const springConfig = shouldReduceMotion

@@ -1,12 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useRef } from "react";
 import AuthButton from "./AuthButton";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { LOGO_URL } from "@/lib/constants";
+import { scrollToHash, scrollToTop } from "./HashScrollHandler";
 
 export function SiteHeader() {
+  const pathname = usePathname();
+
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (pathname === "/") {
+      e.preventDefault();
+      scrollToTop(true);
+      if (window.location.hash) {
+        window.history.pushState(null, "", "/");
+      }
+    }
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/85 dark:bg-zinc-950/85 backdrop-blur-md border-b border-zinc-200/80 dark:border-zinc-800/80 shadow-[0_4px_20px_-2px_rgba(249,115,22,0.14)] dark:shadow-[0_6px_30px_-3px_rgba(249,115,22,0.3)] transition-all">
       {/* Subtle Orange Glow Edge Line */}
@@ -17,6 +32,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-8">
           <Link
             href="/"
+            onClick={handleLogoClick}
             className="flex items-center gap-2.5 text-lg font-bold tracking-tight text-zinc-900 dark:text-white font-heading"
           >
             <div className="relative w-7 h-7 flex-shrink-0">
@@ -67,11 +83,63 @@ function NavLink({
   target?: string;
   rel?: string;
 }) {
+  const pathname = usePathname();
+  const isNavigatingRef = useRef(false);
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // If external or target=_blank or modified click, allow default
+    if (
+      target === "_blank" ||
+      e.metaKey ||
+      e.ctrlKey ||
+      e.shiftKey ||
+      e.altKey ||
+      href.startsWith("http")
+    ) {
+      return;
+    }
+
+    const hashIndex = href.indexOf("#");
+    if (hashIndex !== -1) {
+      const targetPath = href.slice(0, hashIndex) || "/";
+      const rawHash = href.slice(hashIndex + 1);
+      const cleanHash = rawHash.replace(/^#+/, "").split("#")[0]?.trim();
+
+      const isCurrentPage =
+        pathname === targetPath || (pathname === "/" && targetPath === "/");
+
+      if (isCurrentPage) {
+        e.preventDefault();
+        if (cleanHash) {
+          scrollToHash(cleanHash, true);
+          const cleanUrl = `${targetPath === "/" ? "" : targetPath}#${cleanHash}` || `/#${cleanHash}`;
+          if (window.location.hash !== `#${cleanHash}`) {
+            window.history.pushState(null, "", cleanUrl);
+          } else {
+            window.history.replaceState(null, "", cleanUrl);
+          }
+        }
+      } else {
+        // Prevent rapid double clicks during cross-page transitions
+        if (isNavigatingRef.current) {
+          e.preventDefault();
+          return;
+        }
+        isNavigatingRef.current = true;
+        setTimeout(() => {
+          isNavigatingRef.current = false;
+        }, 800);
+      }
+    }
+  };
+
   return (
     <Link
       href={href}
       target={target}
       rel={rel}
+      prefetch={false}
+      onClick={handleClick}
       className={cn(
         "px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white rounded-md hover:bg-zinc-100/70 dark:hover:bg-zinc-800/50 transition-colors"
       )}

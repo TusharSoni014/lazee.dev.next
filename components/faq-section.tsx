@@ -57,7 +57,7 @@ export function FaqSection() {
   return (
     <section
       id="faq"
-      className="w-full max-w-3xl mx-auto py-12 sm:py-16 px-4 sm:px-6 my-8"
+      className="w-full max-w-3xl mx-auto py-12 sm:py-16 px-4 sm:px-6 my-8 scroll-mt-20"
     >
       <div className="flex flex-col items-center mb-12 text-center">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-mono font-medium mb-3">

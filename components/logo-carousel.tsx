@@ -72,7 +72,7 @@ export function LogoCarousel() {
     <section
       id="platforms"
       aria-label="Supported ATS and job application portals"
-      className="w-full py-12 sm:py-16 border-y border-zinc-200/80 dark:border-zinc-800/80 my-8 relative overflow-hidden"
+      className="w-full py-12 sm:py-16 border-y border-zinc-200/80 dark:border-zinc-800/80 my-8 relative overflow-hidden scroll-mt-20"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">

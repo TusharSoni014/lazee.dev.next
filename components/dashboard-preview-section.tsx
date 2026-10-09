@@ -54,7 +54,7 @@ export function DashboardPreviewSection() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full my-12 sm:my-20"
+      className="w-full my-12 sm:my-20 scroll-mt-20"
     >
       <div className="w-full rounded-2xl sm:rounded-3xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-900 text-white p-5 sm:p-8 lg:p-12 shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-stretch lg:items-center gap-8 sm:gap-10 lg:gap-14">
         {/* Subtle Ambient Glow */}

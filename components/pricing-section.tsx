@@ -71,7 +71,7 @@ export function PricingSection() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full my-12 sm:my-20"
+      className="w-full my-12 sm:my-20 scroll-mt-20"
     >
       <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-mono font-medium mb-3">

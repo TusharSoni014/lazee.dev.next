@@ -132,6 +132,10 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+html {
+  scroll-padding-top: 5rem;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
