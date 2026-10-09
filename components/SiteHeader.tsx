@@ -2,12 +2,30 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import AuthButton from "./AuthButton";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { Menu } from "lucide-react";
 import { LOGO_URL } from "@/lib/constants";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { scrollToHash, scrollToTop } from "./HashScrollHandler";
+
+const NAV_LINKS = [
+  { href: "/#pricing", label: "Pricing" },
+  { href: "/#features", label: "Features" },
+  { href: "/careers", label: "Careers" },
+  {
+    href: "https://github.com/TusharSoni014/lazee.dev.next",
+    label: "GitHub",
+    external: true,
+  },
+];
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -51,21 +69,22 @@ export function SiteHeader() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
-            <NavLink href="/#pricing">Pricing</NavLink>
-            <NavLink href="/#features">Features</NavLink>
-            <NavLink href="/careers">Careers</NavLink>
-            <NavLink
-              href="https://github.com/TusharSoni014/lazee.dev.next"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub
-            </NavLink>
+            {NAV_LINKS.map((link) => (
+              <NavLink
+                key={link.href}
+                href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noopener noreferrer" : undefined}
+              >
+                {link.label}
+              </NavLink>
+            ))}
           </nav>
         </div>
 
-        <div className="flex items-center">
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
           <AuthButton />
+          <MobileNav />
         </div>
       </div>
     </header>
@@ -146,5 +165,44 @@ function NavLink({
     >
       {children}
     </Link>
+  );
+}
+
+function MobileNav() {
+  // Controlled so links can close the sheet: HashScrollHandler's capture-phase
+  // listener calls preventDefault on same-page hash links, which makes Radix
+  // skip SheetClose's own close handler.
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <button
+          type="button"
+          aria-label="Open menu"
+          className="md:hidden flex size-9 shrink-0 items-center justify-center rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white/80 hover:bg-zinc-100/90 dark:bg-zinc-900/80 dark:hover:bg-zinc-800/90 text-zinc-600 dark:text-zinc-300 shadow-2xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40 active:scale-95"
+        >
+          <Menu className="size-4.5" />
+        </button>
+      </SheetTrigger>
+      <SheetContent aria-describedby={undefined}>
+        <SheetTitle className="text-base">Menu</SheetTitle>
+        <nav className="mt-3 flex flex-col gap-1">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              target={link.external ? "_blank" : undefined}
+              rel={link.external ? "noopener noreferrer" : undefined}
+              prefetch={false}
+              onClick={() => setOpen(false)}
+              className="px-3 py-3 text-base font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      </SheetContent>
+    </Sheet>
   );
 }
