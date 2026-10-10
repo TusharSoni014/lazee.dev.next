@@ -41,7 +41,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   user = await prisma.user.create({
                     data: {
                       email,
-                      name: "Dev Contributor",
+                      name: null,
                       username: "dev_contributor",
                       credits: 200,
                       isAdmin: true,
@@ -55,7 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 return {
                   id: "dev-user-id",
                   email,
-                  name: "Dev Contributor",
+                  name: null,
                 };
               }
             },
