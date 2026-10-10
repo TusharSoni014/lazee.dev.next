@@ -16,6 +16,7 @@ export async function updateProfile(data: any) {
 
   const updateData: any = {};
 
+  if (data.name !== undefined) updateData.name = data.name;
   if (data.firstName !== undefined) updateData.firstName = data.firstName;
   if (data.middleName !== undefined) updateData.middleName = data.middleName;
   if (data.lastName !== undefined) updateData.lastName = data.lastName;
