@@ -592,7 +592,7 @@ const features: Feature[] = [
     bullets: [
       "Detects each field and shows its type (text, number, textarea)",
       "Choose exactly which fields the AI should fill",
-      "See the credit cost up front, or use your own AI key for free",
+      "Pro feature: see the credit cost up front, or use your own AI key for 0 credits",
     ],
     media: (
       <ScreenshotFrame
@@ -653,7 +653,7 @@ const features: Feature[] = [
     description:
       "Keep a separate PDF for each kind of job. When an application asks for a resume, pick the one that fits and Lazee uploads it for you.",
     bullets: [
-      "Maintain as many resume versions as you need*",
+      "Keep up to 10 resume versions on Pro (1 on Free)",
       "Pick one and it is attached to the form",
       "Reload to pick up new uploads from your dashboard",
     ],

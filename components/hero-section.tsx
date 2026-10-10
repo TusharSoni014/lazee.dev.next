@@ -52,7 +52,7 @@ export function HeroSection() {
         {/* Subtitle / Paragraph */}
         <p className="max-w-xl text-base sm:text-lg text-zinc-600 dark:text-zinc-400 font-normal leading-relaxed mt-5">
           lazee.dev is a browser extension that autofills repetitive job forms
-          from your unified profile data-saving you hours of tedious
+          from your unified profile data, saving you hours of tedious
           copy-pasting.
         </p>
 
