@@ -184,6 +184,8 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                   width={144}
                   height={144}
                   className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                  unoptimized
                 />
               ) : (
                 <span className="text-4xl md:text-5xl font-semibold text-zinc-700 dark:text-zinc-300 uppercase">

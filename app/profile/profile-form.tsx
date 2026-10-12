@@ -1246,6 +1246,7 @@ export default function ProfileForm({
   })();
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const [activating, setActivating] = useState(paymentSuccess);
   const [experiences, setExperiences] = useState<any[]>(
     user?.experiences || [],
@@ -1391,13 +1392,16 @@ export default function ProfileForm({
         {/* User Identity & Membership */}
         <div className="lg:col-span-2 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-6 md:p-8 shadow-xs flex flex-col md:flex-row items-center gap-6 relative overflow-hidden backdrop-blur-xs">
           <div className="h-24 w-24 md:h-28 md:w-28 shrink-0 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center shadow-xs overflow-hidden relative group">
-            {user.image ? (
+            {user.image && !avatarError ? (
               <Image
                 src={user.image}
                 alt={`${user.firstName || ""} ${user.lastName || ""}`}
                 width={112}
                 height={112}
                 className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+                unoptimized
+                onError={() => setAvatarError(true)}
               />
             ) : (
               <span className="text-3xl md:text-4xl font-semibold text-zinc-700 dark:text-zinc-300 uppercase">

@@ -32,6 +32,7 @@ export default function AuthButton() {
   const browser = useBrowser();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const isProfileActive = pathname === "/profile";
   const isAiProvidersActive = pathname?.startsWith("/profile/ai-providers");
@@ -59,13 +60,16 @@ export default function AuthButton() {
               aria-label="User profile menu"
               className="relative size-9 shrink-0 cursor-pointer rounded-full border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-zinc-100 dark:bg-zinc-800/90 overflow-hidden transition-all duration-200 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/40"
             >
-              {session.user?.image ? (
+              {session.user?.image && !imageError ? (
                 <Image
                   src={session.user.image}
                   alt={session.user.name || "User profile"}
                   fill
                   sizes="36px"
                   className="object-cover"
+                  referrerPolicy="no-referrer"
+                  unoptimized
+                  onError={() => setImageError(true)}
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-orange-600 text-xs font-semibold text-white">
