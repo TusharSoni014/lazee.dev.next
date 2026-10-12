@@ -2682,7 +2682,7 @@ function IntroVideoForm({ user, refetchProfile }: any) {
               <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Video Preview:
               </p>
-              <div className="aspect-video w-full max-w-2xl rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-900 shadow-sm relative overflow-hidden">
+              <div className="aspect-video w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-900 shadow-sm relative overflow-hidden">
                 <iframe
                   src={embedUrl}
                   loading="lazy"
