@@ -9,6 +9,7 @@ import { ResumeAutofillUpload } from "./resume-autofill-upload";
 import { updateProfile, updateExperiences, updateEducation } from "./actions";
 import { ProjectSection } from "./project-section";
 import { UsernameManager } from "./username-manager";
+import { DeleteAccount } from "./delete-account";
 import { useWindowWidth } from "@/hooks/useWindowWidth";
 import { useResumeStore } from "@/store/useResumeStore";
 import { toast } from "@/components/ui/toast";
@@ -1563,6 +1564,8 @@ export default function ProfileForm({
       <AiSettingsForm user={user} refetchProfile={refetchProfile} />
 
       <CoverLetterForm user={user} refetchProfile={refetchProfile} />
+
+      <DeleteAccount />
     </div>
   );
 }

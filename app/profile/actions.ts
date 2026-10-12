@@ -502,7 +502,62 @@ export async function updateEducation(educations: any[]) {
   }
 }
 
+export async function deleteAccount() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "Not authenticated" };
+  }
 
+  const userId = session.user.id;
 
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, username: true },
+    });
 
+    if (!user) {
+      return { error: "User not found" };
+    }
+
+    // Clean up all S3 resumes for this user
+    try {
+      const resumes = await prisma.resume.findMany({
+        where: { userId },
+        select: { key: true },
+      });
+
+      if (resumes.length > 0) {
+        const { s3, bucketName } = getS3Client();
+        await Promise.allSettled(
+          resumes.map((r) =>
+            s3.send(
+              new DeleteObjectCommand({
+                Bucket: bucketName,
+                Key: r.key,
+              })
+            )
+          )
+        );
+      }
+    } catch (s3Error) {
+      console.warn("Failed to delete S3 resumes during account deletion:", s3Error);
+    }
+
+    // Delete user (cascade deletes all user data)
+    await prisma.user.delete({
+      where: { id: userId },
+    });
+
+    if (user.username) {
+      revalidatePath(`/u/${user.username}`);
+    }
+    revalidatePath("/profile");
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to delete account:", error);
+    return { error: error?.message || "Failed to delete account" };
+  }
+}
 
