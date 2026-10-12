@@ -157,20 +157,20 @@ const JOB_TYPES = [
 const CURRENCIES = ["USD", "INR", "EUR", "GBP", "CAD", "AUD"];
 
 const personalSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  middleName: z.string().optional(),
-  lastName: z.string().min(1, "Last name is required"),
-  countryCode: z.string().min(1, "Country code is required"),
-  phoneNumber: z.string().min(1, "Phone number is required"),
-  country: z.string().min(1, "Country is required"),
-  city: z.string().min(1, "City is required"),
-  collegeName: z.string().optional(),
+  firstName: z.string().optional().or(z.literal("")),
+  middleName: z.string().optional().or(z.literal("")),
+  lastName: z.string().optional().or(z.literal("")),
+  countryCode: z.string().optional().or(z.literal("")),
+  phoneNumber: z.string().optional().or(z.literal("")),
+  country: z.string().optional().or(z.literal("")),
+  city: z.string().optional().or(z.literal("")),
+  collegeName: z.string().optional().or(z.literal("")),
   contactEmail: z
     .string()
     .email("Must be a valid email")
     .optional()
     .or(z.literal("")),
-  postalCode: z.string().optional(),
+  postalCode: z.string().optional().or(z.literal("")),
   genderSelect: z.string().optional(),
   genderCustom: z.string().optional(),
   veteranStatusSelect: z.string().optional(),
@@ -357,7 +357,11 @@ function PersonalInformationForm({
   const onSubmit = async (values: z.infer<typeof personalSchema>) => {
     const snapshotBefore = JSON.stringify(form.getValues());
     setIsSaving(true);
+    const fullName =
+      [values.firstName, values.lastName].filter(Boolean).join(" ").trim() ||
+      null;
     const payload = {
+      name: fullName,
       firstName: values.firstName,
       middleName: values.middleName,
       lastName: values.lastName,
@@ -1228,7 +1232,7 @@ export default function ProfileForm({
   const displayName =
     [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
     user?.name ||
-    "Anonymous User";
+    "";
 
   const initials = (() => {
     if (!user) return "";
@@ -1409,9 +1413,11 @@ export default function ProfileForm({
 
           <div className="flex-1 text-center md:text-left space-y-3 min-w-0">
             <div className="min-w-0">
-              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 break-words">
-                {displayName}
-              </h2>
+              {displayName ? (
+                <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 break-words">
+                  {displayName}
+                </h2>
+              ) : null}
               <p className="text-xs md:text-sm text-zinc-500 dark:text-zinc-400 font-normal mt-0.5 break-all">
                 {user.email || "No Email"}
               </p>

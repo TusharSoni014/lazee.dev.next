@@ -130,43 +130,182 @@ function findSection(sections: Map<string, string>, aliases: string[]): string {
   return "";
 }
 
-function parseName(markdown: string): Pick<
-  ParsedResumeProfile,
-  "firstName" | "middleName" | "lastName"
-> {
-  const h1Match = markdown.match(/^#\s+(.+)$/m);
-  if (!h1Match) return {};
+const INVALID_NAME_WORDS = new Set([
+  // Skills & Tech
+  "skills", "skill", "technologies", "technology", "tech", "competencies", "competency",
+  "tools", "tool", "stack", "stacks", "languages", "language", "frameworks",
+  // Experience & Employment
+  "experience", "experiences", "employment", "history", "work", "career", "professional",
+  "internship", "internships", "job", "jobs", "background",
+  // Education & Academics
+  "education", "academic", "academics", "qualifications", "qualification",
+  "university", "college", "school", "degree", "diploma",
+  // Projects
+  "projects", "project", "portfolio",
+  // Summary & About
+  "summary", "profile", "about", "me", "overview", "objective", "introduction", "intro",
+  "statement", "bio",
+  // Certifications & Awards
+  "certifications", "certification", "certificates", "certificate", "licenses", "license",
+  "credentials", "credential", "training", "trainings", "courses", "course",
+  "awards", "award", "honors", "honor", "achievements", "achievement",
+  "accomplishments", "recognition",
+  // Publications & Research
+  "publications", "publication", "papers", "paper", "research", "patents", "patent",
+  // Contact & Personal
+  "contact", "contacts", "information", "details", "personal", "demographics",
+  // Resume / CV metadata
+  "resume", "curriculum", "vitae", "cv",
+  // References
+  "references", "reference", "referees", "referee",
+  // Activities & Interests
+  "activities", "activity", "leadership", "extracurricular", "volunteer", "volunteering",
+  "interests", "interest", "hobbies", "hobby",
+  // Links & Socials
+  "links", "link", "socials", "social", "github", "linkedin", "twitter", "website",
+  // Misc
+  "page", "section", "appendix", "declaration", "date", "signature",
+]);
 
-  const parts = h1Match[1]
-    .replace(/\*+/g, "")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
+function cleanAndValidateName(
+  candidate: string,
+  allowSingleWord = false,
+): {
+  firstName: string;
+  middleName?: string;
+  lastName?: string;
+} | null {
+  if (!candidate) return null;
 
-  if (parts.length === 0) return {};
-  if (parts.length === 1) {
-    return {
-      firstName: { value: parts[0], confidence: "medium" },
-    };
+  let cleaned = candidate
+    .replace(/[*_#~`<>]+/g, "")
+    .replace(/^[•·\-–—|/,\s]+|[•·\-–—|/,\s]+$/g, "")
+    .trim();
+
+  cleaned = cleaned
+    .replace(
+      /,?\s*(?:ph\.?d|m\.?s|b\.?s|b\.?tech|m\.?tech|m\.?b\.?a|jr\.?|sr\.?|ii|iii|iv)$/i,
+      "",
+    )
+    .trim();
+
+  if (!cleaned || cleaned.length < 2 || cleaned.length > 50) return null;
+  if (/\d/.test(cleaned)) return null;
+  if (/[@:/\\|]/.test(cleaned)) return null;
+  if (/https?|www\.|\.com|\.io|\.org|\.net/i.test(cleaned)) return null;
+
+  const parts = cleaned.split(/\s+/).filter(Boolean);
+  if (parts.length === 0 || parts.length > 4) return null;
+  if (parts.length === 1 && !allowSingleWord) return null;
+
+  for (const part of parts) {
+    const normalized = part.toLowerCase().replace(/[^a-z]/g, "");
+    if (!normalized) return null;
+    if (INVALID_NAME_WORDS.has(normalized)) return null;
+    if (!/^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'.\-]*$/i.test(part)) return null;
   }
+
+  if (parts.length === 1) {
+    const single = parts[0];
+    if (single === single.toUpperCase() && single.length > 1) return null;
+    if (!/^[A-Z][a-zÀ-ÿ]+$/.test(single)) return null;
+    return { firstName: single };
+  }
+
   if (parts.length === 2) {
-    return {
-      firstName: { value: parts[0], confidence: "high" },
-      lastName: { value: parts[1], confidence: "high" },
-    };
+    return { firstName: parts[0], lastName: parts[1] };
   }
 
   return {
-    firstName: { value: parts[0], confidence: "high" },
-    middleName: { value: parts.slice(1, -1).join(" "), confidence: "medium" },
-    lastName: { value: parts[parts.length - 1], confidence: "high" },
+    firstName: parts[0],
+    middleName: parts.slice(1, -1).join(" "),
+    lastName: parts[parts.length - 1],
   };
 }
 
+function formatParsedName(
+  name: { firstName: string; middleName?: string; lastName?: string },
+  confidence: FieldConfidence = "high",
+): Pick<ParsedResumeProfile, "firstName" | "middleName" | "lastName"> {
+  const result: Pick<
+    ParsedResumeProfile,
+    "firstName" | "middleName" | "lastName"
+  > = {
+    firstName: { value: name.firstName, confidence },
+  };
+  if (name.middleName) {
+    result.middleName = { value: name.middleName, confidence: "medium" };
+  }
+  if (name.lastName) {
+    result.lastName = { value: name.lastName, confidence };
+  }
+  return result;
+}
+
+function parseName(
+  markdown: string,
+  headerText?: string,
+): Pick<ParsedResumeProfile, "firstName" | "middleName" | "lastName"> {
+  // 1. Try checking all H1 headings in the document
+  for (const match of markdown.matchAll(/^#\s+(.+)$/gm)) {
+    const name = cleanAndValidateName(match[1], false);
+    if (name) {
+      return formatParsedName(name, "high");
+    }
+  }
+
+  // 2. Check candidate lines from headerText (or top lines of markdown before sections)
+  const topText = headerText || markdown;
+  const lines = topText
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .slice(0, 10);
+
+  for (const line of lines) {
+    const directName = cleanAndValidateName(line, false);
+    if (directName) {
+      return formatParsedName(directName, "high");
+    }
+
+    const stripped = line
+      .replace(EMAIL_RE, "")
+      .replace(PHONE_RE, "")
+      .replace(/https?:\/\/[^\s<>)]+/gi, "")
+      .replace(/(?:github|linkedin|twitter|x)\.com\/[^\s<>)]+/gi, "")
+      .replace(
+        /(?:github|linkedin|twitter|portfolio|email|phone|tel|mobile):\s*[^\s<>)]+/gi,
+        "",
+      )
+      .replace(/<u>([^<]+)<\/u>/gi, "")
+      .replace(/[|•·/\\]/g, " ")
+      .trim();
+
+    if (stripped) {
+      const mixedName = cleanAndValidateName(stripped, false);
+      if (mixedName) {
+        return formatParsedName(mixedName, "medium");
+      }
+    }
+  }
+
+  // If no clean valid name found, return empty object (none/blank)
+  return {};
+}
+
 function parseHeadlineJobType(markdown: string): ParsedField<string> | undefined {
-  const knownSectionTitles = new Set(
-    Object.values(SECTION_ALIASES).flat(),
-  );
+  const knownSectionTitles = new Set([
+    ...Object.values(SECTION_ALIASES).flat(),
+    "skills",
+    "experience",
+    "education",
+    "projects",
+    "summary",
+    "contact",
+    "certifications",
+    "awards",
+    "languages",
+  ]);
 
   for (const match of markdown.matchAll(/^##\s+(.+)$/gm)) {
     const rawTitle = match[1].trim();
@@ -176,13 +315,26 @@ function parseHeadlineJobType(markdown: string): ParsedField<string> | undefined
     );
     if (isKnownSection) continue;
 
+    // Disqualify if title contains contact details, phone numbers, emails, URLs, or colons
+    if (
+      /\d{4,}/.test(rawTitle) ||
+      /@/.test(rawTitle) ||
+      /github|linkedin|twitter|portfolio|http/i.test(rawTitle) ||
+      rawTitle.includes(":")
+    ) {
+      continue;
+    }
+
     const headline = rawTitle
       .replace(/\*+/g, "")
       .split(/[—–|/]/)
       .map((part) => part.trim())
       .filter(Boolean)[0];
 
-    if (headline) return { value: headline, confidence: "medium" };
+    if (!headline || headline.length < 3 || headline.length > 50) continue;
+    if (headline.split(/\s+/).length > 6) continue;
+
+    return { value: headline, confidence: "medium" };
   }
 
   return undefined;
@@ -612,13 +764,14 @@ export function parseResumeFromInspection(
 ): ParsedResumeProfile {
   const markdown = getCombinedMarkdown(inspection);
   const sections = extractSections(markdown);
-  const headerAndContact = `${sections.get("_header") || ""}\n${markdown}`;
+  const headerContent = sections.get("_header") || "";
+  const headerAndContact = `${headerContent}\n${markdown}`;
 
   const urls = extractUrls(headerAndContact);
   const socials = classifySocialUrls(urls);
 
   return {
-    ...parseName(markdown),
+    ...parseName(markdown, headerContent),
     ...parseContactInfo(headerAndContact),
     ...socials,
     jobType: parseHeadlineJobType(markdown),
