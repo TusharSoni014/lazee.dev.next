@@ -243,7 +243,11 @@ export function PublicProjects({ projects, membership = "FREE" }: PublicProjects
               {selectedProject.activeLink && (
                 <Button asChild size="sm" className="text-xs gap-1.5">
                   <a
-                    href={selectedProject.activeLink}
+                    href={
+                      selectedProject.activeLink.startsWith("http")
+                        ? selectedProject.activeLink
+                        : `https://${selectedProject.activeLink}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -255,7 +259,11 @@ export function PublicProjects({ projects, membership = "FREE" }: PublicProjects
               {selectedProject.githubLink && (
                 <Button asChild variant="outline" size="sm" className="text-xs gap-1.5">
                   <a
-                    href={selectedProject.githubLink}
+                    href={
+                      selectedProject.githubLink.startsWith("http")
+                        ? selectedProject.githubLink
+                        : `https://${selectedProject.githubLink}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -588,7 +596,11 @@ export function PublicProjects({ projects, membership = "FREE" }: PublicProjects
                     <div className="flex items-center gap-3">
                       {project.activeLink && (
                         <a
-                          href={project.activeLink}
+                          href={
+                            project.activeLink.startsWith("http")
+                              ? project.activeLink
+                              : `https://${project.activeLink}`
+                          }
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs font-medium text-orange-600 dark:text-orange-400 hover:underline"
@@ -599,7 +611,11 @@ export function PublicProjects({ projects, membership = "FREE" }: PublicProjects
                       )}
                       {project.githubLink && (
                         <a
-                          href={project.githubLink}
+                          href={
+                            project.githubLink.startsWith("http")
+                              ? project.githubLink
+                              : `https://${project.githubLink}`
+                          }
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -740,7 +756,11 @@ export function PublicProjects({ projects, membership = "FREE" }: PublicProjects
                     <div className="flex items-center gap-4">
                       {project.activeLink && (
                         <a
-                          href={project.activeLink}
+                          href={
+                            project.activeLink.startsWith("http")
+                              ? project.activeLink
+                              : `https://${project.activeLink}`
+                          }
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 text-xs font-medium text-orange-600 dark:text-orange-400 hover:underline"
@@ -751,7 +771,11 @@ export function PublicProjects({ projects, membership = "FREE" }: PublicProjects
                       )}
                       {project.githubLink && (
                         <a
-                          href={project.githubLink}
+                          href={
+                            project.githubLink.startsWith("http")
+                              ? project.githubLink
+                              : `https://${project.githubLink}`
+                          }
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white"

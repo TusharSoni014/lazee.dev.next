@@ -60,6 +60,53 @@ import clsx from "clsx";
 import { getPublicImageUrl } from "@/lib/utils";
 import { useWindowWidth } from "@/hooks/useWindowWidth";
 
+function isValidWebUrl(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  const trimmed = val.trim();
+  let urlToTest = trimmed;
+  if (!/^https?:\/\//i.test(trimmed)) {
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
+    urlToTest = `https://${trimmed}`;
+  }
+  try {
+    const parsed = new URL(urlToTest);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+    if (!parsed.hostname || !parsed.hostname.includes(".")) return false;
+    const parts = parsed.hostname.split(".");
+    const tld = parts[parts.length - 1];
+    if (!tld || tld.length < 2 || !/^[a-zA-Z]+$/.test(tld)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isValidGithub(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  const trimmed = val.trim();
+  let urlToTest = trimmed;
+  if (!/^https?:\/\//i.test(trimmed)) {
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
+    urlToTest = `https://${trimmed}`;
+  }
+  try {
+    const parsed = new URL(urlToTest);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+    const host = parsed.hostname.toLowerCase();
+    if (host !== "github.com" && host !== "www.github.com") return false;
+    return parsed.pathname.length > 1;
+  } catch {
+    return false;
+  }
+}
+
+function formatUrl(val?: string | null): string {
+  if (!val || !val.trim()) return "";
+  const trimmed = val.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
 const projectSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Project name is required"),
@@ -68,14 +115,16 @@ const projectSchema = z.object({
   duration: z.string().optional(),
   activeLink: z
     .string()
-    .url("Must be a valid URL")
     .optional()
-    .or(z.literal("")),
+    .refine(isValidWebUrl, {
+      message: "Please enter a valid website URL (e.g. https://yourproject.com)",
+    }),
   githubLink: z
     .string()
-    .url("Must be a valid URL")
     .optional()
-    .or(z.literal("")),
+    .refine(isValidGithub, {
+      message: "Please enter a valid GitHub repository URL (e.g. https://github.com/user/repo)",
+    }),
   logoUrl: z.string().optional().or(z.literal("")),
   stacks: z.string().optional(), // We'll parse this as comma-separated
   description: z.string().optional(),
@@ -301,7 +350,11 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
                     <div className="flex flex-wrap gap-x-4 gap-y-2 mt-1.5">
                       {proj.activeLink && (
                         <a
-                          href={proj.activeLink}
+                          href={
+                            proj.activeLink.startsWith("http")
+                              ? proj.activeLink
+                              : `https://${proj.activeLink}`
+                          }
                           target="_blank"
                           rel="noreferrer"
                           className="flex items-center gap-1 text-xs font-medium text-orange-600 dark:text-orange-400 hover:underline"
@@ -311,7 +364,11 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
                       )}
                       {proj.githubLink && (
                         <a
-                          href={proj.githubLink}
+                          href={
+                            proj.githubLink.startsWith("http")
+                              ? proj.githubLink
+                              : `https://${proj.githubLink}`
+                          }
                           target="_blank"
                           rel="noreferrer"
                           className="flex items-center gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
@@ -651,6 +708,7 @@ function ProjectForm({
 
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
+    mode: "onChange",
     defaultValues: {
       id: proj.id,
       name: proj.name || "",
@@ -1031,6 +1089,8 @@ function ProjectForm({
     try {
       const finalData = {
         ...values,
+        activeLink: values.activeLink ? formatUrl(values.activeLink) : null,
+        githubLink: values.githubLink ? formatUrl(values.githubLink) : null,
         logoUrl: uploadedLogoUrl,
         screenshots: finalScreenshotUrls,
       };
