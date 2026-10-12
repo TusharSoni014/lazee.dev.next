@@ -24,12 +24,12 @@ export async function updateProfile(data: any) {
   if (data.phoneNumber !== undefined) updateData.phoneNumber = data.phoneNumber;
   if (data.country !== undefined) updateData.country = data.country;
   if (data.jobType !== undefined) updateData.jobType = data.jobType;
-  if (data.linkedin !== undefined) updateData.linkedin = data.linkedin;
-  if (data.twitter !== undefined) updateData.twitter = data.twitter;
-  if (data.github !== undefined) updateData.github = data.github;
-  if (data.portfolio !== undefined) updateData.portfolio = data.portfolio;
-  if (data.telegram !== undefined) updateData.telegram = data.telegram;
-  if (data.other !== undefined) updateData.other = data.other;
+  if (data.linkedin !== undefined) updateData.linkedin = data.linkedin ? data.linkedin.trim() : null;
+  if (data.twitter !== undefined) updateData.twitter = data.twitter ? data.twitter.trim() : null;
+  if (data.github !== undefined) updateData.github = data.github ? data.github.trim() : null;
+  if (data.portfolio !== undefined) updateData.portfolio = data.portfolio ? data.portfolio.trim() : null;
+  if (data.telegram !== undefined) updateData.telegram = data.telegram ? data.telegram.trim() : null;
+  if (data.other !== undefined) updateData.other = data.other ? data.other.trim() : null;
   if (data.currency !== undefined) updateData.currency = data.currency;
   if (data.specificQuestionGuidance !== undefined) updateData.specificQuestionGuidance = data.specificQuestionGuidance;
   if (data.coverLetter !== undefined) updateData.coverLetter = data.coverLetter;

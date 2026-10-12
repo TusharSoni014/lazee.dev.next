@@ -194,13 +194,143 @@ const professionalSchema = z.object({
   }, z.number().nullable().optional()),
 });
 
+function isValidWebUrl(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  const trimmed = val.trim();
+  let urlToTest = trimmed;
+  if (!/^https?:\/\//i.test(trimmed)) {
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
+    urlToTest = `https://${trimmed}`;
+  }
+  try {
+    const parsed = new URL(urlToTest);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+    if (!parsed.hostname || !parsed.hostname.includes(".")) return false;
+    const parts = parsed.hostname.split(".");
+    const tld = parts[parts.length - 1];
+    if (!tld || tld.length < 2 || !/^[a-zA-Z]+$/.test(tld)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isValidLinkedIn(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  const trimmed = val.trim();
+  let urlToTest = trimmed;
+  if (!/^https?:\/\//i.test(trimmed)) {
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
+    urlToTest = `https://${trimmed}`;
+  }
+  try {
+    const parsed = new URL(urlToTest);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+    const host = parsed.hostname.toLowerCase();
+    if (host !== "linkedin.com" && !host.endsWith(".linkedin.com")) return false;
+    return parsed.pathname.length > 1;
+  } catch {
+    return false;
+  }
+}
+
+function isValidGithub(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  const trimmed = val.trim();
+  let urlToTest = trimmed;
+  if (!/^https?:\/\//i.test(trimmed)) {
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
+    urlToTest = `https://${trimmed}`;
+  }
+  try {
+    const parsed = new URL(urlToTest);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+    const host = parsed.hostname.toLowerCase();
+    if (host !== "github.com" && host !== "www.github.com") return false;
+    return parsed.pathname.length > 1;
+  } catch {
+    return false;
+  }
+}
+
+function isValidTwitter(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  const trimmed = val.trim();
+  let urlToTest = trimmed;
+  if (!/^https?:\/\//i.test(trimmed)) {
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
+    urlToTest = `https://${trimmed}`;
+  }
+  try {
+    const parsed = new URL(urlToTest);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+    const host = parsed.hostname.toLowerCase();
+    const valid = ["twitter.com", "www.twitter.com", "x.com", "www.x.com"];
+    if (!valid.includes(host)) return false;
+    return parsed.pathname.length > 1;
+  } catch {
+    return false;
+  }
+}
+
+function isValidTelegram(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  const trimmed = val.trim();
+  if (/^@?[a-zA-Z0-9_]{4,32}$/.test(trimmed)) return true;
+  let urlToTest = trimmed;
+  if (!/^https?:\/\//i.test(trimmed)) {
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
+    urlToTest = `https://${trimmed}`;
+  }
+  try {
+    const parsed = new URL(urlToTest);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+    const host = parsed.hostname.toLowerCase();
+    const validHosts = ["t.me", "telegram.me", "telegram.org", "web.telegram.org"];
+    if (!validHosts.includes(host) && !host.endsWith(".telegram.org") && !host.endsWith(".t.me")) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const socialsSchema = z.object({
-  linkedin: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  github: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  twitter: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  portfolio: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  telegram: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  other: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  linkedin: z
+    .string()
+    .optional()
+    .refine(isValidLinkedIn, {
+      message: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/...)",
+    }),
+  github: z
+    .string()
+    .optional()
+    .refine(isValidGithub, {
+      message: "Please enter a valid GitHub profile URL (e.g. https://github.com/...)",
+    }),
+  twitter: z
+    .string()
+    .optional()
+    .refine(isValidTwitter, {
+      message: "Please enter a valid Twitter / X URL (e.g. https://x.com/...)",
+    }),
+  portfolio: z
+    .string()
+    .optional()
+    .refine(isValidWebUrl, {
+      message: "Please enter a valid portfolio URL",
+    }),
+  telegram: z
+    .string()
+    .optional()
+    .refine(isValidTelegram, {
+      message: "Please enter a valid Telegram link or username (@username)",
+    }),
+  other: z
+    .string()
+    .optional()
+    .refine(isValidWebUrl, {
+      message: "Please enter a valid website URL",
+    }),
 });
 
 const aiSettingsSchema = z.object({
@@ -871,11 +1001,27 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
   );
 }
 
+function formatSocialUrl(val?: string | null): string {
+  if (!val || !val.trim()) return "";
+  const trimmed = val.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
+function formatTelegramValue(val?: string | null): string {
+  if (!val || !val.trim()) return "";
+  const trimmed = val.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (trimmed.startsWith("t.me/")) return `https://${trimmed}`;
+  return trimmed;
+}
+
 function SocialLinksForm({ user, refetchProfile }: any) {
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof socialsSchema>>({
     resolver: zodResolver(socialsSchema),
+    mode: "onChange",
     defaultValues: {
       linkedin: user.linkedin || "",
       github: user.github || "",
@@ -888,14 +1034,22 @@ function SocialLinksForm({ user, refetchProfile }: any) {
   });
 
   const onSubmit = async (values: z.infer<typeof socialsSchema>) => {
+    const formattedValues = {
+      linkedin: formatSocialUrl(values.linkedin),
+      github: formatSocialUrl(values.github),
+      twitter: formatSocialUrl(values.twitter),
+      portfolio: formatSocialUrl(values.portfolio),
+      telegram: formatTelegramValue(values.telegram),
+      other: formatSocialUrl(values.other),
+    };
     const snapshotBefore = JSON.stringify(form.getValues());
     setIsSaving(true);
-    const result = await updateProfile(values);
+    const result = await updateProfile(formattedValues);
     setIsSaving(false);
     if (result.success) {
       refetchProfile();
       if (JSON.stringify(form.getValues()) === snapshotBefore) {
-        form.reset(values);
+        form.reset(formattedValues);
       }
     } else {
       toast.error(result.error || "Failed to update social links.");

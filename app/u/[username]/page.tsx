@@ -248,22 +248,50 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
               {/* Social Link strip */}
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 pt-1">
                 {user.linkedin && (
-                  <SocialLink href={user.linkedin} icon={Linkedin} label="LinkedIn" />
+                  <SocialLink
+                    href={user.linkedin.startsWith("http") ? user.linkedin : `https://${user.linkedin}`}
+                    icon={Linkedin}
+                    label="LinkedIn"
+                  />
                 )}
                 {user.github && (
-                  <SocialLink href={user.github} icon={Github} label="GitHub" />
+                  <SocialLink
+                    href={user.github.startsWith("http") ? user.github : `https://${user.github}`}
+                    icon={Github}
+                    label="GitHub"
+                  />
                 )}
                 {user.twitter && (
-                  <SocialLink href={user.twitter} icon={Twitter} label="Twitter" />
+                  <SocialLink
+                    href={user.twitter.startsWith("http") ? user.twitter : `https://${user.twitter}`}
+                    icon={Twitter}
+                    label="Twitter"
+                  />
                 )}
                 {user.portfolio && (
-                  <SocialLink href={user.portfolio} icon={LinkIcon} label="Portfolio" />
+                  <SocialLink
+                    href={user.portfolio.startsWith("http") ? user.portfolio : `https://${user.portfolio}`}
+                    icon={LinkIcon}
+                    label="Portfolio"
+                  />
                 )}
                 {user.telegram && (
-                  <SocialLink href={`https://t.me/${user.telegram.replace('@', '')}`} icon={Send} label="Telegram" />
+                  <SocialLink
+                    href={
+                      user.telegram.startsWith("http")
+                        ? user.telegram
+                        : `https://t.me/${user.telegram.replace(/^@/, "").replace(/^t\.me\//, "")}`
+                    }
+                    icon={Send}
+                    label="Telegram"
+                  />
                 )}
                 {user.other && (
-                  <SocialLink href={user.other} icon={LinkIcon} label="Other Links" />
+                  <SocialLink
+                    href={user.other.startsWith("http") ? user.other : `https://${user.other}`}
+                    icon={LinkIcon}
+                    label="Other Links"
+                  />
                 )}
               </div>
             </div>
