@@ -22,7 +22,7 @@ import { CareerJobListings } from "./CareerJobListings";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Careers & Engineering | Lazee.dev",
+  title: "Careers & Engineering",
   description:
     "Explore career opportunities at Lazee.dev. We build deterministic browser automation tooling for software engineers.",
 };

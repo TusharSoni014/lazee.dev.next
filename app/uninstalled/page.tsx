@@ -11,7 +11,7 @@ import { FeedbackForm } from "@/components/feedback-form";
 import { CHROME_EXTENSION_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "We Hope to See You Soon | Lazee.dev",
+  title: "We Hope to See You Soon",
   description:
     "We're sad to see you go. Why did you uninstall our extension? Sharing your valuable feedback might help us improve Lazee.dev.",
   robots: {
