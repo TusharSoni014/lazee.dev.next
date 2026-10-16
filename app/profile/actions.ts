@@ -16,12 +16,12 @@ export async function updateProfile(data: any) {
 
   const updateData: any = {};
 
-  if (data.firstName !== undefined) updateData.firstName = data.firstName;
-  if (data.middleName !== undefined) updateData.middleName = data.middleName;
-  if (data.lastName !== undefined) updateData.lastName = data.lastName;
+  if (data.firstName !== undefined) updateData.firstName = data.firstName ? data.firstName.trim() : null;
+  if (data.middleName !== undefined) updateData.middleName = data.middleName ? data.middleName.trim() : null;
+  if (data.lastName !== undefined) updateData.lastName = data.lastName ? data.lastName.trim() : null;
   if (data.resumeUrl !== undefined) updateData.resumeUrl = data.resumeUrl;
   if (data.countryCode !== undefined) updateData.countryCode = data.countryCode;
-  if (data.phoneNumber !== undefined) updateData.phoneNumber = data.phoneNumber;
+  if (data.phoneNumber !== undefined) updateData.phoneNumber = data.phoneNumber ? data.phoneNumber.trim() : null;
   if (data.country !== undefined) updateData.country = data.country;
   if (data.jobType !== undefined) updateData.jobType = data.jobType;
   if (data.linkedin !== undefined) updateData.linkedin = data.linkedin;
@@ -34,14 +34,14 @@ export async function updateProfile(data: any) {
   if (data.specificQuestionGuidance !== undefined) updateData.specificQuestionGuidance = data.specificQuestionGuidance;
   if (data.coverLetter !== undefined) updateData.coverLetter = data.coverLetter;
 
-  if (data.city !== undefined) updateData.city = data.city;
-  if (data.collegeName !== undefined) updateData.collegeName = data.collegeName;
+  if (data.city !== undefined) updateData.city = data.city ? data.city.trim() : null;
+  if (data.collegeName !== undefined) updateData.collegeName = data.collegeName ? data.collegeName.trim() : null;
   if (data.introVideo !== undefined) updateData.introVideo = data.introVideo;
 
   if (data.gender !== undefined) updateData.gender = data.gender;
   if (data.veteranStatus !== undefined) updateData.veteranStatus = data.veteranStatus;
   if (data.disabilityStatus !== undefined) updateData.disabilityStatus = data.disabilityStatus;
-  if (data.postalCode !== undefined) updateData.postalCode = data.postalCode;
+  if (data.postalCode !== undefined) updateData.postalCode = data.postalCode ? data.postalCode.trim() : null;
 
   if (data.noticePeriod !== undefined) {
     updateData.noticePeriod = data.noticePeriod ? parseInt(data.noticePeriod) : null;

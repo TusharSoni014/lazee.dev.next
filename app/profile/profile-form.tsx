@@ -156,21 +156,96 @@ const JOB_TYPES = [
 
 const CURRENCIES = ["USD", "INR", "EUR", "GBP", "CAD", "AUD"];
 
+function isValidPersonName(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  return /^[a-zA-Z\s'-]+$/.test(val.trim());
+}
+
+function isValidPhoneNumber(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  return /^\d{5,15}$/.test(val.trim());
+}
+
+function isValidCity(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  return /^[a-zA-Z\s'.-]+$/.test(val.trim());
+}
+
+function isValidCollegeName(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  return /^[a-zA-Z\s'&.,()'-]+$/.test(val.trim());
+}
+
+function isValidPostalCode(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  return /^\d{3,10}$/.test(val.trim());
+}
+
+function isValidEmail(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  const trimmed = val.trim();
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+  if (!emailRegex.test(trimmed)) return false;
+  const parts = trimmed.split("@");
+  if (parts.length !== 2) return false;
+  const domainParts = parts[1].split(".");
+  const tld = domainParts[domainParts.length - 1];
+  return tld.length >= 2 && /^[a-zA-Z]+$/.test(tld);
+}
+
 const personalSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  middleName: z.string().optional(),
-  lastName: z.string().min(1, "Last name is required"),
+  firstName: z
+    .string()
+    .min(1, "First name is required")
+    .refine(isValidPersonName, {
+      message: "First name can only contain letters, spaces, and hyphens",
+    }),
+  middleName: z
+    .string()
+    .optional()
+    .refine(isValidPersonName, {
+      message: "Middle name can only contain letters, spaces, and hyphens",
+    }),
+  lastName: z
+    .string()
+    .min(1, "Last name is required")
+    .refine(isValidPersonName, {
+      message: "Last name can only contain letters, spaces, and hyphens",
+    }),
   countryCode: z.string().min(1, "Country code is required"),
-  phoneNumber: z.string().min(1, "Phone number is required"),
+  phoneNumber: z
+    .string()
+    .min(1, "Phone number is required")
+    .refine(isValidPhoneNumber, {
+      message: "Phone number can only contain numbers (5-15 digits)",
+    }),
   country: z.string().min(1, "Country is required"),
-  city: z.string().min(1, "City is required"),
-  collegeName: z.string().optional(),
+  city: z
+    .string()
+    .min(1, "City is required")
+    .refine(isValidCity, {
+      message: "City can only contain letters, spaces, and hyphens",
+    }),
+  collegeName: z
+    .string()
+    .optional()
+    .refine(isValidCollegeName, {
+      message:
+        "College/University can only contain letters and standard characters (no numbers or special symbols)",
+    }),
   contactEmail: z
     .string()
-    .email("Must be a valid email")
     .optional()
-    .or(z.literal("")),
-  postalCode: z.string().optional(),
+    .refine(isValidEmail, {
+      message: "Must be a valid email address (e.g. name@example.com)",
+    }),
+  postalCode: z
+    .string()
+    .optional()
+    .refine(isValidPostalCode, {
+      message: "Postal code / ZIP can only contain numbers (e.g. 431001)",
+    }),
   genderSelect: z.string().optional(),
   genderCustom: z.string().optional(),
   veteranStatusSelect: z.string().optional(),
@@ -350,6 +425,7 @@ function PersonalInformationForm({
 
   const form = useForm<z.infer<typeof personalSchema>>({
     resolver: zodResolver(personalSchema),
+    mode: "onChange",
     defaultValues: getPersonalFormValues(user),
     shouldFocusError: false,
   });
@@ -357,17 +433,26 @@ function PersonalInformationForm({
   const onSubmit = async (values: z.infer<typeof personalSchema>) => {
     const snapshotBefore = JSON.stringify(form.getValues());
     setIsSaving(true);
+    const trimmedFirstName = values.firstName ? values.firstName.trim() : "";
+    const trimmedMiddleName = values.middleName ? values.middleName.trim() : null;
+    const trimmedLastName = values.lastName ? values.lastName.trim() : "";
+    const trimmedPhone = values.phoneNumber ? values.phoneNumber.trim() : "";
+    const trimmedCity = values.city ? values.city.trim() : "";
+    const trimmedCollege = values.collegeName ? values.collegeName.trim() : null;
+    const trimmedEmail = values.contactEmail ? values.contactEmail.trim() : null;
+    const trimmedPostal = values.postalCode ? values.postalCode.trim() : null;
+
     const payload = {
-      firstName: values.firstName,
-      middleName: values.middleName,
-      lastName: values.lastName,
+      firstName: trimmedFirstName,
+      middleName: trimmedMiddleName,
+      lastName: trimmedLastName,
       countryCode: values.countryCode,
-      phoneNumber: values.phoneNumber,
+      phoneNumber: trimmedPhone,
       country: values.country,
-      city: values.city,
-      collegeName: values.collegeName,
-      contactEmail: values.contactEmail,
-      postalCode: values.postalCode || null,
+      city: trimmedCity,
+      collegeName: trimmedCollege,
+      contactEmail: trimmedEmail,
+      postalCode: trimmedPostal,
       gender:
         values.genderSelect === "Other"
           ? values.genderCustom
