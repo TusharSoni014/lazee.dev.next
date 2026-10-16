@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useProfile, useProfileStatus } from "@/hooks/useProfile";
-import { useDebounceCallback } from "@/hooks/useDebounce";
 import { ResumeManager } from "./resume-manager";
 import { ResumeAutofillUpload } from "./resume-autofill-upload";
 import { updateProfile, updateExperiences, updateEducation } from "./actions";
@@ -404,7 +403,7 @@ function getPersonalFormValues(user: any) {
     country: initialCountry,
     city: user?.city || "",
     collegeName: user?.collegeName || "",
-    contactEmail: user?.contactEmail || user?.email || "",
+    contactEmail: user?.contactEmail || "",
     postalCode: user?.postalCode || "",
     genderSelect: initialGenderSelect,
     genderCustom: initialGenderCustom,
@@ -422,6 +421,7 @@ function PersonalInformationForm({
   countryOptions,
 }: any) {
   const [isSaving, setIsSaving] = useState(false);
+  const autofillVersion = useResumeStore((s: any) => s?.autofillVersion);
 
   const form = useForm<z.infer<typeof personalSchema>>({
     resolver: zodResolver(personalSchema),
@@ -474,41 +474,32 @@ function PersonalInformationForm({
       if (JSON.stringify(form.getValues()) === snapshotBefore) {
         form.reset(values);
       }
+      toast.success("Personal information updated successfully!");
     } else {
       toast.error(result.error || "Failed to update personal information.");
     }
   };
 
-  const debouncedSubmit = useDebounceCallback(() => {
-    form.handleSubmit(onSubmit)();
-  }, 1000);
-
-  const watchedValues = form.watch();
-  const hasMounted = useRef(false);
-
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return;
-    }
-    if (form.formState.isDirty && !isSaving) {
-      debouncedSubmit();
-    }
-  }, [watchedValues, form.formState.isDirty, debouncedSubmit, isSaving]);
-
+  // Normal: only reset when form is clean
   useEffect(() => {
     if (user && !form.formState.isDirty) {
       form.reset(getPersonalFormValues(user));
     }
   }, [user, form]);
 
+  // Autofill: force-reset regardless of dirty state so new values appear immediately
+  const lastResetVersion = useRef(0);
+  useEffect(() => {
+    if (autofillVersion > 0 && user && autofillVersion !== lastResetVersion.current) {
+      lastResetVersion.current = autofillVersion;
+      form.reset(getPersonalFormValues(user));
+    }
+  }, [autofillVersion, user, form]);
+
   return (
     <Section
       title="Personal Information"
       icon={IdCard}
-      hasAutoSave={true}
-      isSaving={isSaving}
-      isDirty={form.formState.isDirty}
     >
       <Form {...form}>
         <div className="space-y-6">
@@ -773,6 +764,27 @@ function PersonalInformationForm({
               </div>
             </div>
           </div>
+
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSaving}
+              className="h-10 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-3.5 w-3.5" />
+                  Save
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </Form>
     </Section>
@@ -795,6 +807,7 @@ function getProfessionalFormValues(user: any) {
 
 function ProfessionalDetailsForm({ user, refetchProfile }: any) {
   const [isSaving, setIsSaving] = useState(false);
+  const autofillVersion = useResumeStore((s: any) => s?.autofillVersion);
 
   const form = useForm<z.infer<typeof professionalSchema>>({
     resolver: zodResolver(professionalSchema) as any,
@@ -824,41 +837,32 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
             : "") as any,
         });
       }
+      toast.success("Professional details updated successfully!");
     } else {
       toast.error(result.error || "Failed to update professional details.");
     }
   };
 
-  const debouncedSubmit = useDebounceCallback(() => {
-    form.handleSubmit(onSubmit)();
-  }, 1000);
-
-  const watchedValues = form.watch();
-  const hasMounted = useRef(false);
-
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return;
-    }
-    if (form.formState.isDirty && !isSaving) {
-      debouncedSubmit();
-    }
-  }, [watchedValues, form.formState.isDirty, debouncedSubmit, isSaving]);
-
+  // Normal: only reset when form is clean
   useEffect(() => {
     if (user && !form.formState.isDirty) {
       form.reset(getProfessionalFormValues(user));
     }
   }, [user, form]);
 
+  // Autofill: force-reset regardless of dirty state so new values appear immediately
+  const lastResetVersion = useRef(0);
+  useEffect(() => {
+    if (autofillVersion > 0 && user && autofillVersion !== lastResetVersion.current) {
+      lastResetVersion.current = autofillVersion;
+      form.reset(getProfessionalFormValues(user));
+    }
+  }, [autofillVersion, user, form]);
+
   return (
     <Section
       title="Professional Details"
       icon={Briefcase}
-      hasAutoSave={true}
-      isSaving={isSaving}
-      isDirty={form.formState.isDirty}
     >
       <Form {...form}>
         <div className="space-y-6">
@@ -950,6 +954,27 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
               placeholder="30"
             />
           </div>
+
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSaving}
+              className="h-10 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-3.5 w-3.5" />
+                  Save
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </Form>
     </Section>
@@ -958,6 +983,7 @@ function ProfessionalDetailsForm({ user, refetchProfile }: any) {
 
 function SocialLinksForm({ user, refetchProfile }: any) {
   const [isSaving, setIsSaving] = useState(false);
+  const autofillVersion = useResumeStore((s: any) => s?.autofillVersion);
 
   const form = useForm<z.infer<typeof socialsSchema>>({
     resolver: zodResolver(socialsSchema),
@@ -982,28 +1008,13 @@ function SocialLinksForm({ user, refetchProfile }: any) {
       if (JSON.stringify(form.getValues()) === snapshotBefore) {
         form.reset(values);
       }
+      toast.success("Social links updated successfully!");
     } else {
       toast.error(result.error || "Failed to update social links.");
     }
   };
 
-  const debouncedSubmit = useDebounceCallback(() => {
-    form.handleSubmit(onSubmit)();
-  }, 1000);
-
-  const watchedValues = form.watch();
-  const hasMounted = useRef(false);
-
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return;
-    }
-    if (form.formState.isDirty && !isSaving) {
-      debouncedSubmit();
-    }
-  }, [watchedValues, form.formState.isDirty, debouncedSubmit, isSaving]);
-
+  // Normal: only reset when form is clean
   useEffect(() => {
     if (user && !form.formState.isDirty) {
       form.reset({
@@ -1017,13 +1028,26 @@ function SocialLinksForm({ user, refetchProfile }: any) {
     }
   }, [user, form]);
 
+  // Autofill: force-reset regardless of dirty state so new values appear immediately
+  const lastResetVersion = useRef(0);
+  useEffect(() => {
+    if (autofillVersion > 0 && user && autofillVersion !== lastResetVersion.current) {
+      lastResetVersion.current = autofillVersion;
+      form.reset({
+        linkedin: user.linkedin || "",
+        github: user.github || "",
+        twitter: user.twitter || "",
+        portfolio: user.portfolio || "",
+        telegram: user.telegram || "",
+        other: user.other || "",
+      });
+    }
+  }, [autofillVersion, user, form]);
+
   return (
     <Section
       title="Social Links"
       icon={Globe}
-      hasAutoSave={true}
-      isSaving={isSaving}
-      isDirty={form.formState.isDirty}
     >
       <Form {...form}>
         <div className="space-y-6">
@@ -1071,6 +1095,27 @@ function SocialLinksForm({ user, refetchProfile }: any) {
               icon={LinkIcon}
             />
           </div>
+
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSaving}
+              className="h-10 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-3.5 w-3.5" />
+                  Save
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </Form>
     </Section>
@@ -1098,27 +1143,11 @@ function AiSettingsForm({ user, refetchProfile }: any) {
       if (JSON.stringify(form.getValues()) === snapshotBefore) {
         form.reset(values);
       }
+      toast.success("AI settings updated successfully!");
     } else {
       toast.error(result.error || "Failed to update AI Settings.");
     }
   };
-
-  const debouncedSubmit = useDebounceCallback(() => {
-    form.handleSubmit(onSubmit)();
-  }, 1000);
-
-  const watchedValues = form.watch();
-  const hasMounted = useRef(false);
-
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return;
-    }
-    if (form.formState.isDirty && !isSaving) {
-      debouncedSubmit();
-    }
-  }, [watchedValues, form.formState.isDirty, debouncedSubmit, isSaving]);
 
   useEffect(() => {
     if (user && !form.formState.isDirty) {
@@ -1132,9 +1161,6 @@ function AiSettingsForm({ user, refetchProfile }: any) {
     <Section
       title="AI Settings"
       icon={Settings}
-      hasAutoSave={true}
-      isSaving={isSaving}
-      isDirty={form.formState.isDirty}
     >
       <Form {...form}>
         <div className="space-y-4">
@@ -1161,6 +1187,27 @@ function AiSettingsForm({ user, refetchProfile }: any) {
               </FormItem>
             )}
           />
+
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSaving}
+              className="h-10 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-3.5 w-3.5" />
+                  Save
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </Form>
     </Section>
@@ -1281,7 +1328,7 @@ function CoverLetterForm({ user, refetchProfile }: any) {
               ) : (
                 <>
                   <Save className="h-3.5 w-3.5" />
-                  {isMobile ? "Save" : "Save Cover Letter"}
+                  Save
                 </>
               )}
             </Button>
@@ -1656,17 +1703,11 @@ function Section({
   title,
   icon: Icon,
   children,
-  isSaving,
-  isDirty,
-  hasAutoSave = false,
   className,
 }: {
   title: string;
   icon: any;
   children: React.ReactNode;
-  isSaving?: boolean;
-  isDirty?: boolean;
-  hasAutoSave?: boolean;
   className?: string;
 }) {
   return (
@@ -1683,21 +1724,6 @@ function Section({
         <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
           {title}
         </h2>
-        {hasAutoSave && (
-          <div className="ml-auto flex items-center gap-2">
-            {isSaving ? (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 dark:text-zinc-500">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-orange-500" />
-                Saving...
-              </span>
-            ) : !isDirty ? (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                <Check className="w-3.5 h-3.5" />
-                Saved
-              </span>
-            ) : null}
-          </div>
-        )}
       </div>
       {children}
     </div>
@@ -1931,9 +1957,18 @@ function ExperienceSection({
                 </div>
               </div>
               {exp.description && (
-                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-3 whitespace-pre-wrap font-normal leading-relaxed break-words">
-                  {exp.description}
-                </p>
+                <ul className="mt-3 space-y-1.5 text-sm text-zinc-600 dark:text-zinc-400 font-normal leading-relaxed">
+                  {exp.description
+                    .split("\n")
+                    .map((line: string) => line.replace(/^[\u2022\u00b7\u25aa\u25ab*\-]+\s*/, "").trim())
+                    .filter(Boolean)
+                    .map((line: string, i: number) => (
+                      <li key={i} className="flex gap-2 items-start">
+                        <span className="mt-1.5 size-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500 shrink-0" />
+                        <span className="break-words">{line}</span>
+                      </li>
+                    ))}
+                </ul>
               )}
             </div>
           );
@@ -2624,7 +2659,7 @@ function EducationForm({ edu, onConfirm, onCancel, isLoading }: any) {
             ) : (
               <>
                 <Check className="size-3.5 mr-1" />
-                <span>{isMobile ? "Save" : "Save Education"}</span>
+                <span>Save</span>
               </>
             )}
           </Button>
@@ -2684,33 +2719,11 @@ function IntroVideoForm({ user, refetchProfile }: any) {
       if (JSON.stringify(form.getValues()) === snapshotBefore) {
         form.reset(values);
       }
+      toast.success("Intro video updated successfully!");
     } else {
       toast.error(result.error || "Failed to update intro video.");
     }
   };
-
-  const debouncedSubmit = useDebounceCallback(() => {
-    form.handleSubmit(onSubmit)();
-  }, 1000);
-
-  const watchedValues = form.watch();
-  const hasMounted = useRef(false);
-
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return;
-    }
-    if (form.formState.isDirty && form.formState.isValid && !isSaving) {
-      debouncedSubmit();
-    }
-  }, [
-    watchedValues,
-    form.formState.isDirty,
-    form.formState.isValid,
-    debouncedSubmit,
-    isSaving,
-  ]);
 
   useEffect(() => {
     if (user && !form.formState.isDirty) {
@@ -2733,9 +2746,6 @@ function IntroVideoForm({ user, refetchProfile }: any) {
     <Section
       title="Intro Video"
       icon={Video}
-      hasAutoSave={true}
-      isSaving={isSaving}
-      isDirty={form.formState.isDirty}
     >
       <Form {...form}>
         <div className="space-y-4">
@@ -2787,6 +2797,27 @@ function IntroVideoForm({ user, refetchProfile }: any) {
               </div>
             )
           )}
+
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={isSaving}
+              className="h-10 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-3.5 w-3.5" />
+                  Save
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </Form>
     </Section>
@@ -3068,7 +3099,7 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
             ) : (
               <>
                 <Check className="size-3.5 mr-1" />
-                <span>{isMobile ? "Save" : "Save Experience"}</span>
+                <span>Save</span>
               </>
             )}
           </Button>
@@ -3144,6 +3175,7 @@ function SkillsSection({
   skills: string[];
   refetchProfile: () => Promise<any>;
 }) {
+  const autofillVersion = useResumeStore((s: any) => s?.autofillVersion);
   const [selected, setSelected] = useState<Set<string>>(new Set(initialSkills));
   const [skillInput, setSkillInput] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -3152,7 +3184,7 @@ function SkillsSection({
 
   useEffect(() => {
     setSelected(new Set(initialSkills));
-  }, [initialSkills]);
+  }, [initialSkills, autofillVersion]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -3168,37 +3200,22 @@ function SkillsSection({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const debouncedSave = useDebounceCallback(async (skillsToSave: string[]) => {
+  const handleSave = async () => {
     setIsSaving(true);
     try {
-      const res = await updateProfile({ skills: skillsToSave });
+      const res = await updateProfile({ skills: Array.from(selected) });
       if (res.error) {
         toast.error(res.error);
       } else {
         await refetchProfile();
+        toast.success("Skills updated successfully!");
       }
     } catch {
       toast.error("Failed to save skills.");
     } finally {
       setIsSaving(false);
     }
-  }, 1000);
-
-  const hasMounted = useRef(false);
-
-  const isDirty =
-    selected.size !== initialSkills.length ||
-    Array.from(selected).some((skill) => !initialSkills.includes(skill));
-
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return;
-    }
-    if (isDirty && !isSaving) {
-      debouncedSave(Array.from(selected));
-    }
-  }, [selected, initialSkills, debouncedSave, isDirty, isSaving]);
+  };
 
   const addSkill = (skill: string) => {
     const trimmed = skill.trim();
@@ -3244,9 +3261,6 @@ function SkillsSection({
     <Section
       title="Technical Skills"
       icon={Code}
-      hasAutoSave={true}
-      isSaving={isSaving}
-      isDirty={isDirty}
       className={isDropdownOpen ? "z-20" : "z-10"}
     >
       <div className="space-y-4">
@@ -3329,6 +3343,27 @@ function SkillsSection({
         <p className="text-xs text-zinc-400 dark:text-zinc-500 font-normal">
           Select from suggestions or type and press Enter to add a custom skill.
         </p>
+
+        <div className="flex justify-end pt-2">
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="h-10 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-medium shadow-xs shadow-orange-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-3.5 w-3.5" />
+                Save
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </Section>
   );

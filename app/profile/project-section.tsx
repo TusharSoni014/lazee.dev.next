@@ -388,9 +388,18 @@ export function ProjectSection({ projects, setProjects, membership }: any) {
               )}
 
               {proj.description && (
-                <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 whitespace-pre-wrap font-sans break-words leading-relaxed">
-                  {proj.description}
-                </p>
+                <ul className="space-y-1.5 text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 font-sans leading-relaxed">
+                  {proj.description
+                    .split("\n")
+                    .map((line: string) => line.replace(/^[\u2022\u00b7\u25aa\u25ab*\-]+\s*/, "").trim())
+                    .filter(Boolean)
+                    .map((line: string, i: number) => (
+                      <li key={i} className="flex gap-2 items-start">
+                        <span className="mt-1.5 size-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500 shrink-0" />
+                        <span className="break-words">{line}</span>
+                      </li>
+                    ))}
+                </ul>
               )}
 
               {proj.screenshots && proj.screenshots.length > 0 && (
@@ -1573,7 +1582,7 @@ function ProjectForm({
               className="w-full sm:w-auto h-9 px-5 text-xs gap-1.5"
             >
               <Check className="size-3.5" />
-              <span>{isMobile ? "Save" : "Save Project"}</span>
+              <span>Save</span>
             </Button>
           </div>
         </form>

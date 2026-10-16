@@ -68,9 +68,10 @@ export function UsernameManager({
   const ModalDescription = isMobile ? SheetDescription : DialogDescription;
   const ModalFooter = isMobile ? SheetFooter : DialogFooter;
 
+  const initialEmail = contactEmail || (currentEmail && !currentEmail.endsWith("@lazee.dev") && !currentEmail.endsWith("@example.com") ? currentEmail : "");
   const [isOpen, setIsOpen] = useState(false);
   const [username, setUsername] = useState(currentUsername || "");
-  const [email, setEmail] = useState(contactEmail || currentEmail || "");
+  const [email, setEmail] = useState(initialEmail);
   const [emailError, setEmailError] = useState("");
   const isInitialized = useResumeStore((state) => state.isInitialized);
   const storeResumes = useResumeStore((state) => state.resumes);
@@ -91,7 +92,7 @@ export function UsernameManager({
 
   const handleOpen = () => {
     setUsername(currentUsername || "");
-    setEmail(contactEmail || currentEmail || "");
+    setEmail(initialEmail);
     setEmailError("");
     const primary = activeResumes.find((r) => r.isPrimary) || activeResumes[0];
     setSelectedResumeId(primary?.id || "");
@@ -537,7 +538,7 @@ export function UsernameManager({
                     <span>Saving...</span>
                   </>
                 ) : (
-                  <span>Save Settings</span>
+                  <span>Save</span>
                 )}
               </Button>
             </div>
