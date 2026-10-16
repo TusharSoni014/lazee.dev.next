@@ -474,7 +474,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                           )}
                           {exp.companyWebsite && (
                             <a 
-                              href={exp.companyWebsite} 
+                              href={
+                                exp.companyWebsite.startsWith("http")
+                                  ? exp.companyWebsite
+                                  : `https://${exp.companyWebsite}`
+                              } 
                               target="_blank" 
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400 hover:underline"

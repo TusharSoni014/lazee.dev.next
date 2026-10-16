@@ -158,7 +158,7 @@ export async function updateExperiences(experiences: any[]) {
             companyName: exp.companyName,
             role: exp.role || null,
             location: exp.location || null,
-            companyWebsite: exp.companyWebsite || null,
+            companyWebsite: exp.companyWebsite ? exp.companyWebsite.trim() : null,
             startDate: exp.startDate ? new Date(exp.startDate) : null,
             endDate: exp.endDate ? new Date(exp.endDate) : null,
             isCurrent: Boolean(exp.isCurrent),

@@ -1871,7 +1871,11 @@ function ExperienceSection({
                   )}
                   {exp.companyWebsite && (
                     <a
-                      href={exp.companyWebsite}
+                      href={
+                        exp.companyWebsite.startsWith("http")
+                          ? exp.companyWebsite
+                          : `https://${exp.companyWebsite}`
+                      }
                       target="_blank"
                       rel="noreferrer"
                       className="text-xs text-orange-600 dark:text-orange-400 hover:underline font-medium block w-fit break-all"
@@ -2793,6 +2797,34 @@ function IntroVideoForm({ user, refetchProfile }: any) {
   );
 }
 
+function isValidWebUrl(val?: string | null): boolean {
+  if (!val || !val.trim()) return true;
+  const trimmed = val.trim();
+  let urlToTest = trimmed;
+  if (!/^https?:\/\//i.test(trimmed)) {
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return false;
+    urlToTest = `https://${trimmed}`;
+  }
+  try {
+    const parsed = new URL(urlToTest);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+    if (!parsed.hostname || !parsed.hostname.includes(".")) return false;
+    const parts = parsed.hostname.split(".");
+    const tld = parts[parts.length - 1];
+    if (!tld || tld.length < 2 || !/^[a-zA-Z]+$/.test(tld)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function formatUrl(val?: string | null): string {
+  if (!val || !val.trim()) return "";
+  const trimmed = val.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
 const experienceSchema = z.object({
   id: z.string().optional(),
   companyName: z.string().min(1, "Company name is required"),
@@ -2800,9 +2832,10 @@ const experienceSchema = z.object({
   location: z.string().optional(),
   companyWebsite: z
     .string()
-    .url("Must be a valid URL")
     .optional()
-    .or(z.literal("")),
+    .refine(isValidWebUrl, {
+      message: "Please enter a valid website URL (e.g. https://company.com)",
+    }),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   isCurrent: z.boolean(),
@@ -2814,6 +2847,7 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
   const isMobile = width < 768;
   const form = useForm<z.infer<typeof experienceSchema>>({
     resolver: zodResolver(experienceSchema),
+    mode: "onChange",
     defaultValues: {
       id: exp.id,
       companyName: exp.companyName || "",
@@ -2828,7 +2862,12 @@ function ExperienceForm({ exp, onConfirm, onCancel, isLoading }: any) {
   });
 
   const onSubmit = (values: z.infer<typeof experienceSchema>) => {
-    onConfirm(values);
+    onConfirm({
+      ...values,
+      companyWebsite: values.companyWebsite
+        ? formatUrl(values.companyWebsite)
+        : null,
+    });
   };
 
   return (
